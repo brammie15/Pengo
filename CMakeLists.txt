@@ -133,6 +133,10 @@ if (WIN32)
 
   find_package(VLD CONFIG)
 
+if(NOT VLD_FOUND)
+    message("VLD NOT FOUND!")
+endif()
+
   # set all include directories
   target_include_directories(${TARGET_NAME} PRIVATE
           ${VLD_INCLUDE_DIR}

@@ -3,9 +3,9 @@ name: CMake
 on:
   workflow_dispatch:
   push:
-    branches: [ "feature/cmake" ]
+    branches: ['**']
   pull_request:
-    branches: [ "feature/cmake" ]
+    branches: ['**']
 
 jobs:
   build:
