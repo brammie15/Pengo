@@ -8,24 +8,30 @@
 #include "Component.h"
 #include "Font.h"
 #include "Texture2D.h"
+#include <memory>
 
 namespace dae {
-    class TextComponent: public Component {
+    class TextComponent final: public Component {
     public:
-        TextComponent(GameObject* parent, std::string text, Font* font);
+        TextComponent(GameObject* parent, std::string text, std::shared_ptr<Font> font);
 
         void Render() override;
         void Update() override;
         void SetText(const std::string& newText);
 
-        ~TextComponent() = default;
+        TextComponent(const TextComponent& other) = delete;
+        TextComponent(TextComponent&& other) noexcept = delete;
+        TextComponent& operator=(const TextComponent& other) = delete;
+        TextComponent& operator=(TextComponent&& other) noexcept = delete;
+
+        ~TextComponent() override = default;
+
     private:
+        bool m_isDirty{true};
 
-        bool m_isDirty{ true };
-
-        SDL_Color m_Color{ 255, 255, 255, 255 };
+        SDL_Color m_Color{255, 255, 255, 255};
         std::string m_Text{};
-        Font* m_Font;
+        std::shared_ptr<Font> m_Font;
         std::shared_ptr<Texture2D> m_TextTexture{};
     };
 }

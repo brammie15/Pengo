@@ -1,7 +1,7 @@
 #pragma once
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 #include "Singleton.h"
 
 namespace dae {
@@ -16,6 +16,15 @@ namespace dae {
         void LateUpdate();
 
         void Render();
+
+        void HandleGameObjectDestroy();
+        void DestroyGameObjects();
+        void UnloadAllScenes();
+        void HandleSceneDestroy();
+
+        void HandleScene();
+
+        void Destroy();
 
     private:
         friend class Singleton<SceneManager>;

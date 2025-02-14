@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <memory>
 #include <vector>
 
@@ -11,29 +10,29 @@ namespace dae {
     class Scene;
     class Texture2D;
 
-    class GameObject {
+    class GameObject final: public Object {
     public:
         friend class SceneManager;
         friend class Scene;
 
-        virtual void Update();
-        virtual void LateUpdate();
-        virtual void FixedUpdate();
+        void Update();
+        void LateUpdate();
+        void FixedUpdate();
 
-        virtual void Render() const;
+        void Render() const;
+
+        void Destroy() override;
+
+        void CleanupComponents();
 
         [[nodiscard]] Transform& GetTransform() { return m_TransformPtr; };
 
         GameObject() = default;
-
-        virtual ~GameObject();
+        ~GameObject() override;
 
         GameObject(const GameObject& other) = delete;
-
         GameObject(GameObject&& other) = delete;
-
         GameObject& operator=(const GameObject& other) = delete;
-
         GameObject& operator=(GameObject&& other) = delete;
 
         template <typename Component, typename... Args>
@@ -45,13 +44,34 @@ namespace dae {
         }
 
         template <typename Component>
-        Component* GetComponent() {
+        Component *GetComponent() {
             for (const auto& component: m_Components) {
                 if (auto casted = dynamic_cast<Component*>(component.get())) {
                     return casted;
                 }
             }
             return nullptr;
+        }
+
+        template <typename Component>
+        Component *DestroyComponent() {
+            for (const auto& component: m_Components) {
+                if (auto casted = dynamic_cast<Component*>(component.get())) {
+                    casted->Destroy();
+                    return casted;
+                }
+            }
+            return nullptr;
+        }
+
+       template <typename Component>
+       bool HasComponent() {
+            for (const auto& component: m_Components) {
+                if (auto casted = dynamic_cast<Component*>(component.get())) {
+                    return true;
+                }
+            }
+            return false;
         }
 
     private:

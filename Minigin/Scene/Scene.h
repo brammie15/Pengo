@@ -9,7 +9,7 @@ namespace dae
 		friend Scene& SceneManager::CreateScene(const std::string& name);
 	public:
 		void Add(std::shared_ptr<GameObject> object);
-		void Remove(std::shared_ptr<GameObject> object);
+		void Remove(const std::shared_ptr<GameObject>& object);
 		void RemoveAll();
 
 		void Update();
@@ -17,6 +17,11 @@ namespace dae
 		void LateUpdate();
 		void Render() const;
 
+		void CleanupDestroyedGameObjects();
+		void Unload();
+		void DestroyGameObjects();
+
+		[[nodiscard]] bool IsBeingUnloaded() const { return m_BeingUnloaded; }
 		~Scene();
 		Scene(const Scene& other) = delete;
 		Scene(Scene&& other) = delete;
@@ -28,6 +33,7 @@ namespace dae
 
 		std::string m_name;
 		std::vector <std::shared_ptr<GameObject>> m_objects{};
+		bool m_BeingUnloaded{ false };
 
 		static unsigned int m_idCounter; 
 	};

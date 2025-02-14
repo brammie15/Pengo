@@ -5,10 +5,10 @@
 namespace dae {
     class Object {
     public:
-        Object(const Object &other) = delete;
-        Object(Object &&other) noexcept = delete;
-        Object & operator=(const Object &other) = delete;
-        Object & operator=(Object &&other) noexcept = delete;
+        Object(const Object& other) = delete;
+        Object(Object&& other) noexcept = delete;
+        Object& operator=(const Object& other) = delete;
+        Object& operator=(Object&& other) noexcept = delete;
 
         [[nodiscard]] const std::string& GetName() const { return m_Name; }
 
@@ -22,9 +22,8 @@ namespace dae {
         explicit Object(std::string name = "Object");
 
     private:
-        bool m_BeingDestroyed{ false };
+        bool m_BeingDestroyed{false};
         std::string m_Name{};
-
     };
 } // dae
 

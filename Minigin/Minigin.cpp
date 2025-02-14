@@ -20,12 +20,12 @@
 #include "ResourceManager.h"
 #include "Timer.h"
 
-SDL_Window *g_window{};
+SDL_Window* g_window{};
 
-void LogSDLVersion(const std::string &message, const SDL_version &v) {
+void LogSDLVersion(const std::string& message, const SDL_version& v) {
 #if WIN32
     std::stringstream ss;
-    ss << message << (int) v.major << "." << (int) v.minor << "." << (int) v.patch << "\n";
+    ss << message << (int)v.major << "." << (int)v.minor << "." << (int)v.patch << "\n";
     OutputDebugString(ss.str().c_str());
 #else
 	std::cout << message << (int)v.major << "." << (int)v.minor << "." << (int)v.patch << "\n";
@@ -65,8 +65,15 @@ void PrintSDLVersion() {
     LogSDLVersion("We linked against SDL_ttf version ", version);
 }
 
-dae::Minigin::Minigin(const std::filesystem::path &dataPath) {
+dae::Minigin::Minigin(const std::filesystem::path& dataPath) {
     PrintSDLVersion();
+
+    //Thanks Stackoverflow
+    if (AllocConsole() == TRUE) {
+        FILE* empty{};
+        freopen_s(&empty, "CONOUT$", "w", stdout);
+        freopen_s(&empty, "CONOUT$", "w", stderr);
+    }
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
@@ -89,13 +96,14 @@ dae::Minigin::Minigin(const std::filesystem::path &dataPath) {
 }
 
 dae::Minigin::~Minigin() {
+    SceneManager::GetInstance().Destroy();
     Renderer::GetInstance().Destroy();
     SDL_DestroyWindow(g_window);
     g_window = nullptr;
     SDL_Quit();
 }
 
-void dae::Minigin::Run(const std::function<void()> &load) {
+void dae::Minigin::Run(const std::function<void()>& load) {
     load();
 #ifndef __EMSCRIPTEN__
     while (!m_quit)
@@ -106,7 +114,7 @@ void dae::Minigin::Run(const std::function<void()> &load) {
 }
 
 void dae::Minigin::RunOneFrame() {
-    auto& Time{ Time::GetInstance() };
+    auto& Time{Time::GetInstance()};
     Time.Update();
 
     m_quit = !InputManager::GetInstance().ProcessInput();
@@ -120,6 +128,8 @@ void dae::Minigin::RunOneFrame() {
 
     SceneManager::GetInstance().Update();
     Renderer::GetInstance().Render();
+
+    SceneManager::GetInstance().HandleScene();
 
     std::this_thread::sleep_for(Time.SleepDuration());
 }

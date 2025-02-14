@@ -131,7 +131,7 @@ if (WIN32)
     endif()
   endif()
 
-  find_package(VLD CONFIG)
+find_package(VLD CONFIG)
 
 if(NOT VLD_FOUND)
     message("VLD NOT FOUND!")

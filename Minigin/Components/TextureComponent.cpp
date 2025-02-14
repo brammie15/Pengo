@@ -15,7 +15,7 @@ void dae::TextureComponent::Update() {
 }
 
 void dae::TextureComponent::Render() {
-    glm::vec3 renderPos = this->GetTransform().GetPosition();
+    const glm::vec3 renderPos = this->GetTransform().GetPosition();
     Renderer::GetInstance().RenderTexture(
         *m_texture,
         renderPos.x,

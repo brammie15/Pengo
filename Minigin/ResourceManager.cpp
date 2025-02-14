@@ -1,14 +1,12 @@
-﻿#include <stdexcept>
-#include <SDL_image.h>
+﻿#include "ResourceManager.h"
 #include <SDL_ttf.h>
-#include "ResourceManager.h"
-#include "Renderer.h"
-#include "Texture2D.h"
+#include <stdexcept>
 #include "Font.h"
+#include "Texture2D.h"
 
 namespace fs = std::filesystem;
 
-void dae::ResourceManager::Init(const std::filesystem::path &dataPath) {
+void dae::ResourceManager::Init(const std::filesystem::path& dataPath) {
     m_dataPath = dataPath;
 
     if (TTF_Init() != 0) {
@@ -16,7 +14,7 @@ void dae::ResourceManager::Init(const std::filesystem::path &dataPath) {
     }
 }
 
-std::shared_ptr<dae::Texture2D> dae::ResourceManager::LoadTexture(const std::string &file) {
+std::shared_ptr<dae::Texture2D> dae::ResourceManager::LoadTexture(const std::string& file) {
     const auto fullPath = m_dataPath / file;
     const auto filename = fs::path(fullPath).filename().string();
     if (m_loadedTextures.find(filename) == m_loadedTextures.end())
@@ -24,7 +22,7 @@ std::shared_ptr<dae::Texture2D> dae::ResourceManager::LoadTexture(const std::str
     return m_loadedTextures.at(filename);
 }
 
-std::shared_ptr<dae::Font> dae::ResourceManager::LoadFont(const std::string &file, uint8_t size) {
+std::shared_ptr<dae::Font> dae::ResourceManager::LoadFont(const std::string& file, uint8_t size) {
     const auto fullPath = m_dataPath / file;
     const auto filename = fs::path(fullPath).filename().string();
     const auto key = std::pair<std::string, uint8_t>(filename, size);

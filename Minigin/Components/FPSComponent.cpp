@@ -14,7 +14,6 @@ void dae::FPSComponent::Update() {
 }
 
 void dae::FPSComponent::Render() {
-
 }
 
 void dae::FPSComponent::SetTargetTextComponent(TextComponent* component) {

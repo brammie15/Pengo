@@ -12,23 +12,19 @@ namespace dae {
     public:
         [[nodiscard]] SDL_Texture *GetSDLTexture() const;
 
-        explicit Texture2D(SDL_Texture *texture);
-
-        explicit Texture2D(const std::string &fullPath);
+        explicit Texture2D(SDL_Texture* texture);
+        explicit Texture2D(const std::string& fullPath);
 
         ~Texture2D();
 
         [[nodiscard]] glm::ivec2 GetSize() const;
 
-        Texture2D(const Texture2D &) = delete;
-
-        Texture2D(Texture2D &&) = delete;
-
-        Texture2D &operator=(const Texture2D &) = delete;
-
-        Texture2D &operator=(const Texture2D &&) = delete;
+        Texture2D(const Texture2D&) = delete;
+        Texture2D(Texture2D&&) = delete;
+        Texture2D& operator=(const Texture2D&) = delete;
+        Texture2D& operator=(const Texture2D&&) = delete;
 
     private:
-        SDL_Texture *m_texture;
+        SDL_Texture* m_texture;
     };
 }

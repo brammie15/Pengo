@@ -3,13 +3,12 @@
 #include <functional>
 #include <filesystem>
 
-namespace dae
-{
-	class Minigin final
-	{
+namespace dae {
+	class Minigin final {
 	private:
 		double m_AccumulatedTime{};
 		bool m_quit{};
+
 	public:
 		explicit Minigin(const std::filesystem::path& dataPath);
 		~Minigin();

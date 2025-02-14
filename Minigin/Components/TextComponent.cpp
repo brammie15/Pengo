@@ -13,8 +13,8 @@
 #include "Transform.h"
 
 namespace dae {
-    TextComponent::TextComponent(GameObject* parent, std::string text, Font* font): Component(parent, text),
-        m_Font(font), m_Text(text) {
+    TextComponent::TextComponent(GameObject* parent, std::string text, std::shared_ptr<Font> font): Component(parent, text),
+        m_Font(std::move(font)), m_Text(text) {
     }
 
     void TextComponent::Render() {
@@ -53,5 +53,4 @@ namespace dae {
         m_Text = newText;
         m_isDirty = true;
     }
-
 } // dae

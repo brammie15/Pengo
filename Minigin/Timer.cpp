@@ -9,7 +9,7 @@ double dae::Time::DeltaTime() const {
 }
 
 std::chrono::nanoseconds dae::Time::SleepDuration() const {
-    constexpr  auto msPerFrame = std::chrono::milliseconds(static_cast<int>(1000.f / FPS));
+    constexpr auto msPerFrame = std::chrono::milliseconds(static_cast<int>(1000.f / FPS));
     std::chrono::nanoseconds sleepTime = (m_PrevTime + msPerFrame - std::chrono::high_resolution_clock::now());
 
     return sleepTime;
@@ -20,4 +20,3 @@ void dae::Time::Update() {
     m_DeltaTime = std::chrono::duration<double>(currentTime - m_PrevTime).count();
     m_PrevTime = currentTime;
 }
-

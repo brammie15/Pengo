@@ -7,19 +7,18 @@ namespace dae {
     class GameObject;
     class Transform;
 
-    class Component : public Object {
-
+    class Component: public Object {
     public:
-        explicit Component(GameObject *pParent = nullptr, const std::string &name = "Component");
+        explicit Component(GameObject* pParent = nullptr, const std::string& name = "Component");
 
         ~Component() override = default;
 
-        Component(const Component &other) = delete;
-        Component(Component &&other) noexcept = delete;
-        Component &operator=(const Component &other) = delete;
-        Component &operator=(Component &&other) noexcept = delete;
+        Component(const Component& other) = delete;
+        Component(Component&& other) noexcept = delete;
+        Component& operator=(const Component& other) = delete;
+        Component& operator=(Component&& other) noexcept = delete;
 
-        [[nodiscard]] GameObject *GetGameObject() const { return  m_ParentGameObjectPtr; }
+        [[nodiscard]] GameObject *GetGameObject() const { return m_ParentGameObjectPtr; }
         [[nodiscard]] Transform& GetTransform() const;
         [[nodiscard]] bool isEnabled() const { return m_IsEnabled; }
 
@@ -33,7 +32,7 @@ namespace dae {
 
     private:
         GameObject* m_ParentGameObjectPtr{};
-        bool m_IsEnabled{ true };
+        bool m_IsEnabled{true};
     };
 } // dae
 

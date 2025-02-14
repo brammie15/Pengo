@@ -16,7 +16,6 @@ namespace dae {
         TextureComponent& operator=(TextureComponent&& other) noexcept = delete;
 
         void Update() override;
-
         void Render() override;
 
     private:
