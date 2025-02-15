@@ -47,7 +47,7 @@ void dae::GameObject::Destroy() {
 void dae::GameObject::CleanupComponents() {
     //Strange for loop since im deleting during looping over it
     for (auto it = m_Components.begin(); it != m_Components.end();) {
-        if ((*it)->isBeingDestroyed()) {
+        if ((*it)->IsBeingDestroyed()) {
             it = m_Components.erase(it);
         } else {
             ++it;

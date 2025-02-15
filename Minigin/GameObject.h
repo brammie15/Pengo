@@ -25,6 +25,8 @@ namespace dae {
 
         void CleanupComponents();
 
+        std::vector<std::unique_ptr<Component>>& GetComponents() { return m_Components; }
+
         [[nodiscard]] Transform& GetTransform() { return m_TransformPtr; };
 
         GameObject() = default;

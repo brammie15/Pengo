@@ -67,11 +67,46 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(glm)
 if(NOT glm_POPULATED)
-  FetchContent_Populate(glm)
+  FetchContent_MakeAvailable(glm)
 endif()
 
 # add SDL2
 if (WIN32)
+  FetchContent_Declare(
+          imgui
+          GIT_REPOSITORY https://github.com/ocornut/imgui.git
+          GIT_TAG docking # Use the 'docking' branch
+  )
+
+  # Fetch and make ImGui available
+  FetchContent_MakeAvailable(imgui)
+
+  # Add the ImGui sources to your project
+  add_library(imgui STATIC
+          ${imgui_SOURCE_DIR}/imgui.cpp
+          ${imgui_SOURCE_DIR}/imgui.h
+          ${imgui_SOURCE_DIR}/imconfig.h
+          ${imgui_SOURCE_DIR}/imgui_demo.cpp
+          ${imgui_SOURCE_DIR}/imgui_draw.cpp
+          ${imgui_SOURCE_DIR}/imgui_internal.h
+          ${imgui_SOURCE_DIR}/imgui_tables.cpp
+          ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+          ${imgui_SOURCE_DIR}/imstb_rectpack.h
+          ${imgui_SOURCE_DIR}/imstb_textedit.h
+          ${imgui_SOURCE_DIR}/imstb_truetype.h
+          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
+#          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+#          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
+  )
+
+
+
+  target_sources(imgui PUBLIC
+          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+  )
+
   FetchContent_Declare(
           SDL2
           URL https://www.libsdl.org/release/SDL2-devel-2.30.10-VC.zip
@@ -80,7 +115,7 @@ if (WIN32)
   )
   FetchContent_GetProperties(SDL2)
   if(NOT SDL2_POPULATED)
-    FetchContent_Populate(SDL2)
+    FetchContent_MakeAvailable(SDL2)
     set(SDL2_INCLUDE_DIR ${sdl2_SOURCE_DIR}/include)
     if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
       set(SDL2_LIBRARIES "${sdl2_SOURCE_DIR}/lib/x64/SDL2.lib;${sdl2_SOURCE_DIR}/lib/x64/SDL2main.lib")
@@ -100,7 +135,7 @@ if (WIN32)
   )
   FetchContent_GetProperties(SDL2_image)
   if(NOT SDL2_image_POPULATED)
-    FetchContent_Populate(SDL2_image)
+    FetchContent_MakeAvailable(SDL2_image)
     set(SDL2_IMAGE_INCLUDE_DIR ${sdl2_image_SOURCE_DIR}/include)
     if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
       set(SDL2_IMAGE_LIBRARIES "${sdl2_image_SOURCE_DIR}/lib/x64/SDL2_image.lib")
@@ -120,7 +155,7 @@ if (WIN32)
   )
   FetchContent_GetProperties(SDL2_ttf)
   if(NOT sdl2_ttf_POPULATED)
-    FetchContent_Populate(SDL2_ttf)
+    FetchContent_MakeAvailable(SDL2_ttf)
     set(SDL2_TTF_INCLUDE_DIR ${sdl2_ttf_SOURCE_DIR}/include)
     if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
       set(SDL2_TTF_LIBRARIES ${sdl2_ttf_SOURCE_DIR}/lib/x64/SDL2_ttf.lib)
@@ -131,18 +166,29 @@ if (WIN32)
     endif()
   endif()
 
+  target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${SDL2_INCLUDE_DIR})
+  target_link_libraries(imgui PUBLIC
+          ${SDL2_LIBRARIES}
+  )
+
 find_package(VLD CONFIG)
 
 if(NOT VLD_FOUND)
     message("VLD NOT FOUND!")
 endif()
 
+
   # set all include directories
   target_include_directories(${TARGET_NAME} PRIVATE
           ${VLD_INCLUDE_DIR}
           ${SDL2_INCLUDE_DIR}
           ${SDL2_IMAGE_INCLUDE_DIR}
-          ${SDL2_TTF_INCLUDE_DIR})
+          ${SDL2_TTF_INCLUDE_DIR}
+          ${imgui_SOURCE_DIR}
+          ${imgui_SOURCE_DIR}/backends
+  )
+
+  message(${imgui_SOURCE_DIR})
 
   # set libraries to link with
   target_link_libraries(${TARGET_NAME} PUBLIC
@@ -150,6 +196,7 @@ endif()
           ${SDL2_IMAGE_LIBRARIES}
           ${SDL2_TTF_LIBRARIES}
           ${VLD_LIBRARY}
+          imgui
   )
 
 elseif(NOT EMSCRIPTEN)
@@ -191,12 +238,16 @@ elseif(NOT EMSCRIPTEN)
   target_link_libraries("${TARGET_NAME}" PUBLIC
           SDL2::SDL2main SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf
   )
+
+
+
 endif()
 
 target_include_directories(${TARGET_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/Minigin/
         ${glm_SOURCE_DIR}
 )
+
 
 # compile at max warning level + treat warnings as errors
 target_compile_options(${TARGET_NAME} PRIVATE

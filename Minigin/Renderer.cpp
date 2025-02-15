@@ -22,6 +22,17 @@ void dae::Renderer::Init(SDL_Window* window) {
     if (m_renderer == nullptr) {
         throw std::runtime_error(std::string("SDL_CreateRenderer Error: ") + SDL_GetError());
     }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    ImGui::StyleColorsDark();
+    ImGui_ImplSDL2_InitForOpenGL(window, SDL_GL_GetCurrentContext());
+    ImGui_ImplOpenGL3_Init();
 }
 
 void dae::Renderer::Render() const {
@@ -31,11 +42,37 @@ void dae::Renderer::Render() const {
 
     SceneManager::GetInstance().Render();
 
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    // hint: something should come here :)
+    SceneManager::GetInstance().RenderImgui();
+    // ImGui::ShowDemoWindow();
+
+    ImGui::Render();
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     SDL_RenderPresent(m_renderer);
+
+
 }
 
 void dae::Renderer::Destroy() {
-    if (m_renderer != nullptr) {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    if (m_renderer != nullptr)
+    {
         SDL_DestroyRenderer(m_renderer);
         m_renderer = nullptr;
     }

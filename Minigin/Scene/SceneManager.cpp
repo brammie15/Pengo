@@ -25,6 +25,12 @@ void dae::SceneManager::Render() {
     }
 }
 
+void dae::SceneManager::RenderImgui() {
+    for (const auto & scene : m_scenes) {
+        scene->RenderImgui();
+    }
+}
+
 void dae::SceneManager::HandleGameObjectDestroy() {
     for (auto& scene : m_scenes) {
         scene->CleanupDestroyedGameObjects();

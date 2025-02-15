@@ -31,8 +31,8 @@ namespace dae {
 
         SDL_Color m_Color{255, 255, 255, 255};
         std::string m_Text{};
-        std::shared_ptr<Font> m_Font;
         std::shared_ptr<Texture2D> m_TextTexture{};
+        std::shared_ptr<Font> m_Font;
     };
 }
 #endif //TEXTCOMPONENT_H

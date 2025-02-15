@@ -16,6 +16,7 @@ namespace dae {
         void LateUpdate();
 
         void Render();
+        void RenderImgui();
 
         void HandleGameObjectDestroy();
         void DestroyGameObjects();

@@ -12,7 +12,9 @@ namespace dae {
 
         [[nodiscard]] const std::string& GetName() const { return m_Name; }
 
-        [[nodiscard]] bool isBeingDestroyed() const { return m_BeingDestroyed; }
+        [[nodiscard]] bool IsBeingDestroyed() const { return m_BeingDestroyed; }
+
+        void SetName(const std::string& newName){ m_Name = newName; }
 
         virtual ~Object();
 
