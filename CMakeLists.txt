@@ -17,38 +17,39 @@ endif()
 add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Font.cpp
         Minigin/Font.h
-        Minigin/GameObject.cpp
-        Minigin/GameObject.h
-        Minigin/InputManager.cpp
-        Minigin/InputManager.h
+        Minigin/ObjectModel/GameObject.cpp
+        Minigin/ObjectModel/GameObject.h
+        Minigin/Managers/InputManager.cpp
+        Minigin/Managers/InputManager.h
         Minigin/Main.cpp
         Minigin/Minigin.cpp
         Minigin/Minigin.h
-        Minigin/Renderer.cpp
-        Minigin/Renderer.h
-        Minigin/ResourceManager.cpp
-        Minigin/ResourceManager.h
+        Minigin/Managers/Renderer.cpp
+        Minigin/Managers/Renderer.h
+        Minigin/Managers/ResourceManager.cpp
+        Minigin/Managers/ResourceManager.h
         Minigin/Scene/Scene.cpp
         Minigin/Scene/Scene.h
         Minigin/Scene/SceneManager.cpp
         Minigin/Scene/SceneManager.h
         Minigin/Texture2D.cpp
         Minigin/Texture2D.h
-        Minigin/Transform.cpp
-        Minigin/Transform.h
+        Minigin/ObjectModel/Transform.cpp
+        Minigin/ObjectModel/Transform.h
         Minigin/Timer.cpp
         Minigin/Timer.h
-        Minigin/Object.cpp
-        Minigin/Object.h
-        Minigin/Component.cpp
-        Minigin/Component.h
-        Minigin/unused.h
+        Minigin/ObjectModel/Object.cpp
+        Minigin/ObjectModel/Object.h
+        Minigin/ObjectModel/Component.cpp
+        Minigin/ObjectModel/Component.h
         Minigin/Components/TextComponent.cpp
         Minigin/Components/TextComponent.h
         Minigin/Components/TextureComponent.cpp
         Minigin/Components/TextureComponent.h
         Minigin/Components/FPSComponent.cpp
         Minigin/Components/FPSComponent.h
+        Minigin/Components/Rotator.cpp
+        Minigin/Components/Rotator.h
 )
 
 # enable c++20 features
@@ -167,7 +168,7 @@ if (WIN32)
   endif()
 
   target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${SDL2_INCLUDE_DIR})
-  target_link_libraries(imgui PUBLIC
+  target_link_libraries(imgui PRIVATE
           ${SDL2_LIBRARIES}
   )
 
@@ -196,8 +197,8 @@ endif()
           ${SDL2_IMAGE_LIBRARIES}
           ${SDL2_TTF_LIBRARIES}
           ${VLD_LIBRARY}
-          imgui
   )
+  target_link_libraries(${TARGET_NAME} PRIVATE imgui)
 
 elseif(NOT EMSCRIPTEN)
 

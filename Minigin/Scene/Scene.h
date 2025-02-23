@@ -23,6 +23,7 @@ namespace dae
 		void DestroyGameObjects();
 
 		[[nodiscard]] bool IsBeingUnloaded() const { return m_BeingUnloaded; }
+
 		~Scene();
 		Scene(const Scene& other) = delete;
 		Scene(Scene&& other) = delete;

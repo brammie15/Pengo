@@ -2,6 +2,7 @@
 #include "InputManager.h"
 
 #include "imgui_impl_sdl2.h"
+#include "Renderer.h"
 
 bool dae::InputManager::ProcessInput() {
     SDL_Event e;
@@ -11,13 +12,16 @@ bool dae::InputManager::ProcessInput() {
         if (e.type == SDL_QUIT) {
             return false;
         }
-        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE) {
+
+        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE and e.window.windowID == SDL_GetWindowID(Renderer::GetInstance().GetSDLWindow())) {
             return false;
         }
         if (e.type == SDL_KEYDOWN) {
         }
         if (e.type == SDL_MOUSEBUTTONDOWN) {
         }
+
+
         // etc...
     }
 

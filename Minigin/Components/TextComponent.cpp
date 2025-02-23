@@ -7,19 +7,20 @@
 #include <iostream>
 #include <SDL_ttf.h>
 #include <stdexcept>
+#include <gtc/type_ptr.hpp>
 
-#include "Renderer.h"
+#include "Managers/Renderer.h"
 #include "Texture2D.h"
-#include "Transform.h"
+#include "../ObjectModel/Transform.h"
 
 namespace dae {
-    TextComponent::TextComponent(GameObject* parent, std::string text, std::shared_ptr<Font> font): Component(parent, "TEXT: " + text),
-        m_Text(text), m_Font(std::move(font)) {
+    TextComponent::TextComponent(GameObject& parent, std::string text, std::shared_ptr<Font> font): Component(parent, "TEXT: " + text),
+                                                              m_Text(text), m_Font(std::move(font)) {
     }
 
     void TextComponent::Render() {
         if (m_TextTexture != nullptr) {
-            auto& position = this->GetTransform().GetPosition();
+            auto& position = this->GetTransform().GetWorldPosition();
             Renderer::GetInstance().RenderTexture(*m_TextTexture, position.x, position.y);
         }
     }
@@ -53,5 +54,40 @@ namespace dae {
         m_Text = newText;
         SetName("TEXT: " + newText);
         m_isDirty = true;
+    }
+
+    void TextComponent::ImGuiInspector() {
+        if (ImGui::TreeNode("TextComponent")) {
+            ImGui::Text("Current Text: ");
+            ImGui::SameLine();
+            ImGui::Text(m_Text.c_str());
+            ImGui::Separator();
+            ImGui::Text("Change Text");
+            static char buffer[256]{};
+            ImGui::InputText("##Text", buffer, sizeof(buffer));
+            if (ImGui::Button("Set Text")) {
+                SetText(std::string(buffer));
+            }
+
+            ImGui::SeparatorText("Color");
+
+            glm::vec3 oldColor = glm::vec3{
+                m_Color.r / 255.0f,
+                m_Color.g / 255.0f,
+                m_Color.b / 255.0f
+            };
+
+            if (ImGui::ColorEdit3("Color", glm::value_ptr(oldColor))) {
+                m_Color = SDL_Color{
+                    static_cast<Uint8>(oldColor.r * 255.0f),
+                    static_cast<Uint8>(oldColor.g * 255.0f),
+                    static_cast<Uint8>(oldColor.b * 255.0f)
+                };
+                m_isDirty = true;
+            }
+
+
+            ImGui::TreePop();
+        }
     }
 } // dae

@@ -25,7 +25,7 @@ namespace dae {
 
         void CleanupComponents();
 
-        std::vector<std::unique_ptr<Component>>& GetComponents() { return m_Components; }
+        [[nodiscard]] std::vector<std::unique_ptr<Component>>& GetComponents() { return m_Components; }
 
         [[nodiscard]] Transform& GetTransform() { return m_TransformPtr; };
 
@@ -38,15 +38,16 @@ namespace dae {
         GameObject& operator=(GameObject&& other) = delete;
 
         template <typename Component, typename... Args>
+        requires std::constructible_from<Component, GameObject&, Args...>
         Component *AddComponent(Args&&... args) {
             auto& addedComponent = m_Components.emplace_back(
-                std::make_unique<Component>(this, std::forward<Args>(args)...));
+                std::make_unique<Component>(*this, std::forward<Args>(args)...));
 
             return reinterpret_cast<Component*>(addedComponent.get());
         }
 
         template <typename Component>
-        Component *GetComponent() {
+        [[nodiscard]] Component *GetComponent() {
             for (const auto& component: m_Components) {
                 if (auto casted = dynamic_cast<Component*>(component.get())) {
                     return casted;
@@ -67,7 +68,7 @@ namespace dae {
         }
 
        template <typename Component>
-       bool HasComponent() {
+       [[nodiscard]] bool HasComponent() {
             for (const auto& component: m_Components) {
                 if (auto casted = dynamic_cast<Component*>(component.get())) {
                     return true;
@@ -79,7 +80,7 @@ namespace dae {
     private:
         bool m_Active{true};
         Scene* m_Scene{};
-        Transform m_TransformPtr{};
+        Transform m_TransformPtr{this};
         std::vector<std::unique_ptr<Component>> m_Components{};
     };
 }

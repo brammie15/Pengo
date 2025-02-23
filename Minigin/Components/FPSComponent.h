@@ -1,13 +1,13 @@
 #ifndef FPSCOMPONENT_H
 #define FPSCOMPONENT_H
 
-#include "Component.h"
+#include "../ObjectModel/Component.h"
 #include "TextComponent.h"
 
 namespace dae {
     class FPSComponent final: public Component {
     public:
-        explicit FPSComponent(GameObject* parent);
+        explicit FPSComponent(GameObject &parent);
 
         void Update() override;
 

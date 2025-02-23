@@ -5,7 +5,7 @@
 #include <SDL_pixels.h>
 #include <string>
 
-#include "Component.h"
+#include "../ObjectModel/Component.h"
 #include "Font.h"
 #include "Texture2D.h"
 #include <memory>
@@ -13,11 +13,13 @@
 namespace dae {
     class TextComponent final: public Component {
     public:
-        TextComponent(GameObject* parent, std::string text, std::shared_ptr<Font> font);
+        TextComponent(GameObject &parent, std::string text, std::shared_ptr<Font> font);
 
         void Render() override;
         void Update() override;
         void SetText(const std::string& newText);
+
+        void ImGuiInspector() override;
 
         TextComponent(const TextComponent& other) = delete;
         TextComponent(TextComponent&& other) noexcept = delete;

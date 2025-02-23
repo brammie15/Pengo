@@ -2,7 +2,7 @@
 
 #include "Timer.h"
 
-dae::FPSComponent::FPSComponent(GameObject* parent): Component(parent, "Fps") {
+dae::FPSComponent::FPSComponent(GameObject &parent): Component(parent, "Fps") {
 }
 
 void dae::FPSComponent::Update() {

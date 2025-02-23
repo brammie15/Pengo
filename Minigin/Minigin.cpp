@@ -14,10 +14,10 @@
 
 #include <thread>
 
-#include "InputManager.h"
+#include "Managers/InputManager.h"
 #include "Scene/SceneManager.h"
-#include "Renderer.h"
-#include "ResourceManager.h"
+#include "Managers/Renderer.h"
+#include "Managers/ResourceManager.h"
 #include "Timer.h"
 
 SDL_Window* g_window{};
@@ -127,6 +127,8 @@ void dae::Minigin::RunOneFrame() {
     }
 
     SceneManager::GetInstance().Update();
+    SceneManager::GetInstance().LateUpdate();
+
     Renderer::GetInstance().Render();
 
     SceneManager::GetInstance().HandleScene();

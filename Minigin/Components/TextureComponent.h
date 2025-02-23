@@ -1,6 +1,6 @@
 #ifndef TEXTURECOMPONENT_H
 #define TEXTURECOMPONENT_H
-#include "Component.h"
+#include "../ObjectModel/Component.h"
 #include "Texture2D.h"
 #include <memory>
 
@@ -8,7 +8,7 @@ namespace dae {
     class TextureComponent final: public Component {
     public:
 
-        TextureComponent(GameObject* parent, std::shared_ptr<Texture2D> texture);
+        TextureComponent(GameObject &parent, std::shared_ptr<Texture2D> texture);
 
         TextureComponent(const TextureComponent& other) = delete;
         TextureComponent(TextureComponent&& other) noexcept = delete;
@@ -17,6 +17,8 @@ namespace dae {
 
         void Update() override;
         void Render() override;
+
+        void ImGuiInspector() override;
 
     private:
         std::shared_ptr<Texture2D> m_texture;

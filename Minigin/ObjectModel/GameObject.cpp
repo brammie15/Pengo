@@ -3,9 +3,8 @@
 
 #include <iostream>
 
-#include "Renderer.h"
-#include "ResourceManager.h"
-#include "unused.h"
+#include "Managers/Renderer.h"
+#include "Managers/ResourceManager.h"
 
 
 dae::GameObject::~GameObject() {
@@ -45,12 +44,7 @@ void dae::GameObject::Destroy() {
 }
 
 void dae::GameObject::CleanupComponents() {
-    //Strange for loop since im deleting during looping over it
-    for (auto it = m_Components.begin(); it != m_Components.end();) {
-        if ((*it)->IsBeingDestroyed()) {
-            it = m_Components.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    std::erase_if(m_Components, [](const std::unique_ptr<Component>& component) {
+        return component->IsBeingDestroyed();
+    });
 }

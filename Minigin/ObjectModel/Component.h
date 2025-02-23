@@ -9,7 +9,6 @@ namespace dae {
 
     class Component: public Object {
     public:
-        explicit Component(GameObject* pParent = nullptr, const std::string& name = "Component");
 
         ~Component() override = default;
 
@@ -18,17 +17,21 @@ namespace dae {
         Component& operator=(const Component& other) = delete;
         Component& operator=(Component&& other) noexcept = delete;
 
+        [[nodiscard]] bool isEnabled() const { return m_IsEnabled; }
         [[nodiscard]] GameObject *GetGameObject() const { return m_ParentGameObjectPtr; }
         [[nodiscard]] Transform& GetTransform() const;
-        [[nodiscard]] bool isEnabled() const { return m_IsEnabled; }
 
         void Destroy() override;
         virtual void SetEnabled(bool enabled);
-        virtual void Update();
+        virtual void Update() = 0;
         virtual void LateUpdate();
         virtual void FixedUpdate();
+        virtual void ImGuiInspector();
+
 
         virtual void Render();
+    protected:
+        explicit Component(GameObject& pParent, const std::string& name = "Component");
 
     private:
         GameObject* m_ParentGameObjectPtr{};

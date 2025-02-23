@@ -8,16 +8,18 @@
 #endif
 
 #include "Minigin.h"
-#include "ResourceManager.h"
+#include "Managers/ResourceManager.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneManager.h"
 
 #include <filesystem>
 
-#include "GameObject.h"
 #include "Components/FPSComponent.h"
+#include "Components/Rotator.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
+#include "ObjectModel/GameObject.h"
+
 namespace fs = std::filesystem;
 
 void load() {
@@ -31,14 +33,14 @@ void load() {
 
     const auto newText = std::make_shared<dae::GameObject>();
     newText->AddComponent<dae::TextComponent>(std::string("Hello World!"), font);
-    newText->GetTransform().SetPosition(200, 200, 0);
+    newText->GetTransform().SetWorldPosition(glm::vec3{200, 200, 0});
 
     scene.Add(newText);
 
     const auto imageTest = std::make_shared<dae::GameObject>();
     auto texture = dae::ResourceManager::GetInstance().LoadTexture("logo.tga");
     imageTest->AddComponent<dae::TextureComponent>(texture);
-    imageTest->GetTransform().SetPosition(200, 100, 0);
+    imageTest->GetTransform().SetWorldPosition(glm::vec3{200, 100, 0});
 
     scene.Add(imageTest);
 
@@ -48,6 +50,25 @@ void load() {
     fpsComponent->SetTargetTextComponent(textComponent);
 
     scene.Add(fpsGameobject);
+
+    const auto parentObj = std::make_shared<dae::GameObject>();
+    const auto childObj = std::make_shared<dae::GameObject>();
+
+    const auto childImage = dae::ResourceManager::GetInstance().LoadTexture("child.jpg");
+    const auto parentImage = dae::ResourceManager::GetInstance().LoadTexture("Parent.jpg");
+
+    parentObj->AddComponent<dae::TextureComponent>(parentImage);
+    parentObj->GetTransform().SetWorldPosition(glm::vec3{200, 200, 0});
+    parentObj->AddComponent<dae::Rotator>(30.f, 10.f);
+    // parentObj->GetTransform().AddChild(&childObj->GetTransform());
+
+    childObj->GetTransform().SetParent(&parentObj->GetTransform());
+    childObj->AddComponent<dae::TextureComponent>(childImage);
+    childObj->AddComponent<dae::Rotator>(30.f, 5.f);
+    childObj->GetTransform().SetLocalPosition(glm::vec3{50, 50, 0});
+
+    scene.Add(parentObj);
+    scene.Add(childObj);
 }
 
 int main(int, char*[]) {

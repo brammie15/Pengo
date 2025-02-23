@@ -2,14 +2,13 @@
 
 #include <stdexcept>
 #include "GameObject.h"
+#include "imgui.h"
 
-#include "unused.h"
-
-dae::Component::Component(dae::GameObject* pParent, const std::string& name): Object(name),
-                                                                              m_ParentGameObjectPtr(pParent) {
-    if (m_ParentGameObjectPtr == nullptr) {
-        throw std::runtime_error("Component made with no GameObject??");
-    }
+dae::Component::Component(dae::GameObject& pParent, const std::string& name): Object(name), m_ParentGameObjectPtr(&pParent) {
+    // if (m_ParentGameObjectPtr == nullptr) {
+    //     //TODO: Change pParent ot be a reference
+    //     throw std::runtime_error("Component made with no GameObject??");
+    // }
 }
 
 dae::Transform& dae::Component::GetTransform() const {
@@ -25,14 +24,17 @@ void dae::Component::SetEnabled(bool enabled) {
     m_IsEnabled = enabled;
 }
 
-void dae::Component::Update() {
-}
-
 void dae::Component::LateUpdate() {
+
 }
 
 void dae::Component::FixedUpdate() {
 }
 
+void dae::Component::ImGuiInspector() {
+
+}
+
 void dae::Component::Render() {
+
 }
