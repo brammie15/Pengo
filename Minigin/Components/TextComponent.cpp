@@ -81,7 +81,8 @@ namespace dae {
                 m_Color = SDL_Color{
                     static_cast<Uint8>(oldColor.r * 255.0f),
                     static_cast<Uint8>(oldColor.g * 255.0f),
-                    static_cast<Uint8>(oldColor.b * 255.0f)
+                    static_cast<Uint8>(oldColor.b * 255.0f),
+                    static_cast<Uint8>(255)
                 };
                 m_isDirty = true;
             }

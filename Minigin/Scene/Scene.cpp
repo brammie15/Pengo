@@ -3,11 +3,14 @@
 
 #include <algorithm>
 #include <functional>
+#include <SDL_scancode.h>
 
 #include "imgui_internal.h"
 
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
+
+#include "Managers/InputManager.h"
 
 using namespace dae;
 
@@ -31,6 +34,9 @@ void Scene::RemoveAll() {
 }
 
 void Scene::Update() {
+    if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
+        m_ShowDemoWindow = !m_ShowDemoWindow;
+    }
     for (auto& object: m_objects) {
         object->Update();
     }
@@ -55,7 +61,15 @@ void Scene::Render() const {
 }
 
 void Scene::RenderImgui() {
-    ImGui::ShowDemoWindow();
+
+
+    for (auto& object : m_objects) {
+        object->ImGuiRender();
+    }
+
+    if (m_ShowDemoWindow) {
+        ImGui::ShowDemoWindow();
+    }
     ImGui::Begin(std::string("Scene: " + m_name).c_str());
     ImGui::SetWindowSize(ImVec2{400, 500});
 
@@ -111,6 +125,7 @@ void Scene::RenderImgui() {
         ImGui::PopID();
     };
 
+    ImGui::Checkbox("Show Demo Window", &m_ShowDemoWindow);
     // Start rendering the root node
     if (ImGui::TreeNode("ROOT")) {
         for (auto& object : m_objects) {
@@ -122,6 +137,7 @@ void Scene::RenderImgui() {
     }
 
     ImGui::End();
+
 }
 
 

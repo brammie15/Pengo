@@ -37,7 +37,10 @@ namespace dae
 		std::vector <std::shared_ptr<GameObject>> m_objects{};
 		bool m_BeingUnloaded{ false };
 
-		static unsigned int m_idCounter; 
+		static unsigned int m_idCounter;
+
+		//Imgui vars
+		bool m_ShowDemoWindow{ false };
 	};
 
 }

@@ -26,7 +26,8 @@ namespace dae {
         virtual void Update() = 0;
         virtual void LateUpdate();
         virtual void FixedUpdate();
-        virtual void ImGuiInspector();
+        virtual void ImGuiInspector(); //Specifically for the inspector
+        virtual void ImGuiRender();
 
 
         virtual void Render();

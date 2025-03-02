@@ -27,8 +27,6 @@ namespace dae {
         [[nodiscard]] Transform* GetParent() const { return m_Parent; }
 
 
-        void RemoveChild(Transform* transform);
-        void AddChild(Transform* transform);
         void SetParent(Transform* parent, bool useWorldPosition = true);
 
         [[nodiscard]] bool IsChild(Transform* child) const;
@@ -40,7 +38,8 @@ namespace dae {
     private:
         void SetPositionDirty();
         void UpdateWorldPosition();
-
+        void AddChild(Transform* transform);
+        void RemoveChild(Transform* transform);
 
         glm::vec3 m_WorldPosition{};
         glm::vec3 m_LocalPosition{};

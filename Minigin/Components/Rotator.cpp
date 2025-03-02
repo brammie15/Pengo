@@ -16,6 +16,7 @@ void dae::Rotator::Update() {
     const float x = cos(m_CurrentAngle) * m_Distance;
     const float y = sin(m_CurrentAngle) * m_Distance;
     GetTransform().SetLocalPosition(m_OriginalPosition + glm::vec3(x, y, 0));
+
 }
 
 void dae::Rotator::ImGuiInspector() {

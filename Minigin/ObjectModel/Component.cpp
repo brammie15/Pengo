@@ -35,6 +35,9 @@ void dae::Component::ImGuiInspector() {
 
 }
 
+void dae::Component::ImGuiRender() {
+}
+
 void dae::Component::Render() {
 
 }

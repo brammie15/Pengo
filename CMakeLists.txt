@@ -50,6 +50,8 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Components/FPSComponent.h
         Minigin/Components/Rotator.cpp
         Minigin/Components/Rotator.h
+        Minigin/Components/ThrashTheCacheComponent.cpp
+        Minigin/Components/ThrashTheCacheComponent.h
 )
 
 # enable c++20 features
@@ -79,8 +81,15 @@ if (WIN32)
           GIT_TAG docking # Use the 'docking' branch
   )
 
+  FetchContent_Declare(
+          implot
+          GIT_REPOSITORY https://github.com/epezent/implot.git
+          GIT_TAG master
+  )
+
   # Fetch and make ImGui available
   FetchContent_MakeAvailable(imgui)
+  FetchContent_MakeAvailable(implot)
 
   # Add the ImGui sources to your project
   add_library(imgui STATIC
@@ -99,6 +108,14 @@ if (WIN32)
           ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
 #          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 #          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
+  )
+
+  add_library(implot STATIC
+          ${implot_SOURCE_DIR}/implot.cpp
+          ${implot_SOURCE_DIR}/implot.h
+          ${implot_SOURCE_DIR}/implot_internal.h
+          ${implot_SOURCE_DIR}/implot_demo.cpp
+          ${implot_SOURCE_DIR}/implot_items.cpp
   )
 
 
@@ -187,6 +204,7 @@ endif()
           ${SDL2_TTF_INCLUDE_DIR}
           ${imgui_SOURCE_DIR}
           ${imgui_SOURCE_DIR}/backends
+          ${implot_SOURCE_DIR}
   )
 
   message(${imgui_SOURCE_DIR})
@@ -198,7 +216,8 @@ endif()
           ${SDL2_TTF_LIBRARIES}
           ${VLD_LIBRARY}
   )
-  target_link_libraries(${TARGET_NAME} PRIVATE imgui)
+  target_link_libraries(implot PRIVATE imgui)
+  target_link_libraries(${TARGET_NAME} PRIVATE imgui implot)
 
 elseif(NOT EMSCRIPTEN)
 

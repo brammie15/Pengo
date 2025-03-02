@@ -21,6 +21,8 @@ namespace dae {
 
         void Render() const;
 
+        void ImGuiRender();
+
         void Destroy() override;
 
         void CleanupComponents();
@@ -29,7 +31,7 @@ namespace dae {
 
         [[nodiscard]] Transform& GetTransform() { return m_TransformPtr; };
 
-        GameObject() = default;
+        explicit GameObject(const std::string& name = "GameObject");
         ~GameObject() override;
 
         GameObject(const GameObject& other) = delete;

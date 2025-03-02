@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <cstring>
 #include "Renderer.h"
+
+#include "implot.h"
 #include "Scene/SceneManager.h"
 #include "Texture2D.h"
 
@@ -25,6 +27,7 @@ void dae::Renderer::Init(SDL_Window* window) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -69,6 +72,7 @@ void dae::Renderer::Render() const {
 void dae::Renderer::Destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     if (m_renderer != nullptr)

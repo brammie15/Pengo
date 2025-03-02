@@ -11,6 +11,9 @@ dae::GameObject::~GameObject() {
     std::cout << "gameobject destroyed: " << GetName() << std::endl;
 }
 
+dae::GameObject::GameObject(const std::string& name): Object(name) {
+}
+
 void dae::GameObject::Update() {
     for (const auto& component: m_Components) {
         component->Update();
@@ -35,11 +38,21 @@ void dae::GameObject::Render() const {
     }
 }
 
+void dae::GameObject::ImGuiRender() {
+    for (const auto& component: m_Components) {
+        component->ImGuiRender();
+    }
+}
+
 void dae::GameObject::Destroy() {
     Object::Destroy();
 
     for (const auto& component: m_Components) {
         component->Destroy();
+    }
+
+    for (auto child : m_TransformPtr.GetChildren()) {
+        child->GetOwner()->Destroy();
     }
 }
 
