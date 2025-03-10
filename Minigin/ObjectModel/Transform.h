@@ -2,6 +2,7 @@
 #include <glm.hpp>
 #include <vector>
 
+
 namespace dae {
     class GameObject;
 }
@@ -19,6 +20,9 @@ namespace dae {
 
         [[nodiscard]] const glm::vec3& GetWorldPosition();
         void SetWorldPosition(const glm::vec3& position);
+
+        void Move(const glm::vec3& move);
+        void Move(double x, double y, double z);
 
 
         [[nodiscard]] const glm::vec3& GetLocalPosition() const { return m_LocalPosition; }

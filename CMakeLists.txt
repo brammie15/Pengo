@@ -10,7 +10,9 @@ if(EMSCRIPTEN)
   set(TARGET_PARAM )
 else()
   set(TARGET_NAME minigin)
-  set(TARGET_PARAM WIN32)
+  set(TARGET_PARAM WIN32
+          Minigin/Input/XInputControllerImpl.cpp
+  )
 endif()
 
 # list source files here
@@ -19,8 +21,8 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Font.h
         Minigin/ObjectModel/GameObject.cpp
         Minigin/ObjectModel/GameObject.h
-        Minigin/Managers/InputManager.cpp
-        Minigin/Managers/InputManager.h
+        Minigin/Input/InputManager.cpp
+        Minigin/Input/InputManager.h
         Minigin/Main.cpp
         Minigin/Minigin.cpp
         Minigin/Minigin.h
@@ -52,6 +54,12 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Components/Rotator.h
         Minigin/Components/ThrashTheCacheComponent.cpp
         Minigin/Components/ThrashTheCacheComponent.h
+        Minigin/Command.cpp
+        Minigin/Command.h
+        Minigin/Input/InputAction.cpp
+        Minigin/Input/InputAction.h
+        Minigin/Input/InputBinding.cpp
+        Minigin/Input/InputBinding.h
 )
 
 # enable c++20 features
@@ -75,6 +83,7 @@ endif()
 
 # add SDL2
 if (WIN32)
+  target_link_libraries(${TARGET_NAME} PUBLIC xinput)
   FetchContent_Declare(
           imgui
           GIT_REPOSITORY https://github.com/ocornut/imgui.git

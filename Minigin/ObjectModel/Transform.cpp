@@ -31,6 +31,14 @@ void dae::Transform::SetWorldPosition(const glm::vec3& position) {
     }
 }
 
+void dae::Transform::Move(const glm::vec3& move) {
+    SetLocalPosition(m_LocalPosition + move);
+}
+
+void dae::Transform::Move(double x, double y, double z) {
+    this->Move(glm::vec3(x, y, z));
+}
+
 void dae::Transform::SetLocalPosition(const glm::vec3& position) {
     m_LocalPosition = position;
     SetPositionDirty();

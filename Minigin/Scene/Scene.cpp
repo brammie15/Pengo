@@ -10,7 +10,8 @@
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
 
-#include "Managers/InputManager.h"
+#include "Input/InputManager.h"
+
 
 using namespace dae;
 
@@ -37,6 +38,7 @@ void Scene::Update() {
     if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
         m_ShowDemoWindow = !m_ShowDemoWindow;
     }
+
     for (auto& object: m_objects) {
         object->Update();
     }

@@ -14,7 +14,7 @@
 
 #include <thread>
 
-#include "Managers/InputManager.h"
+#include "Input/InputManager.h"
 #include "Scene/SceneManager.h"
 #include "Managers/Renderer.h"
 #include "Managers/ResourceManager.h"
