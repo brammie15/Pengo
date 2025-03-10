@@ -3,7 +3,7 @@
 #include <functional>
 #include <filesystem>
 
-namespace dae {
+namespace fovy {
 	class Minigin final {
 	private:
 		double m_AccumulatedTime{};

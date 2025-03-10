@@ -3,7 +3,7 @@
 
 #include "Object.h"
 
-namespace dae {
+namespace fovy {
     class GameObject;
     class Transform;
 

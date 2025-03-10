@@ -4,7 +4,7 @@
 #include "./ObjectModel/GameObject.h"
 #include <glm.hpp>
 
-namespace dae {
+namespace fovy {
     class BaseCommand {
     public:
         virtual ~BaseCommand() = default;

@@ -3,11 +3,11 @@
 #include <vector>
 
 
-namespace dae {
+namespace fovy {
     class GameObject;
 }
 
-namespace dae {
+namespace fovy {
     class Transform final {
     public:
 
@@ -37,7 +37,7 @@ namespace dae {
 
         [[nodiscard]] int GetChildCount() const { return static_cast<int>(m_Children.size()); }
         [[nodiscard]] const std::vector<Transform*>& GetChildren() const { return m_Children; }
-        [[nodiscard]] dae::GameObject* GetOwner() const;
+        [[nodiscard]] fovy::GameObject* GetOwner() const;
 
     private:
         void SetPositionDirty();

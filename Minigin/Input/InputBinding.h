@@ -6,8 +6,7 @@
 #include "Command.h"
 
 
-namespace dae {
-
+namespace fovy {
     enum ButtonState {
         Pressed,
         Down,
@@ -16,7 +15,6 @@ namespace dae {
 
 
     struct InputBinding {
-
         ButtonState buttonState{};
         InputAction action{};
         int controllderIdx{};
@@ -25,7 +23,8 @@ namespace dae {
         InputBinding() = default;
 
         InputBinding(ButtonState state, int controllerId, InputAction action, BaseCommand* command)
-            : buttonState(state), controllderIdx(controllerId), action(std::move(action)), command(command) {}
+            : buttonState(state), action(std::move(action)), controllderIdx(controllerId), command(command) {
+        }
 
 
         bool ExecuteController(ButtonState state, int button) const {

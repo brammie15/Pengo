@@ -4,7 +4,7 @@
 #include "Texture2D.h"
 #include <memory>
 
-namespace dae {
+namespace fovy {
     class TextureComponent final: public Component {
     public:
 

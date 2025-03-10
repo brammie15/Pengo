@@ -8,15 +8,13 @@
 #include "Managers/Renderer.h"
 
 
-bool dae::InputManager::ProcessInput() {
+bool fovy::InputManager::ProcessInput() {
     SDL_Event e;
     m_PreviousKeyState = m_CurrentKeyState;
     HandleControllerInput();
     HandleKeyboardHeld();
 
     while (SDL_PollEvent(&e)) {
-
-
         if (e.type == SDL_QUIT) {
             return false;
         }
@@ -38,21 +36,21 @@ bool dae::InputManager::ProcessInput() {
     return true;
 }
 
-bool dae::InputManager::IsKeyDown(SDL_Scancode key) {
+bool fovy::InputManager::IsKeyDown(SDL_Scancode key) {
     return m_CurrentKeyState[key];
 }
 
-bool dae::InputManager::IsKeyUp(SDL_Scancode key) {
+bool fovy::InputManager::IsKeyUp(SDL_Scancode key) {
     return !m_CurrentKeyState[key];
 }
 
-bool dae::InputManager::IsKeyPressed(SDL_Scancode key) {
+bool fovy::InputManager::IsKeyPressed(SDL_Scancode key) {
     const bool curr = m_CurrentKeyState[key];
     const bool prev = m_PreviousKeyState[key];
     return curr && !prev;
 }
 
-void dae::InputManager::HandleKeyboardHeld() {
+void fovy::InputManager::HandleKeyboardHeld() {
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 
     for (auto&& bind: m_Bindings) {
@@ -65,18 +63,18 @@ void dae::InputManager::HandleKeyboardHeld() {
     }
 }
 
-bool dae::InputManager::HandleKeyboardUpDown(const SDL_Event& event) {
+bool fovy::InputManager::HandleKeyboardUpDown(const SDL_Event& event) {
     switch (event.type) {
         case SDL_KEYDOWN:
             for (auto&& bind: m_Bindings)
                 bind.ExecuteKeyboard(ButtonState::Pressed, event.key.keysym.scancode);
-                m_CurrentKeyState[event.key.keysym.scancode] = true;
+            m_CurrentKeyState[event.key.keysym.scancode] = true;
             return true;
 
         case SDL_KEYUP:
             for (auto&& bind: m_Bindings)
                 bind.ExecuteKeyboard(ButtonState::Released, event.key.keysym.scancode);
-                m_CurrentKeyState[event.key.keysym.scancode] = false;
+            m_CurrentKeyState[event.key.keysym.scancode] = false;
             return true;
     }
     return false;

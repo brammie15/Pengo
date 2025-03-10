@@ -5,16 +5,16 @@
 #include "Managers/Renderer.h"
 #include "../ObjectModel/Transform.h"
 
-dae::TextureComponent::TextureComponent(
+fovy::TextureComponent::TextureComponent(
     GameObject &parent,
     std::shared_ptr<Texture2D> texture): Component(parent, "TextureComponent"),
     m_texture(std::move(texture)) {
 }
 
-void dae::TextureComponent::Update() {
+void fovy::TextureComponent::Update() {
 }
 
-void dae::TextureComponent::Render() {
+void fovy::TextureComponent::Render() {
     const glm::vec3 renderPos = this->GetTransform().GetWorldPosition();
     Renderer::GetInstance().RenderTexture(
         *m_texture,
@@ -23,7 +23,7 @@ void dae::TextureComponent::Render() {
     );
 }
 
-void dae::TextureComponent::ImGuiInspector() {
+void fovy::TextureComponent::ImGuiInspector() {
     SDL_Texture* texture = m_texture->GetSDLTexture();
     if (ImGui::TreeNode("TextureComponent")) {
         ImGui::Text("Texture");

@@ -2,10 +2,10 @@
 
 #include "Timer.h"
 
-dae::FPSComponent::FPSComponent(GameObject &parent): Component(parent, "Fps") {
+fovy::FPSComponent::FPSComponent(GameObject &parent): Component(parent, "Fps") {
 }
 
-void dae::FPSComponent::Update() {
+void fovy::FPSComponent::Update() {
     m_fps = static_cast<float>(1.f / Time::GetInstance().DeltaTime());
 
     if (m_textComponent != nullptr) {
@@ -13,9 +13,9 @@ void dae::FPSComponent::Update() {
     }
 }
 
-void dae::FPSComponent::Render() {
+void fovy::FPSComponent::Render() {
 }
 
-void dae::FPSComponent::SetTargetTextComponent(TextComponent* component) {
+void fovy::FPSComponent::SetTargetTextComponent(TextComponent* component) {
     m_textComponent = component;
 }

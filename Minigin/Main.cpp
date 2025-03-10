@@ -7,18 +7,19 @@
 #endif
 #endif
 
-#include <array>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #include "Minigin.h"
 #include "Managers/ResourceManager.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneManager.h"
 
+#include <array>
 #include <filesystem>
-#include <iostream>
+#include <XInput.h>
 
 #include "Components/FPSComponent.h"
-#include "Components/Rotator.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
 #include "Components/ThrashTheCacheComponent.h"
@@ -30,30 +31,30 @@
 namespace fs = std::filesystem;
 
 void load() {
-    auto& scene = dae::SceneManager::GetInstance().CreateScene("Demo");
+    auto& scene = fovy::SceneManager::GetInstance().CreateScene("Demo");
 
-    const auto go = std::make_shared<dae::GameObject>("Background");
-    go->AddComponent<dae::TextureComponent>(dae::ResourceManager::GetInstance().LoadTexture("background.tga"));
+    const auto go = std::make_shared<fovy::GameObject>("Background");
+    go->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("background.tga"));
     scene.Add(go);
 
-    auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+    auto font = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
-    const auto newText = std::make_shared<dae::GameObject>("HelloWorldText");
-    newText->AddComponent<dae::TextComponent>(std::string("Hello World!"), font);
+    const auto newText = std::make_shared<fovy::GameObject>("HelloWorldText");
+    newText->AddComponent<fovy::TextComponent>(std::string("Hello World!"), font);
     newText->GetTransform().SetWorldPosition(glm::vec3{200, 200, 0});
 
     scene.Add(newText);
 
-    const auto imageTest = std::make_shared<dae::GameObject>("DaeLogo");
-    auto texture = dae::ResourceManager::GetInstance().LoadTexture("logo.tga");
-    imageTest->AddComponent<dae::TextureComponent>(texture);
+    const auto imageTest = std::make_shared<fovy::GameObject>("DaeLogo");
+    auto texture = fovy::ResourceManager::GetInstance().LoadTexture("logo.tga");
+    imageTest->AddComponent<fovy::TextureComponent>(texture);
     imageTest->GetTransform().SetWorldPosition(glm::vec3{200, 100, 0});
 
     scene.Add(imageTest);
 
-    const auto fpsGameobject = std::make_shared<dae::GameObject>("FpsText");
-    const auto textComponent = fpsGameobject->AddComponent<dae::TextComponent>("", font);
-    const auto fpsComponent = fpsGameobject->AddComponent<dae::FPSComponent>();
+    const auto fpsGameobject = std::make_shared<fovy::GameObject>("FpsText");
+    const auto textComponent = fpsGameobject->AddComponent<fovy::TextComponent>("", font);
+    const auto fpsComponent = fpsGameobject->AddComponent<fovy::FPSComponent>();
     fpsComponent->SetTargetTextComponent(textComponent);
 
     scene.Add(fpsGameobject);
@@ -78,14 +79,14 @@ void load() {
     // scene.Add(childObj);
 
 
-    auto player1Obj = std::make_shared<dae::GameObject>("Player1");
-    player1Obj->AddComponent<dae::TextureComponent>(dae::ResourceManager::GetInstance().LoadTexture("Player1.png"));
+    auto player1Obj = std::make_shared<fovy::GameObject>("Player1");
+    player1Obj->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("Player1.png"));
     player1Obj->GetTransform().SetWorldPosition(glm::vec3{100, 100, 0});
 
     scene.Add(player1Obj);
 
-    auto player2Obj = std::make_shared<dae::GameObject>("Player2");
-    player2Obj->AddComponent<dae::TextureComponent>(dae::ResourceManager::GetInstance().LoadTexture("Player2.png"));
+    auto player2Obj = std::make_shared<fovy::GameObject>("Player2");
+    player2Obj->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("Player2.png"));
     player2Obj->GetTransform().SetWorldPosition(glm::vec3{300, 100, 0});
 
     scene.Add(player2Obj);
@@ -93,6 +94,8 @@ void load() {
 
     constexpr float Player1MoveSpeed{ 200.f };
     constexpr float Player2MoveSpeed{ Player1MoveSpeed * 2 };
+
+    using fovy::InputAction;
 
     std::array<InputAction, 4> KeyboardInputs{
         InputAction{{SDL_SCANCODE_W}},
@@ -116,15 +119,18 @@ void load() {
     };
 
     for (int index{0}; index < 4; ++index) {
-        dae::InputManager::GetInstance().AddCommand<dae::MoveCommand>(
-            KeyboardInputs[index], dae::ButtonState::Down, player1Obj.get(), Player1MoveSpeed, MoveDirections[index]
+        fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
+            KeyboardInputs[index], fovy::ButtonState::Down, player1Obj.get(), Player1MoveSpeed, MoveDirections[index]
         );
 
-        dae::InputManager::GetInstance().AddCommand<dae::MoveCommand>(
-            ControllerInputs[index], dae::ButtonState::Down, player2Obj.get(), Player2MoveSpeed, MoveDirections[index]
+        fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
+            ControllerInputs[index], fovy::ButtonState::Down, player2Obj.get(), Player2MoveSpeed, MoveDirections[index]
         );
     }
 
+    fovy::InputManager::GetInstance().AddCommand<fovy::ConsoleLogCommand>(
+        InputAction{{SDL_SCANCODE_T}, {XINPUT_GAMEPAD_Y}}, fovy::Pressed, 0, "T or Y presssed"
+    );
     // auto ThrashTheCacheObj = std::make_shared<dae::GameObject>("ThrashTheCache");
     // ThrashTheCacheObj->AddComponent<dae::ThrashTheCacheComponent>();
     //
@@ -139,7 +145,7 @@ int main(int, char*[]) {
     if (!fs::exists(data_location))
         data_location = "../Data/";
 #endif
-    dae::Minigin engine(data_location);
+    fovy::Minigin engine(data_location);
     engine.Run(load);
     return 0;
 }

@@ -13,7 +13,7 @@
 #include "Input/InputManager.h"
 
 
-using namespace dae;
+using namespace fovy;
 
 unsigned int Scene::m_idCounter = 0;
 

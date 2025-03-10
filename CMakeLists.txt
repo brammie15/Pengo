@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(Minigin)
+project(Fovy)
 
 if(EMSCRIPTEN)
   message("Using Emscripten!")
@@ -11,7 +11,6 @@ if(EMSCRIPTEN)
 else()
   set(TARGET_NAME minigin)
   set(TARGET_PARAM WIN32
-          Minigin/Input/XInputControllerImpl.cpp
   )
 endif()
 
@@ -60,6 +59,7 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Input/InputAction.h
         Minigin/Input/InputBinding.cpp
         Minigin/Input/InputBinding.h
+        Minigin/Input/XInputControllerImpl.cpp
 )
 
 # enable c++20 features
@@ -115,8 +115,6 @@ if (WIN32)
           ${imgui_SOURCE_DIR}/imstb_truetype.h
           ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
           ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
-#          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
-#          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
   )
 
   add_library(implot STATIC

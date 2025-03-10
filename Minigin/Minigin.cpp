@@ -65,7 +65,7 @@ void PrintSDLVersion() {
     LogSDLVersion("We linked against SDL_ttf version ", version);
 }
 
-dae::Minigin::Minigin(const std::filesystem::path& dataPath) {
+fovy::Minigin::Minigin(const std::filesystem::path& dataPath) {
     PrintSDLVersion();
 
     //Thanks Stackoverflow
@@ -95,7 +95,7 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath) {
     ResourceManager::GetInstance().Init(dataPath);
 }
 
-dae::Minigin::~Minigin() {
+fovy::Minigin::~Minigin() {
     SceneManager::GetInstance().Destroy();
     Renderer::GetInstance().Destroy();
     SDL_DestroyWindow(g_window);
@@ -103,7 +103,7 @@ dae::Minigin::~Minigin() {
     SDL_Quit();
 }
 
-void dae::Minigin::Run(const std::function<void()>& load) {
+void fovy::Minigin::Run(const std::function<void()>& load) {
     load();
 #ifndef __EMSCRIPTEN__
     while (!m_quit)
@@ -113,7 +113,7 @@ void dae::Minigin::Run(const std::function<void()>& load) {
 #endif
 }
 
-void dae::Minigin::RunOneFrame() {
+void fovy::Minigin::RunOneFrame() {
     auto& Time{Time::GetInstance()};
     Time.Update();
 

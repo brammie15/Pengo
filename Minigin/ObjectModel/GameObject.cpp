@@ -7,44 +7,44 @@
 #include "Managers/ResourceManager.h"
 
 
-dae::GameObject::~GameObject() {
+fovy::GameObject::~GameObject() {
     std::cout << "gameobject destroyed: " << GetName() << std::endl;
 }
 
-dae::GameObject::GameObject(const std::string& name): Object(name) {
+fovy::GameObject::GameObject(const std::string& name): Object(name) {
 }
 
-void dae::GameObject::Update() {
+void fovy::GameObject::Update() {
     for (const auto& component: m_Components) {
         component->Update();
     }
 }
 
-void dae::GameObject::LateUpdate() {
+void fovy::GameObject::LateUpdate() {
     for (const auto& component: m_Components) {
         component->LateUpdate();
     }
 }
 
-void dae::GameObject::FixedUpdate() {
+void fovy::GameObject::FixedUpdate() {
     for (const auto& component: m_Components) {
         component->FixedUpdate();
     }
 }
 
-void dae::GameObject::Render() const {
+void fovy::GameObject::Render() const {
     for (const auto& component: m_Components) {
         component->Render();
     }
 }
 
-void dae::GameObject::ImGuiRender() {
+void fovy::GameObject::ImGuiRender() {
     for (const auto& component: m_Components) {
         component->ImGuiRender();
     }
 }
 
-void dae::GameObject::Destroy() {
+void fovy::GameObject::Destroy() {
     Object::Destroy();
 
     for (const auto& component: m_Components) {
@@ -56,7 +56,7 @@ void dae::GameObject::Destroy() {
     }
 }
 
-void dae::GameObject::CleanupComponents() {
+void fovy::GameObject::CleanupComponents() {
     std::erase_if(m_Components, [](const std::unique_ptr<Component>& component) {
         return component->IsBeingDestroyed();
     });

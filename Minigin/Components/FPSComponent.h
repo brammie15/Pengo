@@ -4,7 +4,7 @@
 #include "../ObjectModel/Component.h"
 #include "TextComponent.h"
 
-namespace dae {
+namespace fovy {
     class FPSComponent final: public Component {
     public:
         explicit FPSComponent(GameObject &parent);

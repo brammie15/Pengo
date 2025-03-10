@@ -8,13 +8,13 @@
 #include "implot.h"
 #include "implot_internal.h"
 
-dae::ThrashTheCacheComponent::ThrashTheCacheComponent(GameObject& parent): Component(parent) {
+fovy::ThrashTheCacheComponent::ThrashTheCacheComponent(GameObject& parent): Component(parent) {
 }
 
-void dae::ThrashTheCacheComponent::Update() {
+void fovy::ThrashTheCacheComponent::Update() {
 }
 
-void dae::ThrashTheCacheComponent::ImGuiRender() {
+void fovy::ThrashTheCacheComponent::ImGuiRender() {
     ImGui::Begin("Exercise 2");
     ImGui::SetWindowSize(ImVec2{400, 500});
     ImGui::InputInt("##", &m_Exercise2SampleCount);

@@ -4,7 +4,7 @@
 #include <vector>
 #include "Singleton.h"
 
-namespace dae {
+namespace fovy {
     class Scene;
 
     class SceneManager final : public Singleton<SceneManager> {

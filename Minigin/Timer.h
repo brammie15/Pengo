@@ -3,7 +3,7 @@
 #include <chrono>
 #include <Singleton.h>
 
-namespace dae {
+namespace fovy {
     class Time final: public Singleton<Time> {
     public:
         Time(const Time& other) = delete;

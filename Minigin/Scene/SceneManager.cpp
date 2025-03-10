@@ -1,55 +1,55 @@
 #include "SceneManager.h"
 #include "Scene.h"
 
-void dae::SceneManager::Update() {
+void fovy::SceneManager::Update() {
     for (auto &scene: m_scenes) {
         scene->Update();
     }
 }
 
-void dae::SceneManager::FixedUpdate() {
+void fovy::SceneManager::FixedUpdate() {
     for (auto &scene: m_scenes) {
         scene->FixedUpdate();
     }
 }
 
-void dae::SceneManager::LateUpdate() {
+void fovy::SceneManager::LateUpdate() {
     for (auto &scene: m_scenes) {
         scene->LateUpdate();
     }
 }
 
-void dae::SceneManager::Render() {
+void fovy::SceneManager::Render() {
     for (const auto &scene: m_scenes) {
         scene->Render();
     }
 }
 
-void dae::SceneManager::RenderImgui() {
+void fovy::SceneManager::RenderImgui() {
     for (const auto & scene : m_scenes) {
         scene->RenderImgui();
     }
 }
 
-void dae::SceneManager::HandleGameObjectDestroy() {
+void fovy::SceneManager::HandleGameObjectDestroy() {
     for (auto& scene : m_scenes) {
         scene->CleanupDestroyedGameObjects();
     }
 }
 
-void dae::SceneManager::DestroyGameObjects() {
+void fovy::SceneManager::DestroyGameObjects() {
     for (auto& scene: m_scenes) {
         scene->DestroyGameObjects();
     }
 }
 
-void dae::SceneManager::UnloadAllScenes() {
+void fovy::SceneManager::UnloadAllScenes() {
     for (auto& scene : m_scenes) {
         scene->Unload();
     }
 }
 
-void dae::SceneManager::HandleSceneDestroy() {
+void fovy::SceneManager::HandleSceneDestroy() {
     for (auto it = m_scenes.begin(); it != m_scenes.end();) {
         if ((*it)->IsBeingUnloaded()) {
             it = m_scenes.erase(it);
@@ -59,20 +59,20 @@ void dae::SceneManager::HandleSceneDestroy() {
     }
 }
 
-void dae::SceneManager::HandleScene() {
+void fovy::SceneManager::HandleScene() {
     DestroyGameObjects();
     HandleGameObjectDestroy();
     HandleSceneDestroy();
 }
 
-void dae::SceneManager::Destroy() {
+void fovy::SceneManager::Destroy() {
     UnloadAllScenes();
     DestroyGameObjects();
     HandleGameObjectDestroy();
     HandleSceneDestroy();
 }
 
-dae::Scene &dae::SceneManager::CreateScene(const std::string &name) {
+fovy::Scene &fovy::SceneManager::CreateScene(const std::string &name) {
     const auto &scene = std::shared_ptr<Scene>(new Scene(name));
     m_scenes.push_back(scene);
     return *scene;

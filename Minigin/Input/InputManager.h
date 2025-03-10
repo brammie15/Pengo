@@ -9,12 +9,9 @@
 
 #include "InputBinding.h"
 
-namespace dae {
-
-
+namespace fovy {
     class InputManager final: public Singleton<InputManager> {
     public:
-
         InputManager();
         ~InputManager() override;
 
@@ -34,14 +31,14 @@ namespace dae {
         bool IsControllerButtonReleased(int button) const;
 
 
-        template<typename CommandT, typename... Args>
+        template <typename CommandT, typename... Args>
         void AddCommand(InputAction action, ButtonState state, Args&&... args) {
             auto* command = new CommandT(std::forward<Args>(args)...);
             m_Bindings.emplace_back(state, 0, action, command);
         }
 
-        template<typename CommandT, typename... Args>
-      void AddCommand(InputAction action, ButtonState state, int controllerId, Args&&... args) {
+        template <typename CommandT, typename... Args>
+        void AddCommand(InputAction action, ButtonState state, int controllerId, Args&&... args) {
             auto* command = new CommandT(std::forward<Args>(args)...);
             m_Bindings.emplace_back(state, controllerId, action, command);
         }

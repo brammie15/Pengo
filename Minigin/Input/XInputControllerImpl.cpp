@@ -9,8 +9,8 @@
 #include <windows.h>
 #include <XInput.h>
 
-namespace dae {
-    class dae::InputManager::ControllerImpl {
+namespace fovy {
+    class fovy::InputManager::ControllerImpl {
     public:
         void HandleController(const std::vector<InputBinding>& binds) {
             UpdateControllerInfo();
@@ -23,8 +23,7 @@ namespace dae {
                     } else {
                         if (bind.buttonState == ButtonState::Pressed && IsDownThisFrame(static_cast<WORD>(button), bind.controllderIdx)) {
                             bind.command->Execute();
-                        } else if (bind.buttonState == ButtonState::Released &&
-                                   IsUpThisFrame(static_cast<WORD>(button), bind.controllderIdx)) {
+                        } else if (bind.buttonState == ButtonState::Released && IsUpThisFrame(static_cast<WORD>(button), bind.controllderIdx)) {
                             bind.command->Execute();
                         }
                     }
@@ -102,31 +101,31 @@ namespace dae {
         std::vector<XINPUT_CONTROLLER_STATE> m_ControllerStates;
     };
 
-    bool dae::InputManager::IsControllerButtonDown(int button) const {
+    bool fovy::InputManager::IsControllerButtonDown(int button) const {
         return m_pImpl->IsDown(static_cast<WORD>(button));
     }
 
-    bool dae::InputManager::IsControllerButtonUp(int button) const {
+    bool fovy::InputManager::IsControllerButtonUp(int button) const {
         return m_pImpl->IsUpThisFrame(static_cast<WORD>(button));
     }
 
-    bool dae::InputManager::IsControllerButtonPressed(int button) const {
+    bool fovy::InputManager::IsControllerButtonPressed(int button) const {
         return m_pImpl->IsDownThisFrame(static_cast<WORD>(button));
     }
 
-    bool dae::InputManager::IsControllerButtonReleased(int button) const {
+    bool fovy::InputManager::IsControllerButtonReleased(int button) const {
         return m_pImpl->IsUpThisFrame(static_cast<WORD>(button));
     }
 
-    void dae::InputManager::HandleControllerInput() {
+    void fovy::InputManager::HandleControllerInput() {
         return m_pImpl->HandleController(m_Bindings);
     }
 
-    dae::InputManager::InputManager() {
+    fovy::InputManager::InputManager() {
         m_pImpl = std::make_unique<ControllerImpl>();
     }
 
-    dae::InputManager::~InputManager() = default;
+    fovy::InputManager::~InputManager() = default;
 };
 
 

@@ -18,7 +18,7 @@ int GetOpenGLDriverIndex() {
     return openglIndex;
 }
 
-void dae::Renderer::Init(SDL_Window* window) {
+void fovy::Renderer::Init(SDL_Window* window) {
     m_window = window;
     m_renderer = SDL_CreateRenderer(window, GetOpenGLDriverIndex(), SDL_RENDERER_ACCELERATED);
     if (m_renderer == nullptr) {
@@ -38,7 +38,7 @@ void dae::Renderer::Init(SDL_Window* window) {
     ImGui_ImplOpenGL3_Init();
 }
 
-void dae::Renderer::Render() const {
+void fovy::Renderer::Render() const {
     const auto& color = GetBackgroundColor();
     SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
     SDL_RenderClear(m_renderer);
@@ -69,7 +69,7 @@ void dae::Renderer::Render() const {
 
 }
 
-void dae::Renderer::Destroy() {
+void fovy::Renderer::Destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImPlot::DestroyContext();
@@ -82,7 +82,7 @@ void dae::Renderer::Destroy() {
     }
 }
 
-void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y) const {
+void fovy::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y) const {
     SDL_Rect dst{};
     dst.x = static_cast<int>(x);
     dst.y = static_cast<int>(y);
@@ -90,7 +90,7 @@ void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const
     SDL_RenderCopy(GetSDLRenderer(), texture.GetSDLTexture(), nullptr, &dst);
 }
 
-void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y, const float width,
+void fovy::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y, const float width,
                                   const float height) const {
     SDL_Rect dst{};
     dst.x = static_cast<int>(x);
@@ -100,8 +100,8 @@ void dae::Renderer::RenderTexture(const Texture2D& texture, const float x, const
     SDL_RenderCopy(GetSDLRenderer(), texture.GetSDLTexture(), nullptr, &dst);
 }
 
-SDL_Window* dae::Renderer::GetSDLWindow() const {
+SDL_Window* fovy::Renderer::GetSDLWindow() const {
     return m_window;
 }
 
-SDL_Renderer *dae::Renderer::GetSDLRenderer() const { return m_renderer; }
+SDL_Renderer *fovy::Renderer::GetSDLRenderer() const { return m_renderer; }

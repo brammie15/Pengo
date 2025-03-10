@@ -5,7 +5,7 @@
 #include <string>
 #include "Singleton.h"
 
-namespace dae {
+namespace fovy {
     class Texture2D;
     class Font;
 

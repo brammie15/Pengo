@@ -5,7 +5,7 @@
 #include "../ObjectModel/Component.h"
 #include "../ObjectModel/Transform.h"
 
-namespace dae {
+namespace fovy {
     class Rotator final : public Component {
     public:
         explicit Rotator(GameObject& parent, float distance, float speed);

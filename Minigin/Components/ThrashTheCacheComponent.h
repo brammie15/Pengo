@@ -24,7 +24,7 @@ struct GameObjectPointer {
     int id{};
 };
 
-namespace dae {
+namespace fovy {
     class ThrashTheCacheComponent final: public Component {
     public:
         explicit ThrashTheCacheComponent(GameObject& parent);

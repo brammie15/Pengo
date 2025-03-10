@@ -2,7 +2,7 @@
 #define OBJECT_H
 #include <string>
 
-namespace dae {
+namespace fovy {
     class Object {
     public:
         Object(const Object& other) = delete;

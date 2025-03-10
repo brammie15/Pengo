@@ -10,7 +10,7 @@
 #include "Texture2D.h"
 #include <memory>
 
-namespace dae {
+namespace fovy {
     class TextComponent final: public Component {
     public:
         TextComponent(GameObject &parent, std::string text, std::shared_ptr<Font> font);

@@ -2,11 +2,11 @@
 
 #include "GameObject.h"
 
-dae::Transform::Transform(GameObject* owner): m_Owner(owner) {
+fovy::Transform::Transform(GameObject* owner): m_Owner(owner) {
 
 }
 
-dae::Transform::~Transform() {
+fovy::Transform::~Transform() {
     SetParent(nullptr);
 
     for (auto it = m_Children.begin(); it != m_Children.end();) {
@@ -16,14 +16,14 @@ dae::Transform::~Transform() {
     }
 }
 
-const glm::vec3& dae::Transform::GetWorldPosition() {
+const glm::vec3& fovy::Transform::GetWorldPosition() {
     if (m_PositionDirty) {
         UpdateWorldPosition();
     }
     return m_WorldPosition;
 }
 
-void dae::Transform::SetWorldPosition(const glm::vec3& position) {
+void fovy::Transform::SetWorldPosition(const glm::vec3& position) {
     if (m_Parent == nullptr) {
         SetLocalPosition(position);
     } else {
@@ -31,24 +31,24 @@ void dae::Transform::SetWorldPosition(const glm::vec3& position) {
     }
 }
 
-void dae::Transform::Move(const glm::vec3& move) {
+void fovy::Transform::Move(const glm::vec3& move) {
     SetLocalPosition(m_LocalPosition + move);
 }
 
-void dae::Transform::Move(double x, double y, double z) {
+void fovy::Transform::Move(double x, double y, double z) {
     this->Move(glm::vec3(x, y, z));
 }
 
-void dae::Transform::SetLocalPosition(const glm::vec3& position) {
+void fovy::Transform::SetLocalPosition(const glm::vec3& position) {
     m_LocalPosition = position;
     SetPositionDirty();
 }
 
-void dae::Transform::RemoveChild(Transform* transform) {
+void fovy::Transform::RemoveChild(Transform* transform) {
     std::erase(m_Children, transform);
 }
 
-void dae::Transform::AddChild(Transform* transform) {
+void fovy::Transform::AddChild(Transform* transform) {
     // if (transform == this or transform == nullptr) {
     //     return;
     // }
@@ -63,7 +63,7 @@ void dae::Transform::AddChild(Transform* transform) {
     // transform->SetPositionDirty();
 }
 
-void dae::Transform::SetParent(Transform* parent, bool useWorldPosition) {
+void fovy::Transform::SetParent(Transform* parent, bool useWorldPosition) {
     if (parent == m_Parent or parent == this or IsChild(parent)) {
         return;
     }
@@ -86,22 +86,22 @@ void dae::Transform::SetParent(Transform* parent, bool useWorldPosition) {
 }
 
 
-bool dae::Transform::IsChild(dae::Transform* child) const {
+bool fovy::Transform::IsChild(fovy::Transform* child) const {
     return std::ranges::find(m_Children, child) != m_Children.end();
 }
 
-dae::GameObject* dae::Transform::GetOwner() const {
+fovy::GameObject* fovy::Transform::GetOwner() const {
     return m_Owner;
 }
 
-void dae::Transform::SetPositionDirty() {
+void fovy::Transform::SetPositionDirty() {
     m_PositionDirty = true;
     for (auto child: m_Children) {
         child->SetPositionDirty();
     }
 }
 
-void dae::Transform::UpdateWorldPosition() {
+void fovy::Transform::UpdateWorldPosition() {
     if (m_Parent) {
         m_WorldPosition = m_Parent->GetWorldPosition() + m_LocalPosition;
     } else {

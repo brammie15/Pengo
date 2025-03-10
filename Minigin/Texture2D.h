@@ -4,7 +4,7 @@
 
 struct SDL_Texture;
 
-namespace dae {
+namespace fovy {
     /**
      * Simple RAII wrapper for an SDL_Texture
      */

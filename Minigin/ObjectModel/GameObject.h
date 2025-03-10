@@ -6,7 +6,7 @@
 #include "Object.h"
 #include "Transform.h"
 
-namespace dae {
+namespace fovy {
     class Scene;
     class Texture2D;
 
