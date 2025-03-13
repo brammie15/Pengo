@@ -32,29 +32,29 @@ namespace fovy {
         }
 
         bool IsDownThisFrame(WORD button, int controllerId = 0) const {
-            if (m_ControllerStates.size() > 0) {
+            if (m_ControllerStates.size() > 0 && m_ControllerStates.size() > controllerId) {
                 return m_ControllerStates[controllerId].buttonsPressed & button;
             }
             return false;
         }
 
         bool IsUpThisFrame(WORD button, int controllerId = 0) const {
-            if (m_ControllerStates.size() > 0) {
+            if (m_ControllerStates.size() > 0 && m_ControllerStates.size() > controllerId) {
                 return m_ControllerStates[controllerId].buttonsReleased & button;
             }
             return false;
         }
 
-        bool IsHeld(WORD button, int controllderId = 0) const {
-            if (m_ControllerStates.size() > 0) {
-                return m_ControllerStates[controllderId].currControlerState.Gamepad.wButtons & button;
+        bool IsHeld(WORD button, int controllerId = 0) const {
+            if (m_ControllerStates.size() > 0  && m_ControllerStates.size() > controllerId) {
+                return m_ControllerStates[controllerId].currControlerState.Gamepad.wButtons & button;
             }
             return false;
         }
 
-        bool IsDown(WORD button, int controllderId = 0) const {
+        bool IsDown(WORD button, int controllerId = 0) const {
             if (m_ControllerStates.size() > 0) {
-                return IsDownThisFrame(button, controllderId) || IsHeld(button, controllderId);
+                return IsDownThisFrame(button, controllerId) || IsHeld(button, controllerId);
             }
             return false;
         }

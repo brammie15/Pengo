@@ -8,7 +8,7 @@ namespace fovy {
     class TextureComponent final: public Component {
     public:
 
-        TextureComponent(GameObject &parent, std::shared_ptr<Texture2D> texture);
+        explicit TextureComponent(GameObject &parent, std::shared_ptr<Texture2D> texture);
 
         TextureComponent(const TextureComponent& other) = delete;
         TextureComponent(TextureComponent&& other) noexcept = delete;

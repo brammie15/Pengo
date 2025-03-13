@@ -1,6 +1,8 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include <functional>
+
 #include "./ObjectModel/GameObject.h"
 #include <glm.hpp>
 
@@ -47,6 +49,15 @@ namespace fovy {
         void Execute() override;
     private:
         std::string m_Message;
+    };
+
+    class FunctionCommand: public BaseCommand {
+    public:
+        explicit FunctionCommand(const std::function<void(void)> function);
+        void Execute() override;
+    private:
+
+        std::function<void(void)> m_function;
     };
 }
 

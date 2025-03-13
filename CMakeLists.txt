@@ -6,10 +6,10 @@ if(EMSCRIPTEN)
 endif()
 
 if(EMSCRIPTEN)
-  set(TARGET_NAME minigin_web)
+  set(TARGET_NAME fovy_web)
   set(TARGET_PARAM )
 else()
-  set(TARGET_NAME minigin)
+  set(TARGET_NAME Fovy)
   set(TARGET_PARAM WIN32
   )
 endif()
@@ -60,6 +60,10 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Input/InputBinding.cpp
         Minigin/Input/InputBinding.h
         Minigin/Input/XInputControllerImpl.cpp
+        Minigin/Event.cpp
+        Minigin/Event.h
+        Minigin/Components/HealthComponent.cpp
+        Minigin/Components/HealthComponent.h
 )
 
 # enable c++20 features

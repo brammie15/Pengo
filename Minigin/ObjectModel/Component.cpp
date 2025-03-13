@@ -25,14 +25,12 @@ void fovy::Component::SetEnabled(bool enabled) {
 }
 
 void fovy::Component::LateUpdate() {
-
 }
 
 void fovy::Component::FixedUpdate() {
 }
 
 void fovy::Component::ImGuiInspector() {
-
 }
 
 void fovy::Component::ImGuiRender() {

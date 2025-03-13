@@ -17,9 +17,11 @@
 
 #include <array>
 #include <filesystem>
+#include <iostream>
 #include <XInput.h>
 
 #include "Components/FPSComponent.h"
+#include "Components/HealthComponent.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
 #include "Components/ThrashTheCacheComponent.h"
@@ -82,6 +84,13 @@ void load() {
     auto player1Obj = std::make_shared<fovy::GameObject>("Player1");
     player1Obj->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("Player1.png"));
     player1Obj->GetTransform().SetWorldPosition(glm::vec3{100, 100, 0});
+    auto healthComponent = player1Obj->AddComponent<fovy::HealthComponent>(3);
+
+    healthComponent->GetOnHealthChangeEvent().AddListener([](int newAmount) {
+        std::cout << newAmount << std::endl;
+    });
+
+    // fovy::InputManager::GetInstance().AddCommand<>()
 
     scene.Add(player1Obj);
 
@@ -120,17 +129,25 @@ void load() {
 
     for (int index{0}; index < 4; ++index) {
         fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
-            KeyboardInputs[index], fovy::ButtonState::Down, player1Obj.get(), Player1MoveSpeed, MoveDirections[index]
+            ControllerInputs[index], fovy::ButtonState::Down, player1Obj.get(), Player1MoveSpeed, MoveDirections[index]
         );
 
         fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
-            ControllerInputs[index], fovy::ButtonState::Down, player2Obj.get(), Player2MoveSpeed, MoveDirections[index]
-        );
+          ControllerInputs[index], fovy::ButtonState::Down, 1, player2Obj.get(), Player2MoveSpeed, MoveDirections[index]
+      );
     }
 
     fovy::InputManager::GetInstance().AddCommand<fovy::ConsoleLogCommand>(
         InputAction{{SDL_SCANCODE_T}, {XINPUT_GAMEPAD_Y}}, fovy::Pressed, 0, "T or Y presssed"
     );
+
+    fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+        InputAction{{},{XINPUT_GAMEPAD_A}}, fovy::Pressed, 0, [player1Obj]() {
+            player1Obj->GetComponent<fovy::HealthComponent>()->Damage(1);
+        }
+    );
+
+
     // auto ThrashTheCacheObj = std::make_shared<dae::GameObject>("ThrashTheCache");
     // ThrashTheCacheObj->AddComponent<dae::ThrashTheCacheComponent>();
     //
