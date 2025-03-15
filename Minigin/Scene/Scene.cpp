@@ -63,8 +63,6 @@ void Scene::Render() const {
 }
 
 void Scene::RenderImgui() {
-
-
     for (auto& object : m_objects) {
         object->ImGuiRender();
     }
@@ -73,7 +71,7 @@ void Scene::RenderImgui() {
         ImGui::ShowDemoWindow();
     }
     ImGui::Begin(std::string("Scene: " + m_name).c_str());
-    ImGui::SetWindowSize(ImVec2{400, 500});
+    ImGui::SetWindowSize(ImVec2{500, 600});
 
     int id = 0;
 
@@ -94,10 +92,11 @@ void Scene::RenderImgui() {
             // Transform UI
             ImGui::Text("Transform");
 
+            ImGui::Text("Position");
             glm::vec3 localPos = transform.GetLocalPosition();
             ImGui::Text("Local: ");
             ImGui::SameLine();
-            if (ImGui::DragFloat3("##", glm::value_ptr(localPos))) {
+            if (ImGui::DragFloat3("#1", glm::value_ptr(localPos))) {
                 transform.SetLocalPosition(localPos);
             }
 
@@ -106,6 +105,23 @@ void Scene::RenderImgui() {
             ImGui::SameLine();
             if (ImGui::DragFloat3("##2", glm::value_ptr(worldPos))) {
                 transform.SetWorldPosition(worldPos);
+            }
+
+            constexpr float scaleSpeed{ 0.05f };
+
+            ImGui::Text("Scale");
+            glm::vec3 localScale = transform.GetLocalScale();
+            ImGui::Text("Local: ");
+            ImGui::SameLine();
+            if (ImGui::DragFloat3("###3", glm::value_ptr(localScale), scaleSpeed)) {
+                transform.SetLocalScale(localScale);
+            }
+
+            glm::vec3 worldScale = transform.GetWorldScale();
+            ImGui::Text("World: ");
+            ImGui::SameLine();
+            if (ImGui::DragFloat3("####4", glm::value_ptr(worldScale), scaleSpeed)) {
+                transform.SetWorldScale(worldScale);
             }
 
             ImGui::SeparatorText("Object's Components");

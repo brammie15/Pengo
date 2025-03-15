@@ -16,10 +16,17 @@ void fovy::TextureComponent::Update() {
 
 void fovy::TextureComponent::Render() {
     const glm::vec3 renderPos = this->GetTransform().GetWorldPosition();
+    const glm::vec3 renderScale = this->GetTransform().GetWorldScale();
+//    const float renderRotation = this->GetTransform().GetWorldRotation().z;
+
+    const auto textureSize =  m_texture->GetSize();
+
     Renderer::GetInstance().RenderTexture(
         *m_texture,
         renderPos.x,
-        renderPos.y
+        renderPos.y,
+        static_cast<float>(textureSize.x) * renderScale.x,
+        static_cast<float>(textureSize.y) * renderScale.y
     );
 }
 

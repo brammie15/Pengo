@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <steam_api.h>
 
 #if _DEBUG
 // ReSharper disable once CppUnusedIncludeDirective
@@ -22,12 +23,16 @@
 
 #include "Components/FPSComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/LivesDisplayComponent.h"
+#include "Components/ScoreComponent.h"
+#include "Components/ScoreDisplayComponent.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
 #include "Components/ThrashTheCacheComponent.h"
 #include "Input/InputAction.h"
 #include "Input/InputBinding.h"
 #include "Input/InputManager.h"
+#include "Managers/AchievementManager.h"
 #include "ObjectModel/GameObject.h"
 
 namespace fs = std::filesystem;
@@ -40,6 +45,7 @@ void load() {
     scene.Add(go);
 
     auto font = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+    auto smallerFont = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 22);
 
     const auto newText = std::make_shared<fovy::GameObject>("HelloWorldText");
     newText->AddComponent<fovy::TextComponent>(std::string("Hello World!"), font);
@@ -60,49 +66,10 @@ void load() {
     fpsComponent->SetTargetTextComponent(textComponent);
 
     scene.Add(fpsGameobject);
-    //
-    // const auto parentObj = std::make_shared<dae::GameObject>("ParentObj");
-    // const auto childObj = std::make_shared<dae::GameObject>("ChildObj");
-    //
-    // const auto childImage = dae::ResourceManager::GetInstance().LoadTexture("child.jpg");
-    // const auto parentImage = dae::ResourceManager::GetInstance().LoadTexture("Parent.jpg");
-    //
-    // parentObj->AddComponent<dae::TextureComponent>(parentImage);
-    // parentObj->GetTransform().SetWorldPosition(glm::vec3{200, 200, 0});
-    // parentObj->AddComponent<dae::Rotator>(30.f, 10.f);
-    // // parentObj->GetTransform().AddChild(&childObj->GetTransform());
-    //
-    // childObj->GetTransform().SetParent(&parentObj->GetTransform());
-    // childObj->AddComponent<dae::TextureComponent>(childImage);
-    // childObj->AddComponent<dae::Rotator>(30.f, 5.f);
-    // childObj->GetTransform().SetLocalPosition(glm::vec3{50, 50, 0});
-    //
-    // scene.Add(parentObj);
-    // scene.Add(childObj);
 
 
-    auto player1Obj = std::make_shared<fovy::GameObject>("Player1");
-    player1Obj->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("Player1.png"));
-    player1Obj->GetTransform().SetWorldPosition(glm::vec3{100, 100, 0});
-    auto healthComponent = player1Obj->AddComponent<fovy::HealthComponent>(3);
+    const std::string playerNames[2] = {"player1.png", "player2.png"};
 
-    healthComponent->GetOnHealthChangeEvent().AddListener([](int newAmount) {
-        std::cout << newAmount << std::endl;
-    });
-
-    // fovy::InputManager::GetInstance().AddCommand<>()
-
-    scene.Add(player1Obj);
-
-    auto player2Obj = std::make_shared<fovy::GameObject>("Player2");
-    player2Obj->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("Player2.png"));
-    player2Obj->GetTransform().SetWorldPosition(glm::vec3{300, 100, 0});
-
-    scene.Add(player2Obj);
-
-
-    constexpr float Player1MoveSpeed{ 200.f };
-    constexpr float Player2MoveSpeed{ Player1MoveSpeed * 2 };
 
     using fovy::InputAction;
 
@@ -114,10 +81,10 @@ void load() {
     };
 
     std::array<InputAction, 4> ControllerInputs{
-        InputAction{{},{XINPUT_GAMEPAD_DPAD_UP}},
-        InputAction{{},{XINPUT_GAMEPAD_DPAD_LEFT}},
-        InputAction{{},{XINPUT_GAMEPAD_DPAD_DOWN}},
-        InputAction{{},{XINPUT_GAMEPAD_DPAD_RIGHT}},
+        InputAction{{}, {XINPUT_GAMEPAD_DPAD_UP}},
+        InputAction{{}, {XINPUT_GAMEPAD_DPAD_LEFT}},
+        InputAction{{}, {XINPUT_GAMEPAD_DPAD_DOWN}},
+        InputAction{{}, {XINPUT_GAMEPAD_DPAD_RIGHT}},
     };
 
     std::array<glm::vec3, 4> MoveDirections{
@@ -127,34 +94,106 @@ void load() {
         glm::vec3{1, 0, 0},
     };
 
-    for (int index{0}; index < 4; ++index) {
-        fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
-            ControllerInputs[index], fovy::ButtonState::Down, player1Obj.get(), Player1MoveSpeed, MoveDirections[index]
+    auto PlayerExplain1 = std::make_shared<fovy::GameObject>();
+    PlayerExplain1->GetTransform().SetWorldPosition({0, 300,0});
+    PlayerExplain1->AddComponent<fovy::TextComponent>("Player1: WASD to move, C to Damage, Z to Add 100 points", smallerFont);
+
+    scene.Add(PlayerExplain1);
+
+    auto PlayerExplain2 = std::make_shared<fovy::GameObject>();
+    PlayerExplain2->GetTransform().SetWorldPosition({0, 350,0});
+    PlayerExplain2->AddComponent<fovy::TextComponent>("Player2: D-Pad to move, X to Damage, B to Add 100 points", smallerFont);
+
+    scene.Add(PlayerExplain2);
+
+
+
+    float baseHeight = 40;
+    for (int index{0}; index < 2; ++index) {
+        //PlayerScoreDisplay
+        auto Player1Text = std::make_shared<fovy::GameObject>();
+        Player1Text->GetTransform().SetWorldPosition({0, baseHeight, 0});
+        Player1Text->AddComponent<fovy::TextComponent>(std::string("#Player ") + std::to_string(index + 1), smallerFont);
+        baseHeight += 30;
+
+        const auto playerScoreDisplay = std::make_shared<fovy::GameObject>("PlayerScoreDisplay");
+        playerScoreDisplay->GetTransform().SetWorldPosition({0, baseHeight, 0});
+        baseHeight+= 30;
+        playerScoreDisplay->AddComponent<fovy::TextComponent>("Lorem Ipsum", smallerFont);
+        const auto playerScoreDisplayComponent = playerScoreDisplay->AddComponent<fovy::ScoreDisplayComponent>();
+
+        //Player
+        const auto playerObj = std::make_shared<fovy::GameObject>("Player1");
+        playerObj->GetTransform().SetWorldPosition(glm::vec3{100, 100 + (index * 100), 0});
+        playerObj->GetTransform().SetLocalScale({0.2, 0.2, 0.2});
+        playerObj->AddComponent<fovy::TextureComponent>(
+            fovy::ResourceManager::GetInstance().LoadTexture(playerNames[index]));
+
+        const auto playerScore = playerObj->AddComponent<fovy::ScoreComponent>();
+        playerScore->GetScoreChangedEvent().AddListener(&fovy::AchievementManager::GetInstance(), &fovy::AchievementManager::ScoreChanged);
+        playerScore->GetScoreChangedEvent().AddListener(playerScoreDisplayComponent,
+                                                         &fovy::ScoreDisplayComponent::UpdateScore);
+        playerScore->GetScoreChangedEvent().Invoke(0);
+
+        const auto healthComponent = playerObj->AddComponent<fovy::HealthComponent>(3);
+
+
+        auto livesDisplay = std::make_shared<fovy::GameObject>("Lives");
+        livesDisplay->GetTransform().SetLocalPosition(glm::vec3{0, baseHeight, 0});
+        baseHeight+= 40;
+
+        livesDisplay->AddComponent<fovy::TextComponent>("hello", smallerFont);
+        auto comp = livesDisplay->AddComponent<fovy::LivesDisplayComponent>();
+
+        scene.Add(livesDisplay);
+        scene.Add(playerObj);
+        scene.Add(playerScoreDisplay);
+        scene.Add(Player1Text);
+
+        healthComponent->GetOnHealthChangeEvent().AddListener(comp, &fovy::LivesDisplayComponent::OnLivesUpdate);
+        healthComponent->GetOnHealthChangeEvent().Invoke(3);
+
+        constexpr float Player1MoveSpeed{200.f};
+
+        auto& ToUse = index == 0 ? ControllerInputs : KeyboardInputs;
+        for (int index1{0}; index1 < 4; ++index1) {
+            fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
+                ToUse[index1], fovy::ButtonState::Down, playerObj.get(), Player1MoveSpeed,
+                MoveDirections[index1]
+            );
+        }
+
+        std::array<InputAction, 2> DamageButtons = {
+            InputAction{{}, {XINPUT_GAMEPAD_X}},
+            InputAction{{SDL_SCANCODE_C}, {}}
+        };
+
+        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+            DamageButtons[index], fovy::Pressed, 0, [playerObj]() {
+                playerObj->GetComponent<fovy::HealthComponent>()->Damage(1);
+            }
         );
 
-        fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
-          ControllerInputs[index], fovy::ButtonState::Down, 1, player2Obj.get(), Player2MoveSpeed, MoveDirections[index]
-      );
+        std::array<InputAction, 2> ScoreButtons = {
+            InputAction{{}, {XINPUT_GAMEPAD_B}},
+            InputAction{{SDL_SCANCODE_X}, {}}
+        };
+
+        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+           ScoreButtons[index], fovy::Pressed, 0, [playerObj]() {
+                playerObj->GetComponent<fovy::ScoreComponent>()->AddPoints(100);
+            }
+        );
     }
-
-    fovy::InputManager::GetInstance().AddCommand<fovy::ConsoleLogCommand>(
-        InputAction{{SDL_SCANCODE_T}, {XINPUT_GAMEPAD_Y}}, fovy::Pressed, 0, "T or Y presssed"
-    );
-
-    fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
-        InputAction{{},{XINPUT_GAMEPAD_A}}, fovy::Pressed, 0, [player1Obj]() {
-            player1Obj->GetComponent<fovy::HealthComponent>()->Damage(1);
-        }
-    );
-
-
-    // auto ThrashTheCacheObj = std::make_shared<dae::GameObject>("ThrashTheCache");
-    // ThrashTheCacheObj->AddComponent<dae::ThrashTheCacheComponent>();
-    //
-    // scene.Add(ThrashTheCacheObj);
 }
 
 int main(int, char*[]) {
+    if (!SteamAPI_Init())
+    {
+        std::cerr << "Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed)." << std::endl;
+    }
+    else
+        std::cout << "Successfully initialized steam." << std::endl;
 #if __EMSCRIPTEN__
 	fs::path data_location = "";
 #else
@@ -164,5 +203,6 @@ int main(int, char*[]) {
 #endif
     fovy::Minigin engine(data_location);
     engine.Run(load);
+    SteamAPI_Shutdown();
     return 0;
 }

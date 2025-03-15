@@ -51,8 +51,6 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Components/FPSComponent.h
         Minigin/Components/Rotator.cpp
         Minigin/Components/Rotator.h
-        Minigin/Components/ThrashTheCacheComponent.cpp
-        Minigin/Components/ThrashTheCacheComponent.h
         Minigin/Command.cpp
         Minigin/Command.h
         Minigin/Input/InputAction.cpp
@@ -64,6 +62,14 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Event.h
         Minigin/Components/HealthComponent.cpp
         Minigin/Components/HealthComponent.h
+        Minigin/Components/LivesDisplayComponent.cpp
+        Minigin/Components/LivesDisplayComponent.h
+        Minigin/Components/ScoreDisplayComponent.cpp
+        Minigin/Components/ScoreDisplayComponent.h
+        Minigin/Components/ScoreComponent.cpp
+        Minigin/Components/ScoreComponent.h
+        Minigin/Managers/AchievementManager.cpp
+        Minigin/Managers/AchievementManager.h
 )
 
 # enable c++20 features
@@ -128,6 +134,9 @@ if (WIN32)
           ${implot_SOURCE_DIR}/implot_demo.cpp
           ${implot_SOURCE_DIR}/implot_items.cpp
   )
+
+  include(LinkSteamworks.cmake)
+  use_steamworks(${PROJECT_NAME})
 
 
 

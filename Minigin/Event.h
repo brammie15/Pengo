@@ -4,7 +4,6 @@
 #include <unordered_set>
 
 namespace fovy {
-
     class EventListener;
 
     class BaseEvent {
@@ -13,18 +12,15 @@ namespace fovy {
         virtual ~BaseEvent() = default;
 
         virtual void RemoveListener(EventListener* listener) = 0;
-    private:
     };
 
-    class EventListener
-    {
-        template<typename... EventArgs>
+    class EventListener {
+        template <typename... EventArgs>
         friend class Event;
 
     public:
-        virtual ~EventListener()
-        {
-            for(auto* event : m_BindedEvents)
+        virtual ~EventListener() {
+            for (auto* event: m_Events)
                 event->RemoveListener(this);
         }
 
@@ -37,24 +33,22 @@ namespace fovy {
         EventListener() = default;
 
     private:
-        void AddEvent(BaseEvent* event) { m_BindedEvents.insert(event); }
+        void AddEvent(BaseEvent* event) { m_Events.insert(event); }
 
-        void RemoveEvent(BaseEvent* event) { m_BindedEvents.erase(event); }
+        void RemoveEvent(BaseEvent* event) { m_Events.erase(event); }
 
-        std::unordered_set<BaseEvent*> m_BindedEvents;
+        std::unordered_set<BaseEvent*> m_Events;
     };
 
-      template<typename... EventArgs>
-    class Event final : public BaseEvent
-    {
+    template <typename... EventArgs>
+    class Event final: public BaseEvent {
         using EventFunction = std::pair<void*, std::function<void(EventArgs...)>>;
 
     public:
         Event() = default;
 
-        ~Event() override
-        {
-            for(auto* eventListener : m_EventListeners)
+        ~Event() override {
+            for (auto* eventListener: m_EventListeners)
                 eventListener->RemoveEvent(this);
         }
 
@@ -63,52 +57,50 @@ namespace fovy {
         Event& operator=(Event&&) = delete;
         Event& operator=(const Event&) = delete;
 
-        template<typename Function>
-        void AddListener(Function function)
-        {
-            m_FunctionBinds.emplace_back(nullptr, [function](EventArgs... args) { function(args...); });
-        }
 
-        template<typename ObjectType>
+        //This is to allow any member function of a EventListener to be bound as a event callback
+        template <typename ObjectType>
             requires std::derived_from<ObjectType, EventListener>
-        void AddListener(ObjectType* object, void (ObjectType::*memberFunction)(EventArgs...))
-        {
+        void AddListener(ObjectType* object, void (ObjectType::*memberFunction)(EventArgs...)) {
             auto* listener = static_cast<EventListener*>(object);
             listener->AddEvent(this);
             m_EventListeners.insert(listener);
 
             m_FunctionBinds.emplace_back(
-                listener, [object, memberFunction](EventArgs... args) { (object->*memberFunction)(args...); });
+                listener, [object, memberFunction] (EventArgs... args) { (object->*memberFunction)(args...); });
         }
 
-        template<typename... Args>
-        void Invoke(Args&&... args)
-        {
+        template <typename Function>
+        void AddListener(Function function) {
+            m_FunctionBinds.emplace_back(nullptr, [function] (EventArgs... args) { function(args...); });
+        }
+
+        template <typename... Args>
+        void Invoke(Args&&... args) {
             m_Invoking = true;
-            for(auto&& listenerFunction : m_FunctionBinds)
+            for (auto&& listenerFunction: m_FunctionBinds)
                 listenerFunction.second(args...);
             m_Invoking = false;
         }
 
-        void RemoveListener(EventListener* listener) override
-        {
+        void RemoveListener(EventListener* listener) override {
             m_EventListeners.erase(listener);
 
-            m_FunctionBinds.erase(std::remove_if(m_FunctionBinds.begin(),
-                                                 m_FunctionBinds.end(),
-                                                 [listener](const EventFunction& bind)
-                                                 { return bind.first == static_cast<void*>(listener); }),
-                                  m_FunctionBinds.end());
+            for (auto it = m_FunctionBinds.begin(); it != m_FunctionBinds.end(); ) {
+                if (it->first == static_cast<void*>(listener)) {
+                    it = m_FunctionBinds.erase(it);
+                } else {
+                    ++it;
+                }
+            }
         }
 
-
     private:
-        bool m_Invoking{ false };
+        bool m_Invoking{false};
         std::vector<EventFunction> m_FunctionBinds{};
         std::unordered_set<EventListener*> m_EventListeners{};
     };
 }
-
 
 
 #endif //EVENT_H

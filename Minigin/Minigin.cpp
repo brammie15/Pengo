@@ -12,6 +12,7 @@
 #include <SDL_ttf.h>
 #include "Minigin.h"
 
+#include <steam_api_common.h>
 #include <thread>
 
 #include "Input/InputManager.h"
@@ -116,6 +117,8 @@ void fovy::Minigin::Run(const std::function<void()>& load) {
 void fovy::Minigin::RunOneFrame() {
     auto& Time{Time::GetInstance()};
     Time.Update();
+
+    SteamAPI_RunCallbacks();
 
     m_quit = !InputManager::GetInstance().ProcessInput();
 
