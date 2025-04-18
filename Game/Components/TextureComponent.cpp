@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "Managers/Renderer.h"
-#include "../ObjectModel/Transform.h"
+#include "ObjectModel/Transform.h"
 
 fovy::TextureComponent::TextureComponent(
     GameObject &parent,

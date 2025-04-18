@@ -2,7 +2,6 @@
 #include <cstring>
 #include "Renderer.h"
 
-#include "implot.h"
 #include "Scene/SceneManager.h"
 #include "Texture2D.h"
 
@@ -27,9 +26,9 @@ void fovy::Renderer::Init(SDL_Window* window) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImPlot::CreateContext();
 
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
     // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -55,9 +54,9 @@ void fovy::Renderer::Render() const {
 
     ImGui::Render();
 
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
@@ -65,18 +64,14 @@ void fovy::Renderer::Render() const {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     SDL_RenderPresent(m_renderer);
-
-
 }
 
 void fovy::Renderer::Destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
-    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
-    if (m_renderer != nullptr)
-    {
+    if (m_renderer != nullptr) {
         SDL_DestroyRenderer(m_renderer);
         m_renderer = nullptr;
     }
@@ -91,7 +86,7 @@ void fovy::Renderer::RenderTexture(const Texture2D& texture, const float x, cons
 }
 
 void fovy::Renderer::RenderTexture(const Texture2D& texture, const float x, const float y, const float width,
-                                  const float height) const {
+                                   const float height) const {
     SDL_Rect dst{};
     dst.x = static_cast<int>(x);
     dst.y = static_cast<int>(y);
@@ -100,7 +95,7 @@ void fovy::Renderer::RenderTexture(const Texture2D& texture, const float x, cons
     SDL_RenderCopy(GetSDLRenderer(), texture.GetSDLTexture(), nullptr, &dst);
 }
 
-SDL_Window* fovy::Renderer::GetSDLWindow() const {
+SDL_Window *fovy::Renderer::GetSDLWindow() const {
     return m_window;
 }
 

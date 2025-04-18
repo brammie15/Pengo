@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL.h>
-#include "Singleton.h"
+#include "../Singleton.h"
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -26,10 +26,9 @@ namespace fovy {
 
         [[nodiscard]] SDL_Window* GetSDLWindow() const;
 
-        [[nodiscard]] SDL_Renderer *GetSDLRenderer() const;
+        [[nodiscard]] SDL_Renderer* GetSDLRenderer() const;
 
         [[nodiscard]] const SDL_Color& GetBackgroundColor() const { return m_clearColor; }
         void SetBackgroundColor(const SDL_Color& color) { m_clearColor = color; }
-
     };
 }

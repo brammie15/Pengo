@@ -1,7 +1,7 @@
 #ifndef FPSCOMPONENT_H
 #define FPSCOMPONENT_H
 
-#include "../ObjectModel/Component.h"
+#include "ObjectModel/Component.h"
 #include "TextComponent.h"
 
 namespace fovy {

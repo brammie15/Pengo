@@ -17,7 +17,7 @@ void fovy::ResourceManager::Init(const std::filesystem::path& dataPath) {
 std::shared_ptr<fovy::Texture2D> fovy::ResourceManager::LoadTexture(const std::string& file) {
     const auto fullPath = m_dataPath / file;
     const auto filename = fs::path(fullPath).filename().string();
-    if (m_loadedTextures.find(filename) == m_loadedTextures.end())
+    if (!m_loadedTextures.contains(filename))
         m_loadedTextures.insert(std::pair(filename, std::make_shared<Texture2D>(fullPath.string())));
     return m_loadedTextures.at(filename);
 }
@@ -26,7 +26,7 @@ std::shared_ptr<fovy::Font> fovy::ResourceManager::LoadFont(const std::string& f
     const auto fullPath = m_dataPath / file;
     const auto filename = fs::path(fullPath).filename().string();
     const auto key = std::pair<std::string, uint8_t>(filename, size);
-    if (m_loadedFonts.find(key) == m_loadedFonts.end())
+    if (!m_loadedFonts.contains(key))
         m_loadedFonts.insert(std::pair(key, std::make_shared<Font>(fullPath.string(), size)));
     return m_loadedFonts.at(key);
 }

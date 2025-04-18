@@ -1,5 +1,4 @@
 #include <SDL.h>
-#include <steam_api.h>
 
 #if _DEBUG
 // ReSharper disable once CppUnusedIncludeDirective
@@ -18,7 +17,6 @@
 
 #include <array>
 #include <filesystem>
-#include <iostream>
 #include <XInput.h>
 
 #include "Components/FPSComponent.h"
@@ -36,6 +34,7 @@
 #include "ObjectModel/GameObject.h"
 
 namespace fs = std::filesystem;
+
 
 void load() {
     auto& scene = fovy::SceneManager::GetInstance().CreateScene("Demo");
@@ -67,9 +66,7 @@ void load() {
 
     scene.Add(fpsGameobject);
 
-
     const std::string playerNames[2] = {"player1.png", "player2.png"};
-
 
     using fovy::InputAction;
 
@@ -188,12 +185,6 @@ void load() {
 }
 
 int main(int, char*[]) {
-    if (!SteamAPI_Init())
-    {
-        std::cerr << "Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed)." << std::endl;
-    }
-    else
-        std::cout << "Successfully initialized steam." << std::endl;
 #if __EMSCRIPTEN__
 	fs::path data_location = "";
 #else
@@ -203,6 +194,5 @@ int main(int, char*[]) {
 #endif
     fovy::Minigin engine(data_location);
     engine.Run(load);
-    SteamAPI_Shutdown();
     return 0;
 }

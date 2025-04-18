@@ -5,7 +5,7 @@
 #include <SDL_pixels.h>
 #include <string>
 
-#include "../ObjectModel/Component.h"
+#include "ObjectModel/Component.h"
 #include "Font.h"
 #include "Texture2D.h"
 #include <memory>

@@ -1,28 +1,16 @@
 cmake_minimum_required(VERSION 3.26)
 project(Fovy)
-
-if(EMSCRIPTEN)
-  message("Using Emscripten!")
-endif()
-
-if(EMSCRIPTEN)
-  set(TARGET_NAME fovy_web)
-  set(TARGET_PARAM )
-else()
-  set(TARGET_NAME Fovy)
-  set(TARGET_PARAM WIN32
-  )
-endif()
+set(TARGET_NAME Fovy)
+set(TARGET_PARAM WIN32)
 
 # list source files here
-add_executable(${TARGET_NAME} ${TARGET_PARAM}
+add_library(${TARGET_NAME}
         Minigin/Font.cpp
         Minigin/Font.h
         Minigin/ObjectModel/GameObject.cpp
         Minigin/ObjectModel/GameObject.h
         Minigin/Input/InputManager.cpp
         Minigin/Input/InputManager.h
-        Minigin/Main.cpp
         Minigin/Minigin.cpp
         Minigin/Minigin.h
         Minigin/Managers/Renderer.cpp
@@ -43,14 +31,14 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/ObjectModel/Object.h
         Minigin/ObjectModel/Component.cpp
         Minigin/ObjectModel/Component.h
-        Minigin/Components/TextComponent.cpp
-        Minigin/Components/TextComponent.h
-        Minigin/Components/TextureComponent.cpp
-        Minigin/Components/TextureComponent.h
-        Minigin/Components/FPSComponent.cpp
-        Minigin/Components/FPSComponent.h
-        Minigin/Components/Rotator.cpp
-        Minigin/Components/Rotator.h
+        Game/Components/TextComponent.cpp
+        Game/Components/TextComponent.h
+        Game/Components/TextureComponent.cpp
+        Game/Components/TextureComponent.h
+        Game/Components/FPSComponent.cpp
+        Game/Components/FPSComponent.h
+        Game/Components/Rotator.cpp
+        Game/Components/Rotator.h
         Minigin/Command.cpp
         Minigin/Command.h
         Minigin/Input/InputAction.cpp
@@ -60,25 +48,22 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
         Minigin/Input/XInputControllerImpl.cpp
         Minigin/Event.cpp
         Minigin/Event.h
-        Minigin/Components/HealthComponent.cpp
-        Minigin/Components/HealthComponent.h
-        Minigin/Components/LivesDisplayComponent.cpp
-        Minigin/Components/LivesDisplayComponent.h
-        Minigin/Components/ScoreDisplayComponent.cpp
-        Minigin/Components/ScoreDisplayComponent.h
-        Minigin/Components/ScoreComponent.cpp
-        Minigin/Components/ScoreComponent.h
+        Game/Components/HealthComponent.cpp
+        Game/Components/HealthComponent.h
+        Game/Components/LivesDisplayComponent.cpp
+        Game/Components/LivesDisplayComponent.h
+        Game/Components/ScoreDisplayComponent.cpp
+        Game/Components/ScoreDisplayComponent.h
+        Game/Components/ScoreComponent.cpp
+        Game/Components/ScoreComponent.h
         Minigin/Managers/AchievementManager.cpp
         Minigin/Managers/AchievementManager.h
 )
 
-# enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
-# set minigin as the default startup project
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
 
 include(FetchContent)
-# add glm
+
 FetchContent_Declare(
         glm
         URL https://github.com/g-truc/glm/releases/download/1.0.1/glm-1.0.1-light.zip
@@ -86,248 +71,199 @@ FetchContent_Declare(
         DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
 )
 
-FetchContent_GetProperties(glm)
-if(NOT glm_POPULATED)
-  FetchContent_MakeAvailable(glm)
-endif()
+FetchContent_MakeAvailable(glm)
 
 # add SDL2
-if (WIN32)
-  target_link_libraries(${TARGET_NAME} PUBLIC xinput)
-  FetchContent_Declare(
-          imgui
-          GIT_REPOSITORY https://github.com/ocornut/imgui.git
-          GIT_TAG docking # Use the 'docking' branch
-  )
+target_link_libraries(${TARGET_NAME} PUBLIC xinput)
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        GIT_TAG docking # Use the 'docking' branch
+)
+FetchContent_MakeAvailable(imgui)
 
-  FetchContent_Declare(
-          implot
-          GIT_REPOSITORY https://github.com/epezent/implot.git
-          GIT_TAG master
-  )
-
-  # Fetch and make ImGui available
-  FetchContent_MakeAvailable(imgui)
-  FetchContent_MakeAvailable(implot)
-
-  # Add the ImGui sources to your project
-  add_library(imgui STATIC
-          ${imgui_SOURCE_DIR}/imgui.cpp
-          ${imgui_SOURCE_DIR}/imgui.h
-          ${imgui_SOURCE_DIR}/imconfig.h
-          ${imgui_SOURCE_DIR}/imgui_demo.cpp
-          ${imgui_SOURCE_DIR}/imgui_draw.cpp
-          ${imgui_SOURCE_DIR}/imgui_internal.h
-          ${imgui_SOURCE_DIR}/imgui_tables.cpp
-          ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-          ${imgui_SOURCE_DIR}/imstb_rectpack.h
-          ${imgui_SOURCE_DIR}/imstb_textedit.h
-          ${imgui_SOURCE_DIR}/imstb_truetype.h
-          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
-          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
-  )
-
-  add_library(implot STATIC
-          ${implot_SOURCE_DIR}/implot.cpp
-          ${implot_SOURCE_DIR}/implot.h
-          ${implot_SOURCE_DIR}/implot_internal.h
-          ${implot_SOURCE_DIR}/implot_demo.cpp
-          ${implot_SOURCE_DIR}/implot_items.cpp
-  )
-
-  include(LinkSteamworks.cmake)
-  use_steamworks(${PROJECT_NAME})
-
-
-
-  target_sources(imgui PUBLIC
-          ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
-          ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
-  )
-
-  FetchContent_Declare(
-          SDL2
-          URL https://www.libsdl.org/release/SDL2-devel-2.30.10-VC.zip
-          DOWNLOAD_NO_PROGRESS ON
-          DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
-  )
-  FetchContent_GetProperties(SDL2)
-  if(NOT SDL2_POPULATED)
-    FetchContent_MakeAvailable(SDL2)
-    set(SDL2_INCLUDE_DIR ${sdl2_SOURCE_DIR}/include)
-    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
-      set(SDL2_LIBRARIES "${sdl2_SOURCE_DIR}/lib/x64/SDL2.lib;${sdl2_SOURCE_DIR}/lib/x64/SDL2main.lib")
-      set(SDL2_LIBRARY_DLL "${sdl2_SOURCE_DIR}/lib/x64/SDL2.dll")
-    else()
-      set(SDL2_LIBRARIES "${sdl2_SOURCE_DIR}/lib/x86/SDL2.lib;${sdl2_SOURCE_DIR}/lib/x86/SDL2main.lib")
-      set(SDL2_LIBRARY_DLL "${sdl2_SOURCE_DIR}/lib/x86/SDL2.dll")
-    endif()
-  endif()
-
-  # add SDL2_image
-  FetchContent_Declare(
-          SDL2_image
-          URL https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.8.3-VC.zip
-          DOWNLOAD_NO_PROGRESS ON
-          DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
-  )
-  FetchContent_GetProperties(SDL2_image)
-  if(NOT SDL2_image_POPULATED)
-    FetchContent_MakeAvailable(SDL2_image)
-    set(SDL2_IMAGE_INCLUDE_DIR ${sdl2_image_SOURCE_DIR}/include)
-    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
-      set(SDL2_IMAGE_LIBRARIES "${sdl2_image_SOURCE_DIR}/lib/x64/SDL2_image.lib")
-      set(SDL2_IMAGE_LIBRARY_DLL "${sdl2_image_SOURCE_DIR}/lib/x64/SDL2_image.dll")
-    else()
-      set(SDL2_IMAGE_LIBRARIES "${sdl2_image_SOURCE_DIR}/lib/x86/SDL2_image.lib")
-      set(SDL2_IMAGE_LIBRARY_DLL "${sdl2_image_SOURCE_DIR}/lib/x86/SDL2_image.dll")
-    endif()
-  endif()
-
-  # add SDL2_ttf
-  FetchContent_Declare(
-          SDL2_ttf
-          URL https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.22.0-VC.zip
-          DOWNLOAD_NO_PROGRESS ON
-          DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
-  )
-  FetchContent_GetProperties(SDL2_ttf)
-  if(NOT sdl2_ttf_POPULATED)
-    FetchContent_MakeAvailable(SDL2_ttf)
-    set(SDL2_TTF_INCLUDE_DIR ${sdl2_ttf_SOURCE_DIR}/include)
-    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
-      set(SDL2_TTF_LIBRARIES ${sdl2_ttf_SOURCE_DIR}/lib/x64/SDL2_ttf.lib)
-      set(SDL2_TTF_LIBRARY_DLL "${sdl2_ttf_SOURCE_DIR}/lib/x64/SDL2_ttf.dll")
-    else()
-      set(SDL2_TTF_LIBRARIES ${sdl2_ttf_SOURCE_DIR}/lib/x86/SDL2_ttf.lib)
-      set(SDL2_TTF_LIBRARY_DLL "${sdl2_ttf_SOURCE_DIR}/lib/x86/SDL2_ttf.dll")
-    endif()
-  endif()
-
-  target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${SDL2_INCLUDE_DIR})
-  target_link_libraries(imgui PRIVATE
-          ${SDL2_LIBRARIES}
-  )
-
-find_package(VLD CONFIG)
-
-if(NOT VLD_FOUND)
-    message("VLD NOT FOUND!")
-endif()
-
-
-  # set all include directories
-  target_include_directories(${TARGET_NAME} PRIVATE
-          ${VLD_INCLUDE_DIR}
-          ${SDL2_INCLUDE_DIR}
-          ${SDL2_IMAGE_INCLUDE_DIR}
-          ${SDL2_TTF_INCLUDE_DIR}
-          ${imgui_SOURCE_DIR}
-          ${imgui_SOURCE_DIR}/backends
-          ${implot_SOURCE_DIR}
-  )
-
-  message(${imgui_SOURCE_DIR})
-
-  # set libraries to link with
-  target_link_libraries(${TARGET_NAME} PUBLIC
-          ${SDL2_LIBRARIES}
-          ${SDL2_IMAGE_LIBRARIES}
-          ${SDL2_TTF_LIBRARIES}
-          ${VLD_LIBRARY}
-  )
-  target_link_libraries(implot PRIVATE imgui)
-  target_link_libraries(${TARGET_NAME} PRIVATE imgui implot)
-
-elseif(NOT EMSCRIPTEN)
-
-  FetchContent_Declare(
-          SDL2
-          GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-          GIT_TAG release-2.30.10
-          GIT_SHALLOW TRUE
-          GIT_PROGRESS TRUE
-  )
-  FetchContent_MakeAvailable(SDL2)
-
-  FetchContent_Declare(
-          SDL2_image
-          GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
-          GIT_TAG release-2.8.3
-          GIT_SHALLOW TRUE
-          GIT_PROGRESS TRUE
-  )
-  set(SDL2IMAGE_INSTALL OFF)
-  FetchContent_MakeAvailable(SDL2_image)
-
-  FetchContent_Declare(
-          SDL2_ttf
-          GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
-          GIT_TAG release-2.22.0
-          GIT_SHALLOW TRUE
-          GIT_PROGRESS TRUE
-  )
-  set(SDL2TTF_INSTALL OFF)
-  FetchContent_MakeAvailable(SDL2_ttf)
-
-  target_include_directories("${TARGET_NAME}" PUBLIC
-          ${sdl2_SOURCE_DIR}/include
-          ${sdl2_image_SOURCE_DIR}/include
-          ${sdl2_ttf_SOURCE_DIR}
-  )
-  target_link_libraries("${TARGET_NAME}" PUBLIC
-          SDL2::SDL2main SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf
-  )
-
-
-
-endif()
-
-target_include_directories(${TARGET_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}/Minigin/
-        ${glm_SOURCE_DIR}
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui.h
+        ${imgui_SOURCE_DIR}/imconfig.h
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_internal.h
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/imstb_rectpack.h
+        ${imgui_SOURCE_DIR}/imstb_textedit.h
+        ${imgui_SOURCE_DIR}/imstb_truetype.h
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.h
 )
 
 
-# compile at max warning level + treat warnings as errors
+target_sources(imgui PUBLIC
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+FetchContent_Declare(
+        SDL2
+        URL https://www.libsdl.org/release/SDL2-devel-2.30.10-VC.zip
+        DOWNLOAD_NO_PROGRESS ON
+        DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+)
+FetchContent_GetProperties(SDL2)
+if (NOT SDL2_POPULATED)
+    FetchContent_MakeAvailable(SDL2)
+    set(SDL2_INCLUDE_DIR ${sdl2_SOURCE_DIR}/include)
+    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+        set(SDL2_LIBRARIES "${sdl2_SOURCE_DIR}/lib/x64/SDL2.lib;${sdl2_SOURCE_DIR}/lib/x64/SDL2main.lib")
+        set(SDL2_LIBRARY_DLL "${sdl2_SOURCE_DIR}/lib/x64/SDL2.dll")
+    else ()
+        set(SDL2_LIBRARIES "${sdl2_SOURCE_DIR}/lib/x86/SDL2.lib;${sdl2_SOURCE_DIR}/lib/x86/SDL2main.lib")
+        set(SDL2_LIBRARY_DLL "${sdl2_SOURCE_DIR}/lib/x86/SDL2.dll")
+    endif ()
+endif ()
+
+# add SDL2_image
+FetchContent_Declare(
+        SDL2_image
+        URL https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.8.3-VC.zip
+        DOWNLOAD_NO_PROGRESS ON
+        DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+)
+FetchContent_GetProperties(SDL2_image)
+if (NOT SDL2_image_POPULATED)
+    FetchContent_MakeAvailable(SDL2_image)
+    set(SDL2_IMAGE_INCLUDE_DIR ${sdl2_image_SOURCE_DIR}/include)
+    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+        set(SDL2_IMAGE_LIBRARIES "${sdl2_image_SOURCE_DIR}/lib/x64/SDL2_image.lib")
+        set(SDL2_IMAGE_LIBRARY_DLL "${sdl2_image_SOURCE_DIR}/lib/x64/SDL2_image.dll")
+    else ()
+        set(SDL2_IMAGE_LIBRARIES "${sdl2_image_SOURCE_DIR}/lib/x86/SDL2_image.lib")
+        set(SDL2_IMAGE_LIBRARY_DLL "${sdl2_image_SOURCE_DIR}/lib/x86/SDL2_image.dll")
+    endif ()
+endif ()
+
+# add SDL2_ttf
+FetchContent_Declare(
+        SDL2_ttf
+        URL https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.22.0-VC.zip
+        DOWNLOAD_NO_PROGRESS ON
+        DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+)
+FetchContent_GetProperties(SDL2_ttf)
+if (NOT sdl2_ttf_POPULATED)
+    FetchContent_MakeAvailable(SDL2_ttf)
+    set(SDL2_TTF_INCLUDE_DIR ${sdl2_ttf_SOURCE_DIR}/include)
+    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+        set(SDL2_TTF_LIBRARIES ${sdl2_ttf_SOURCE_DIR}/lib/x64/SDL2_ttf.lib)
+        set(SDL2_TTF_LIBRARY_DLL "${sdl2_ttf_SOURCE_DIR}/lib/x64/SDL2_ttf.dll")
+    else ()
+        set(SDL2_TTF_LIBRARIES ${sdl2_ttf_SOURCE_DIR}/lib/x86/SDL2_ttf.lib)
+        set(SDL2_TTF_LIBRARY_DLL "${sdl2_ttf_SOURCE_DIR}/lib/x86/SDL2_ttf.dll")
+    endif ()
+endif ()
+
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${SDL2_INCLUDE_DIR})
+target_link_libraries(imgui PRIVATE
+        ${SDL2_LIBRARIES}
+)
+
+find_package(VLD CONFIG)
+
+if (NOT VLD_FOUND)
+    message("VLD NOT FOUND!")
+endif ()
+
+
+# set all include directories
+target_include_directories(${TARGET_NAME} PUBLIC
+        ${VLD_INCLUDE_DIR}
+        ${SDL2_INCLUDE_DIR}
+        ${SDL2_IMAGE_INCLUDE_DIR}
+        ${SDL2_TTF_INCLUDE_DIR}
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+        ${glm_SOURCE_DIR}
+)
+
+# set libraries to link with
+target_link_libraries(${TARGET_NAME} PUBLIC
+        ${SDL2_LIBRARIES}
+        ${SDL2_IMAGE_LIBRARIES}
+        ${SDL2_TTF_LIBRARIES}
+        ${VLD_LIBRARY}
+)
+target_link_libraries(${TARGET_NAME} PUBLIC imgui)
+
+target_include_directories(${TARGET_NAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/Minigin/
+)
+
+
 target_compile_options(${TARGET_NAME} PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 
-if(EMSCRIPTEN)
-  set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_SDL=2 -sUSE_SDL_IMAGE=2 -sUSE_SDL_TTF=2 -g")
-  set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_SDL=2 -sUSE_SDL_IMAGE=2 -sUSE_SDL_TTF=2 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\" -sSDL2_IMAGE_FORMATS=['tga','png']")
+set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET_NAME}>")
 
-  # work around https://github.com/emscripten-core/emscripten/issues/11513
-  set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -fno-stack-protector")
+# add post build commands
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+)
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_IMAGE_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+)
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_TTF_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+)
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
+)
 
-  # Use the Emscripten toolchain
-  set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/EmscriptenToolchain.cmake)
+set(GAME_NAME "Pengo")
 
-  # Additional settings for Emscripten build
-  set_target_properties(${TARGET_NAME} PROPERTIES
-          COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
-          LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}"
-  )
+add_executable(${GAME_NAME} WIN32
+        Game/main.cpp
+        Game/Components/FPSComponent.cpp
+        Game/Components/FPSComponent.h
 
-  # Have emscripten generate a html page too.
-  set(CMAKE_EXECUTABLE_SUFFIX ".html")
+        Game/Components/Rotator.cpp
+        Game/Components/Rotator.h
 
-elseif(WIN32)
-  set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET_NAME}>")
+        Game/Components/TextureComponent.cpp
+        Game/Components/TextureComponent.h
 
-  # add post build commands
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-          COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
-  )
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-          COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_IMAGE_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
-  )
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-          COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_TTF_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
-  )
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-          COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
-  )
-endif()
+        Game/Components/TextComponent.cpp
+        Game/Components/TextComponent.h
+
+        Game/Components/HealthComponent.cpp
+        Game/Components/HealthComponent.h
+
+        Game/Components/LivesDisplayComponent.cpp
+        Game/Components/LivesDisplayComponent.h
+
+        Game/Components/ScoreDisplayComponent.cpp
+        Game/Components/ScoreDisplayComponent.h
+
+        Game/Components/ScoreComponent.cpp
+        Game/Components/ScoreComponent.h
+
+        Game/Components/ScoreComponent.h
+        Game/Components/ScoreComponent.cpp
+)  # Your main game file
+
+target_include_directories(${GAME_NAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/Minigin/
+        ${CMAKE_SOURCE_DIR}/Game/
+)
+
+target_compile_options(${GAME_NAME} PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${GAME_NAME})
+
+# Link Pengo as a library
+target_link_libraries(${GAME_NAME} PRIVATE Fovy)

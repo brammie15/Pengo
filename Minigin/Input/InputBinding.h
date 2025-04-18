@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "InputAction.h"
-#include "Command.h"
+#include "../Command.h"
 
 
 namespace fovy {

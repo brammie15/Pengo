@@ -11,7 +11,7 @@
 
 #include "Managers/Renderer.h"
 #include "Texture2D.h"
-#include "../ObjectModel/Transform.h"
+#include "ObjectModel/Transform.h"
 
 namespace fovy {
     TextComponent::TextComponent(GameObject& parent, std::string text, std::shared_ptr<Font> font): Component(parent, "TEXT: " + text),

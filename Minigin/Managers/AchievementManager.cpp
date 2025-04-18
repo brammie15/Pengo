@@ -1,7 +1,6 @@
 #include "AchievementManager.h"
 
-#include <isteamuser.h>
-#include <isteamuserstats.h>
+#include <iostream>
 
 namespace fovy {
     void AchievementManager::ScoreChanged(int newPoints) {
@@ -12,7 +11,6 @@ namespace fovy {
     }
 
     void AchievementManager::UnlockAchievement() {
-        SteamUserStats()->SetAchievement("ACH_WIN_ONE_GAME");
-        SteamUserStats()->StoreStats();
+        std::cout << "Unlocked Achievement" << std::endl;
     }
 } // fovy

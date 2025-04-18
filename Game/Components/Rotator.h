@@ -1,9 +1,9 @@
 #ifndef ROTATOR_H
 #define ROTATOR_H
-#include <vec3.hpp>
+#include <glm.hpp>
 
-#include "../ObjectModel/Component.h"
-#include "../ObjectModel/Transform.h"
+#include "ObjectModel/Component.h"
+#include "ObjectModel/Transform.h"
 
 namespace fovy {
     class Rotator final : public Component {

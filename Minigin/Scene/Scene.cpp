@@ -153,9 +153,7 @@ void Scene::RenderImgui() {
         }
         ImGui::TreePop();
     }
-
     ImGui::End();
-
 }
 
 

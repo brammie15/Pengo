@@ -1,6 +1,6 @@
 #ifndef TEXTURECOMPONENT_H
 #define TEXTURECOMPONENT_H
-#include "../ObjectModel/Component.h"
+#include "ObjectModel/Component.h"
 #include "Texture2D.h"
 #include <memory>
 

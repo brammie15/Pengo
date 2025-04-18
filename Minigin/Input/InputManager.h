@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "Singleton.h"
+#include "../Singleton.h"
 #include <SDL.h>
 
 #include "InputBinding.h"

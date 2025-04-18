@@ -3,7 +3,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "Singleton.h"
+#include "../Singleton.h"
 
 namespace fovy {
     class Texture2D;

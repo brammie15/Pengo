@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "Singleton.h"
+#include "../Singleton.h"
 
 namespace fovy {
     class Scene;

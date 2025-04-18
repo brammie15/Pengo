@@ -1,7 +1,7 @@
 #ifndef TIME_H
 #define TIME_H
 #include <chrono>
-#include <Singleton.h>
+#include "Singleton.h"
 
 namespace fovy {
     class Time final: public Singleton<Time> {
