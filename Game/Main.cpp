@@ -17,8 +17,11 @@
 
 #include <array>
 #include <filesystem>
+#include <iostream>
 #include <XInput.h>
 
+#include "ServiceLocator.h"
+#include "Audio/SDLSoundSystem.h"
 #include "Components/FPSComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/LivesDisplayComponent.h"
@@ -38,6 +41,8 @@ namespace fs = std::filesystem;
 
 void load() {
     auto& scene = fovy::SceneManager::GetInstance().CreateScene("Demo");
+
+    fovy::ServiceLocator<fovy::ISoundSystem>::RegisterService(std::make_unique<fovy::SDLSoundSystem>());
 
     const auto go = std::make_shared<fovy::GameObject>("Background");
     go->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("background.tga"));
@@ -102,6 +107,12 @@ void load() {
     PlayerExplain2->AddComponent<fovy::TextComponent>("Player2: D-Pad to move, X to Damage, B to Add 100 points", smallerFont);
 
     scene.Add(PlayerExplain2);
+
+    auto PlaySfxText = std::make_shared<fovy::GameObject>();
+    PlaySfxText->GetTransform().SetWorldPosition({0, 400,0});
+    PlaySfxText->AddComponent<fovy::TextComponent>("Press Z to play a sound", smallerFont);
+    scene.Add(PlaySfxText);
+
 
 
 
@@ -170,6 +181,14 @@ void load() {
                 playerObj->GetComponent<fovy::HealthComponent>()->Damage(1);
             }
         );
+
+        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+            InputAction{{SDL_SCANCODE_Z}, {}}, fovy::Pressed, 0, [&]() {
+                fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/boom.wav", 100, 1);
+            }
+        );
+
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/mainTheme.mp3", 50, -1);
 
         std::array<InputAction, 2> ScoreButtons = {
             InputAction{{}, {XINPUT_GAMEPAD_B}},

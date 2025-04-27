@@ -58,6 +58,13 @@ add_library(${TARGET_NAME}
         Game/Components/ScoreComponent.h
         Minigin/Managers/AchievementManager.cpp
         Minigin/Managers/AchievementManager.h
+
+        Minigin/Audio/ISoundSystem.h
+        Minigin/Audio/SDLSoundSystem.h
+        Minigin/Audio/SDLSoundSystem.cpp
+        Minigin/ServiceLocator.h
+        Minigin/Audio/SoundLogSystem.h
+        Minigin/Audio/SoundLogSystem.cpp
 )
 
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
@@ -163,6 +170,28 @@ if (NOT sdl2_ttf_POPULATED)
     endif ()
 endif ()
 
+
+# add SDL2_mixer
+FetchContent_Declare(
+        SDL2_mixer
+        URL https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.8.1-VC.zip
+        DOWNLOAD_NO_PROGRESS ON
+        DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+)
+FetchContent_GetProperties(SDL2_mixer)
+if (NOT sdl2_mixer_POPULATED)
+    FetchContent_MakeAvailable(SDL2_mixer)
+    set(SDL2_MIXER_INCLUDE_DIR ${sdl2_mixer_SOURCE_DIR}/include)
+    if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
+        set(SDL2_MIXER_LIBRARIES ${sdl2_mixer_SOURCE_DIR}/lib/x64/SDL2_mixer.lib)
+        set(SDL2_MIXER_LIBRARY_DLL "${sdl2_mixer_SOURCE_DIR}/lib/x64/SDL2_mixer.dll")
+    else ()
+        set(SDL2_MIXER_LIBRARIES ${sdl2_mixer_SOURCE_DIR}/lib/x86/SDL2_mixer.lib)
+        set(SDL2_MIXER_LIBRARY_DLL "${sdl2_mixer_SOURCE_DIR}/lib/x86/SDL2_mixer.dll")
+    endif ()
+endif ()
+
+
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${SDL2_INCLUDE_DIR})
 target_link_libraries(imgui PRIVATE
         ${SDL2_LIBRARIES}
@@ -181,6 +210,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
         ${SDL2_INCLUDE_DIR}
         ${SDL2_IMAGE_INCLUDE_DIR}
         ${SDL2_TTF_INCLUDE_DIR}
+        ${SDL2_MIXER_INCLUDE_DIR}
         ${imgui_SOURCE_DIR}
         ${imgui_SOURCE_DIR}/backends
         ${glm_SOURCE_DIR}
@@ -191,6 +221,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC
         ${SDL2_LIBRARIES}
         ${SDL2_IMAGE_LIBRARIES}
         ${SDL2_TTF_LIBRARIES}
+        ${SDL2_MIXER_LIBRARIES}
         ${VLD_LIBRARY}
 )
 target_link_libraries(${TARGET_NAME} PUBLIC imgui)
@@ -216,6 +247,9 @@ add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 )
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_TTF_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+)
+add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${SDL2_MIXER_LIBRARY_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
 )
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
