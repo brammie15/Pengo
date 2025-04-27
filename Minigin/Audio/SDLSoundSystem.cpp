@@ -59,6 +59,13 @@ namespace fovy {
                 m_workerThread.join();
             }
 
+            for (auto& sound : m_loadedEffects) {
+                delete sound.second;
+            }
+            for (auto& music : m_loadedMusic) {
+                delete music.second;
+            }
+
             Mix_CloseAudio();
             Mix_Quit();
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
