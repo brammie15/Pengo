@@ -14,7 +14,7 @@ glm::ivec2 fovy::Texture2D::GetSize() const {
     return {dst.w, dst.h};
 }
 
-SDL_Texture *fovy::Texture2D::GetSDLTexture() const {
+SDL_Texture* fovy::Texture2D::GetSDLTexture() const {
     return m_texture;
 }
 

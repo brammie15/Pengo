@@ -60,10 +60,10 @@ namespace fovy {
             }
 
             for (auto& sound : m_loadedEffects) {
-                delete sound.second;
+                sound.second.reset();
             }
             for (auto& music : m_loadedMusic) {
-                delete music.second;
+                music.second.reset();
             }
 
             Mix_CloseAudio();

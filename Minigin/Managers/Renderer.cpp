@@ -100,3 +100,65 @@ SDL_Window *fovy::Renderer::GetSDLWindow() const {
 }
 
 SDL_Renderer *fovy::Renderer::GetSDLRenderer() const { return m_renderer; }
+
+void fovy::Renderer::RenderLine(float x1, float y1, float x2, float y2, const SDL_Color& color) const {
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawLineF(m_renderer, x1, y1, x2, y2);
+}
+
+void fovy::Renderer::RenderRect(float x, float y, float width, float height, const SDL_Color& color, bool filled) const {
+    SDL_FRect rect{x, y, width, height};
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+
+    if (filled) {
+        SDL_RenderFillRectF(m_renderer, &rect);
+    } else {
+        SDL_RenderDrawRectF(m_renderer, &rect);
+    }
+}
+
+void fovy::Renderer::RenderCircle(float centerX, float centerY, float radius, const SDL_Color& color, bool filled) const {
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+
+    const int32_t diameter = static_cast<int32_t>(radius * 2);
+    int32_t x = static_cast<int32_t>(radius - 1);
+    int32_t y = 0;
+    int32_t tx = 1;
+    int32_t ty = 1;
+    int32_t error = tx - diameter;
+
+    while (x >= y) {
+        if (filled) {
+            SDL_RenderDrawLineF(m_renderer, centerX - x, centerY + y, centerX + x, centerY + y);
+            SDL_RenderDrawLineF(m_renderer, centerX - x, centerY - y, centerX + x, centerY - y);
+            SDL_RenderDrawLineF(m_renderer, centerX - y, centerY + x, centerX + y, centerY + x);
+            SDL_RenderDrawLineF(m_renderer, centerX - y, centerY - x, centerX + y, centerY - x);
+        } else {
+            SDL_RenderDrawPointF(m_renderer, centerX + x, centerY + y);
+            SDL_RenderDrawPointF(m_renderer, centerX + x, centerY - y);
+            SDL_RenderDrawPointF(m_renderer, centerX - x, centerY + y);
+            SDL_RenderDrawPointF(m_renderer, centerX - x, centerY - y);
+            SDL_RenderDrawPointF(m_renderer, centerX + y, centerY + x);
+            SDL_RenderDrawPointF(m_renderer, centerX + y, centerY - x);
+            SDL_RenderDrawPointF(m_renderer, centerX - y, centerY + x);
+            SDL_RenderDrawPointF(m_renderer, centerX - y, centerY - x);
+        }
+
+        if (error <= 0) {
+            ++y;
+            error += ty;
+            ty += 2;
+        }
+
+        if (error > 0) {
+            --x;
+            tx += 2;
+            error += tx - diameter;
+        }
+    }
+}
+
+void fovy::Renderer::RenderPoint(float x, float y, const SDL_Color& color) const {
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawPointF(m_renderer, x, y);
+}

@@ -24,7 +24,13 @@ public:
 
     virtual SoundClip& Load(const std::string& filePath) = 0;
     virtual void PlayAsync(const std::string& path, float volume, int loops) = 0;
-   
+    // virtual void Play(const std::filesystem::path& file, float volume, int loops = 0) = 0;
+    // virtual void Pause(const std::filesystem::path& file) = 0;
+    // virtual void PauseAll() = 0;
+    // virtual void Resume(const std::filesystem::path& file) = 0;
+    // virtual void ResumeAll() = 0;
+    // virtual void Stop(const std::filesystem::path& file) = 0;
+    // virtual void StopAll() = 0;
 };
 }
 

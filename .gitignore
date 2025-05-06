@@ -407,3 +407,4 @@ imgui.ini
 
 cmake-build-**
 .idea
+.vscode

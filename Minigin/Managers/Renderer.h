@@ -30,5 +30,10 @@ namespace fovy {
 
         [[nodiscard]] const SDL_Color& GetBackgroundColor() const { return m_clearColor; }
         void SetBackgroundColor(const SDL_Color& color) { m_clearColor = color; }
+
+        void RenderLine(float x1, float y1, float x2, float y2, const SDL_Color& color) const;
+        void RenderRect(float x, float y, float width, float height, const SDL_Color& color, bool filled = true) const;
+        void RenderCircle(float centerX, float centerY, float radius, const SDL_Color& color, bool filled = true) const;
+        void RenderPoint(float x, float y, const SDL_Color& color) const;
     };
 }

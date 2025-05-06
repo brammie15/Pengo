@@ -79,12 +79,20 @@ fovy::Minigin::Minigin(const std::filesystem::path& dataPath) {
         throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
     }
 
+    // g_window = SDL_CreateWindow(
+    //     "Programming 4 assignment",
+    //     SDL_WINDOWPOS_CENTERED,
+    //     SDL_WINDOWPOS_CENTERED,
+    //     640,
+    //     480,
+    //     SDL_WINDOW_OPENGL
+    // );
     g_window = SDL_CreateWindow(
         "Programming 4 assignment",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        640,
-        480,
+        224 * 3,
+        288  * 3,
         SDL_WINDOW_OPENGL
     );
     if (g_window == nullptr) {
@@ -117,7 +125,11 @@ void fovy::Minigin::RunOneFrame() {
     auto& Time{Time::GetInstance()};
     Time.Update();
 
-    m_quit = !InputManager::GetInstance().ProcessInput();
+    const bool shouldContinue = InputManager::GetInstance().ProcessInput();
+    if (!shouldContinue) {
+        m_quit = true;
+        return;
+    }
 
     m_AccumulatedTime += Time.DeltaTime();
 

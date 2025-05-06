@@ -19,7 +19,7 @@ namespace fovy {
         void Update();
 
     private:
-        friend class Singleton<Time>;
+        friend class Singleton;
 
         Time() = default;
         static constexpr double m_FixedDeltaTime{1.0 / 60.0};

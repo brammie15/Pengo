@@ -10,22 +10,25 @@ macro(LinkImGui TARGET ACCESS)
     # Fetch and make ImGui available
     FetchContent_MakeAvailable(imgui)
 
-    # Add the ImGui sources to your project
     add_library(imgui STATIC
             ${imgui_SOURCE_DIR}/imgui.cpp
             ${imgui_SOURCE_DIR}/imgui_demo.cpp
             ${imgui_SOURCE_DIR}/imgui_draw.cpp
             ${imgui_SOURCE_DIR}/imgui_tables.cpp
             ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-    )
 
-    target_sources(imgui PRIVATE
-            ${imgui_SOURCE_DIR}/backends/imgui_imp_sdl2.cpp
+            ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp
             ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
     )
-    # Link ImGui to your target
+
     target_link_libraries(${TARGET} ${ACCESS} imgui)
 
-    # Include ImGui headers
     target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
+    set_target_properties(imgui PROPERTIES CXX_STANDARD 20)
+
+
+    include(Cmake/LinkSDL.cmake)
+    # Link SDL2 with the imgui target
+    linkSDL(imgui PUBLIC)
+
 endmacro()

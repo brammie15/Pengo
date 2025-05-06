@@ -20,49 +20,48 @@
 #include <iostream>
 #include <XInput.h>
 
+#include "GameCommands.h"
 #include "ServiceLocator.h"
 #include "Audio/SDLSoundSystem.h"
 #include "Components/FPSComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/LivesDisplayComponent.h"
-#include "Components/ScoreComponent.h"
-#include "Components/ScoreDisplayComponent.h"
+#include "Components/GridComponent.h"
+#include "Components/PlayerComponent.h"
+#include "Components/SpriteRenderer.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
-#include "Components/ThrashTheCacheComponent.h"
 #include "Input/InputAction.h"
 #include "Input/InputBinding.h"
 #include "Input/InputManager.h"
-#include "Managers/AchievementManager.h"
 #include "ObjectModel/GameObject.h"
 
 namespace fs = std::filesystem;
 
 
 void load() {
-    auto& scene = fovy::SceneManager::GetInstance().CreateScene("Demo");
-
+    auto& scene = fovy::SceneManager::GetInstance().CreateScene("Game");
     fovy::ServiceLocator<fovy::ISoundSystem>::RegisterService(std::make_unique<fovy::SDLSoundSystem>());
 
-    const auto go = std::make_shared<fovy::GameObject>("Background");
-    go->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("background.tga"));
-    scene.Add(go);
+    glm::vec2 widnowSize = {224.f * 3.f, 288.f * 3.f};
 
     auto font = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
     auto smallerFont = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 22);
 
-    const auto newText = std::make_shared<fovy::GameObject>("HelloWorldText");
-    newText->AddComponent<fovy::TextComponent>(std::string("Hello World!"), font);
-    newText->GetTransform().SetWorldPosition(glm::vec3{200, 200, 0});
+    // const auto go = std::make_shared<fovy::GameObject>("Background");
+    // go->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("background.tga"));
+    // scene.Add(go);
 
-    scene.Add(newText);
+    const auto testBackground = std::make_shared<fovy::GameObject>("TestBackground");
+    auto backgroundTexture = fovy::ResourceManager::GetInstance().LoadTexture("screenshot.png");
+    testBackground->AddComponent<fovy::TextureComponent>(backgroundTexture);
 
-    const auto imageTest = std::make_shared<fovy::GameObject>("DaeLogo");
-    auto texture = fovy::ResourceManager::GetInstance().LoadTexture("logo.tga");
-    imageTest->AddComponent<fovy::TextureComponent>(texture);
-    imageTest->GetTransform().SetWorldPosition(glm::vec3{200, 100, 0});
+    //Center the background
+    glm::vec2 textureSize = backgroundTexture->GetSize();
+    glm::vec2 bgOffset = {textureSize.x / 2.f, textureSize.y / 2.f};
+    bgOffset.x = (widnowSize.x / 2.f) - bgOffset.x;
+    bgOffset.y = (widnowSize.y / 2.f) - bgOffset.y;
+    testBackground->GetTransform().SetLocalPosition({bgOffset.x, bgOffset.y, 0.f});
 
-    scene.Add(imageTest);
+    scene.Add(testBackground);
 
     const auto fpsGameobject = std::make_shared<fovy::GameObject>("FpsText");
     const auto textComponent = fpsGameobject->AddComponent<fovy::TextComponent>("", font);
@@ -71,136 +70,67 @@ void load() {
 
     scene.Add(fpsGameobject);
 
-    const std::string playerNames[2] = {"player1.png", "player2.png"};
+    const auto mainGridObject = std::make_shared<fovy::GameObject>("MainGrid");
+    auto gridComponent = mainGridObject->AddComponent<GridComponent>();
+
+    float cellSize = 40.f;
+    //Center the grid
+    int GridWidth = 13;
+    int GridHeight = 15;
+
+    glm::vec2 offset = {static_cast<float>(GridWidth) * cellSize / 2.f, static_cast<float>(GridHeight) * cellSize / 2.f};
+    offset.x = (widnowSize.x / 2.f) - offset.x;
+    offset.y = (widnowSize.y / 2.f) - offset.y;
+
+    mainGridObject->GetTransform().SetLocalPosition({offset.x, offset.y, 0.f});
+
+
+    gridComponent->Initialize(GridWidth, GridHeight, cellSize);
+
+    scene.Add(mainGridObject);
+
+    auto Player1 = std::make_shared<fovy::GameObject>("Player1");
+
+
+    auto playerComponent = Player1->AddComponent<fovy::PlayerComponent>(gridComponent);
 
     using fovy::InputAction;
 
-    std::array<InputAction, 4> KeyboardInputs{
-        InputAction{{SDL_SCANCODE_W}},
-        InputAction{{SDL_SCANCODE_A}},
-        InputAction{{SDL_SCANCODE_S}},
-        InputAction{{SDL_SCANCODE_D}},
+    const std::array KeyboardInputs{
+        InputAction{{SDL_SCANCODE_W, SDL_SCANCODE_UP}, {XINPUT_GAMEPAD_DPAD_UP}},
+        InputAction{{SDL_SCANCODE_A, SDL_SCANCODE_LEFT}, {XINPUT_GAMEPAD_DPAD_LEFT}},
+        InputAction{{SDL_SCANCODE_S, SDL_SCANCODE_DOWN}, {XINPUT_GAMEPAD_DPAD_DOWN}},
+        InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {XINPUT_GAMEPAD_DPAD_RIGHT}},
     };
 
-    std::array<InputAction, 4> ControllerInputs{
-        InputAction{{}, {XINPUT_GAMEPAD_DPAD_UP}},
-        InputAction{{}, {XINPUT_GAMEPAD_DPAD_LEFT}},
-        InputAction{{}, {XINPUT_GAMEPAD_DPAD_DOWN}},
-        InputAction{{}, {XINPUT_GAMEPAD_DPAD_RIGHT}},
+    constexpr std::array directions{
+        fovy::MoveDirection::Up,
+        fovy::MoveDirection::Left,
+        fovy::MoveDirection::Down,
+        fovy::MoveDirection::Right
     };
 
-    std::array<glm::vec3, 4> MoveDirections{
-        glm::vec3{0, -1, 0},
-        glm::vec3{-1, 0, 0},
-        glm::vec3{0, 1, 0},
-        glm::vec3{1, 0, 0},
-    };
+    for (int index{ 0 }; index < KeyboardInputs.size(); ++index) {
+        const auto& input = KeyboardInputs[index];
+        auto dir = directions[index];
 
-    auto PlayerExplain1 = std::make_shared<fovy::GameObject>();
-    PlayerExplain1->GetTransform().SetWorldPosition({0, 300,0});
-    PlayerExplain1->AddComponent<fovy::TextComponent>("Player1: WASD to move, C to Damage, Z to Add 100 points", smallerFont);
-
-    scene.Add(PlayerExplain1);
-
-    auto PlayerExplain2 = std::make_shared<fovy::GameObject>();
-    PlayerExplain2->GetTransform().SetWorldPosition({0, 350,0});
-    PlayerExplain2->AddComponent<fovy::TextComponent>("Player2: D-Pad to move, X to Damage, B to Add 100 points", smallerFont);
-
-    scene.Add(PlayerExplain2);
-
-    auto PlaySfxText = std::make_shared<fovy::GameObject>();
-    PlaySfxText->GetTransform().SetWorldPosition({0, 400,0});
-    PlaySfxText->AddComponent<fovy::TextComponent>("Press Z to play a sound", smallerFont);
-    scene.Add(PlaySfxText);
-
-
-
-
-    float baseHeight = 40;
-    for (int index{0}; index < 2; ++index) {
-        //PlayerScoreDisplay
-        auto Player1Text = std::make_shared<fovy::GameObject>();
-        Player1Text->GetTransform().SetWorldPosition({0, baseHeight, 0});
-        Player1Text->AddComponent<fovy::TextComponent>(std::string("#Player ") + std::to_string(index + 1), smallerFont);
-        baseHeight += 30;
-
-        const auto playerScoreDisplay = std::make_shared<fovy::GameObject>("PlayerScoreDisplay");
-        playerScoreDisplay->GetTransform().SetWorldPosition({0, baseHeight, 0});
-        baseHeight+= 30;
-        playerScoreDisplay->AddComponent<fovy::TextComponent>("Lorem Ipsum", smallerFont);
-        const auto playerScoreDisplayComponent = playerScoreDisplay->AddComponent<fovy::ScoreDisplayComponent>();
-
-        //Player
-        const auto playerObj = std::make_shared<fovy::GameObject>("Player1");
-        playerObj->GetTransform().SetWorldPosition(glm::vec3{100, 100 + (index * 100), 0});
-        playerObj->GetTransform().SetLocalScale({0.2, 0.2, 0.2});
-        playerObj->AddComponent<fovy::TextureComponent>(
-            fovy::ResourceManager::GetInstance().LoadTexture(playerNames[index]));
-
-        const auto playerScore = playerObj->AddComponent<fovy::ScoreComponent>();
-        playerScore->GetScoreChangedEvent().AddListener(&fovy::AchievementManager::GetInstance(), &fovy::AchievementManager::ScoreChanged);
-        playerScore->GetScoreChangedEvent().AddListener(playerScoreDisplayComponent,
-                                                         &fovy::ScoreDisplayComponent::UpdateScore);
-        playerScore->GetScoreChangedEvent().Invoke(0);
-
-        const auto healthComponent = playerObj->AddComponent<fovy::HealthComponent>(3);
-
-
-        auto livesDisplay = std::make_shared<fovy::GameObject>("Lives");
-        livesDisplay->GetTransform().SetLocalPosition(glm::vec3{0, baseHeight, 0});
-        baseHeight+= 40;
-
-        livesDisplay->AddComponent<fovy::TextComponent>("hello", smallerFont);
-        auto comp = livesDisplay->AddComponent<fovy::LivesDisplayComponent>();
-
-        scene.Add(livesDisplay);
-        scene.Add(playerObj);
-        scene.Add(playerScoreDisplay);
-        scene.Add(Player1Text);
-
-        healthComponent->GetOnHealthChangeEvent().AddListener(comp, &fovy::LivesDisplayComponent::OnLivesUpdate);
-        healthComponent->GetOnHealthChangeEvent().Invoke(3);
-
-        constexpr float Player1MoveSpeed{200.f};
-
-        auto& ToUse = index == 0 ? ControllerInputs : KeyboardInputs;
-        for (int index1{0}; index1 < 4; ++index1) {
-            fovy::InputManager::GetInstance().AddCommand<fovy::MoveCommand>(
-                ToUse[index1], fovy::ButtonState::Down, playerObj.get(), Player1MoveSpeed,
-                MoveDirections[index1]
-            );
-        }
-
-        std::array<InputAction, 2> DamageButtons = {
-            InputAction{{}, {XINPUT_GAMEPAD_X}},
-            InputAction{{SDL_SCANCODE_C}, {}}
-        };
-
-        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
-            DamageButtons[index], fovy::Pressed, 0, [playerObj]() {
-                playerObj->GetComponent<fovy::HealthComponent>()->Damage(1);
-            }
-        );
-
-        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
-            InputAction{{SDL_SCANCODE_Z}, {}}, fovy::Pressed, 0, [&]() {
-                fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/boom.wav", 100, 1);
-            }
-        );
-
-        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/mainTheme.mp3", 50, -1);
-
-        std::array<InputAction, 2> ScoreButtons = {
-            InputAction{{}, {XINPUT_GAMEPAD_B}},
-            InputAction{{SDL_SCANCODE_X}, {}}
-        };
-
-        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
-           ScoreButtons[index], fovy::Pressed, 0, [playerObj]() {
-                playerObj->GetComponent<fovy::ScoreComponent>()->AddPoints(100);
-            }
+        fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
+            input,
+            fovy::ButtonState::Pressed,
+            playerComponent,
+            dir
         );
     }
+
+    auto playerSprite = Player1->AddComponent<fovy::SpriteRenderer>();
+    playerSprite->SetTexture("playerSpritesheet.png");
+    playerSprite->SetTileIndex(0);
+
+
+
+
+    scene.Add(Player1);
+
 }
 
 int main(int, char*[]) {
