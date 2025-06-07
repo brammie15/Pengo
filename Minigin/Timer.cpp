@@ -1,5 +1,7 @@
 #include "Timer.h"
 
+#include <iostream>
+
 double fovy::Time::FixedDeltaTime() const {
     return m_FixedDeltaTime;
 }

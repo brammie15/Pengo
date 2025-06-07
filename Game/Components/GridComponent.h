@@ -9,9 +9,7 @@
 
 class GridComponent final: public fovy::Component {
 public:
-    explicit GridComponent(fovy::GameObject& pParent)
-        : Component{pParent, "GridComponent"} {
-    }
+    explicit GridComponent(fovy::GameObject& pParent, glm::ivec2 size, glm::vec2 cellSize);
 
     struct Cell {
         fovy::GameObject* occupant = nullptr; // null if empty
@@ -25,27 +23,28 @@ public:
 
     void ImGuiInspector() override;
 
-    void Initialize(int width, int height, float cellSize);
     Cell& GetCell(const glm::ivec2& pos);
-    bool IsOccupied(const glm::ivec2& pos) const;
+    [[nodiscard]] bool IsOccupied(const glm::ivec2& pos) const;
+    [[nodiscard]] bool IsWalkable(const glm::ivec2 vec) const;
     void SetOccupant(const glm::ivec2& pos, fovy::GameObject* object);
-    glm::vec3 WorldPositionFromGrid(const glm::ivec2& pos) const;
-    glm::ivec2 GridPositionFromWorld(const glm::vec3& pos) const;
+    [[nodiscard]] glm::vec3 WorldPositionFromGrid(const glm::ivec2& pos) const;
+    [[nodiscard]] glm::ivec2 GridPositionFromWorld(const glm::vec3& pos) const;
 
-    bool IsWithinBounds(const glm::ivec2& pos) const {
+    [[nodiscard]] bool IsWithinBounds(const glm::ivec2& pos) const {
         return pos.x >= 0 && pos.x < m_width && pos.y >= 0 && pos.y < m_height;
     }
 
-    int GetHeight() const { return m_height; }
-    int GetWidth() const { return m_width; }
-    float GetCellSize() const { return m_cellSize; }
+    [[nodiscard]] int GetHeight() const { return m_height; }
+    [[nodiscard]] int GetWidth() const { return m_width; }
+    [[nodiscard]] const glm::vec2& GetCellSize() const { return m_cellSize; }
+    void LoadLevel(const std::string& levelFile);
 
 private:
     std::vector<std::vector<Cell>> grid{};
     int m_width{-1};
     int m_height{-1};
-    float m_cellSize{ 1.f };
-};
+    glm::vec2 m_cellSize{1, 1};
 
+};
 
 #endif //GRIDCOMPONENT_H

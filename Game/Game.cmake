@@ -33,11 +33,23 @@ add_executable(${GAME_NAME} WIN32
         Game/Components/GridComponent.cpp
         Game/Components/GridComponent.h
 
-        Game/Components/PlayerComponent.cpp
-        Game/Components/PlayerComponent.h
+        Game/Components/Pengo/PengoComponent.cpp
+        Game/Components/Pengo/PengoComponent.h
 
         Game/Components/SpriteRenderer.cpp
         Game/Components/SpriteRenderer.h
+
+        Game/Components/Tile/TileComponent.h
+        Game/Components/Tile/TileComponent.cpp
+
+        Game/Components/Tile/IceBlockComponent.h
+        Game/Components/Tile/IceBlockComponent.cpp
+
+        Game/Components/Tile/IceblockStates.h
+        Game/Components/Tile/IceblockStates.cpp
+
+        Game/Components/Pengo/PengoStates.h
+        Game/Components/Pengo/PengoStates.cpp
 )
 
 target_include_directories(${GAME_NAME} PRIVATE

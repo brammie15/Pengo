@@ -45,7 +45,7 @@ add_library(${TARGET_NAME}
         Minigin/Input/InputAction.h
         Minigin/Input/InputBinding.cpp
         Minigin/Input/InputBinding.h
-        Minigin/Input/XInputControllerImpl.cpp
+        Minigin/Input/SDLInputControllerImpl.cpp
         Minigin/Event.cpp
         Minigin/Event.h
         Game/Components/HealthComponent.cpp

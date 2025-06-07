@@ -25,10 +25,11 @@
 #include "Audio/SDLSoundSystem.h"
 #include "Components/FPSComponent.h"
 #include "Components/GridComponent.h"
-#include "Components/PlayerComponent.h"
+#include "Components/Pengo/PengoComponent.h"
 #include "Components/SpriteRenderer.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
+#include "Components/Tile/TileComponent.h"
 #include "Input/InputAction.h"
 #include "Input/InputBinding.h"
 #include "Input/InputManager.h"
@@ -54,6 +55,8 @@ void load() {
     auto backgroundTexture = fovy::ResourceManager::GetInstance().LoadTexture("screenshot.png");
     testBackground->AddComponent<fovy::TextureComponent>(backgroundTexture);
 
+    testBackground->GetTransform().SetLocalScale(glm::vec3(1, 0.950, 1));
+
     //Center the background
     glm::vec2 textureSize = backgroundTexture->GetSize();
     glm::vec2 bgOffset = {textureSize.x / 2.f, textureSize.y / 2.f};
@@ -71,43 +74,61 @@ void load() {
     scene.Add(fpsGameobject);
 
     const auto mainGridObject = std::make_shared<fovy::GameObject>("MainGrid");
-    auto gridComponent = mainGridObject->AddComponent<GridComponent>();
 
-    float cellSize = 40.f;
+    float cellWidth = 46.f;
+    float cellHeight = 46.f;
     //Center the grid
     int GridWidth = 13;
     int GridHeight = 15;
 
-    glm::vec2 offset = {static_cast<float>(GridWidth) * cellSize / 2.f, static_cast<float>(GridHeight) * cellSize / 2.f};
+    glm::vec2 offset = {static_cast<float>(GridWidth) * cellWidth / 2.f, static_cast<float>(GridHeight) * cellHeight / 2.f};
     offset.x = (widnowSize.x / 2.f) - offset.x;
     offset.y = (widnowSize.y / 2.f) - offset.y;
 
     mainGridObject->GetTransform().SetLocalPosition({offset.x, offset.y, 0.f});
+    auto gridComponent = mainGridObject->AddComponent<GridComponent>(glm::ivec2{GridWidth, GridHeight}, glm::vec2{cellWidth, cellHeight});
 
-
-    gridComponent->Initialize(GridWidth, GridHeight, cellSize);
+    std::cout << "Starting load" << std::endl;
+    gridComponent->LoadLevel("level1.txt");
+    std::cout << "Ending load" << std::endl;
 
     scene.Add(mainGridObject);
 
     auto Player1 = std::make_shared<fovy::GameObject>("Player1");
 
 
-    auto playerComponent = Player1->AddComponent<fovy::PlayerComponent>(gridComponent);
+    auto playerSprite = Player1->AddComponent<fovy::SpriteRenderer>();
+    playerSprite->SetTexture("playerSpritesheet.png");
+    playerSprite->SetTileIndex(0);
+
+    playerSprite->AddAnimation("idle_up", {4}, 0.5f);
+    playerSprite->AddAnimation("idle_down", {8}, 0.5f);
+    playerSprite->AddAnimation("idle_left", {3}, 0.5f);
+    playerSprite->AddAnimation("idle_right", {7}, 0.5f);
+
+    playerSprite->AddAnimation("walk_up", {4, 5}, 0.5f, true);
+    playerSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
+    playerSprite->AddAnimation("walk_left", {2,3}, 0.5f, true);
+    playerSprite->AddAnimation("walk_right", {7, 6}, 0.5f, true);
+
+    playerSprite->PlayAnimation("idle_up");
+
+    auto playerComponent = Player1->AddComponent<pengo::PengoComponent>(gridComponent);
 
     using fovy::InputAction;
 
     const std::array KeyboardInputs{
-        InputAction{{SDL_SCANCODE_W, SDL_SCANCODE_UP}, {XINPUT_GAMEPAD_DPAD_UP}},
-        InputAction{{SDL_SCANCODE_A, SDL_SCANCODE_LEFT}, {XINPUT_GAMEPAD_DPAD_LEFT}},
-        InputAction{{SDL_SCANCODE_S, SDL_SCANCODE_DOWN}, {XINPUT_GAMEPAD_DPAD_DOWN}},
-        InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {XINPUT_GAMEPAD_DPAD_RIGHT}},
+        InputAction{{SDL_SCANCODE_W, SDL_SCANCODE_UP}, {SDL_CONTROLLER_BUTTON_DPAD_UP}},
+        InputAction{{SDL_SCANCODE_A, SDL_SCANCODE_LEFT}, {{SDL_CONTROLLER_BUTTON_DPAD_LEFT}}},
+        InputAction{{SDL_SCANCODE_S, SDL_SCANCODE_DOWN}, {{SDL_CONTROLLER_BUTTON_DPAD_DOWN}}},
+        InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {{SDL_CONTROLLER_BUTTON_DPAD_RIGHT}}},
     };
 
     constexpr std::array directions{
-        fovy::MoveDirection::Up,
-        fovy::MoveDirection::Left,
-        fovy::MoveDirection::Down,
-        fovy::MoveDirection::Right
+        pengo::MoveDirection::Up,
+        pengo::MoveDirection::Left,
+        pengo::MoveDirection::Down,
+        pengo::MoveDirection::Right
     };
 
     for (int index{ 0 }; index < KeyboardInputs.size(); ++index) {
@@ -116,20 +137,38 @@ void load() {
 
         fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
             input,
-            fovy::ButtonState::Pressed,
+            fovy::ButtonState::Down,
             playerComponent,
-            dir
+            dir // sets m_HeldDirection
+        );
+
+        fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
+            input,
+            fovy::ButtonState::Released,
+            playerComponent,
+            pengo::MoveDirection::None // clears m_HeldDirection
         );
     }
 
-    auto playerSprite = Player1->AddComponent<fovy::SpriteRenderer>();
-    playerSprite->SetTexture("playerSpritesheet.png");
-    playerSprite->SetTileIndex(0);
-
-
+    fovy::InputManager::GetInstance().AddCommand<PlayerPushCommand>(
+        InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
+        fovy::ButtonState::Pressed,
+        playerComponent
+    );
 
 
     scene.Add(Player1);
+
+
+    // auto tileObject = std::make_shared<fovy::GameObject>("Tile");
+    // [[maybe_unused]] auto tileComponent = tileObject->AddComponent<TileComponent>(gridComponent, glm::ivec2{0, 2});
+    // auto tileSprite = tileObject->AddComponent<fovy::SpriteRenderer>();
+    // tileSprite->SetTexture("PengoBlocks.png");
+    // tileSprite->SetTileIndex(0);
+
+    // scene.Add(tileObject);
+
+
 
 }
 

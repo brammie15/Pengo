@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <vec2.hpp>
 #include <string>
+#include <vec4.hpp>
+#include <vector>
 
 struct SDL_Texture;
 
@@ -18,6 +20,10 @@ namespace fovy {
         ~Texture2D();
 
         [[nodiscard]] glm::ivec2 GetSize() const;
+        [[nodiscard]] std::vector<std::vector<glm::vec4>> GetPixels();
+
+        [[nodiscard]] const std::string& GetPath() const { return m_path; }
+
 
         Texture2D(const Texture2D&) = delete;
         Texture2D(Texture2D&&) = delete;
@@ -26,5 +32,6 @@ namespace fovy {
 
     private:
         SDL_Texture* m_texture;
+        std::string m_path;
     };
 }

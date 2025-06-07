@@ -6,7 +6,7 @@
 namespace fovy {
 	class Minigin final {
 	private:
-		double m_AccumulatedTime{};
+		double m_AccumulatedTime{0};
 		bool m_quit{};
 
 	public:

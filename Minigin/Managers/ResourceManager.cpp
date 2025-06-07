@@ -1,4 +1,6 @@
 ﻿#include "ResourceManager.h"
+
+#include <iostream>
 #include <SDL_ttf.h>
 #include <stdexcept>
 #include "Font.h"
@@ -17,8 +19,12 @@ void fovy::ResourceManager::Init(const std::filesystem::path& dataPath) {
 std::shared_ptr<fovy::Texture2D> fovy::ResourceManager::LoadTexture(const std::string& file) {
     const auto fullPath = m_dataPath / file;
     const auto filename = fs::path(fullPath).filename().string();
-    if (!m_loadedTextures.contains(filename))
+    if (!m_loadedTextures.contains(filename)) {
         m_loadedTextures.insert(std::pair(filename, std::make_shared<Texture2D>(fullPath.string())));
+        std::cout << "Not yet loaded: " << file << std::endl;
+    }
+
+    std::cout << "Alreayd loaded: " << file << std::endl;
     return m_loadedTextures.at(filename);
 }
 

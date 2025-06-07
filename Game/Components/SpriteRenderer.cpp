@@ -1,4 +1,7 @@
 #include "SpriteRenderer.h"
+
+#include <iostream>
+
 #include "ObjectModel/Transform.h"
 #include "Managers/Renderer.h"
 #include "Timer.h"
@@ -66,14 +69,20 @@ void SpriteRenderer::AddAnimation(const std::string& name, const std::vector<int
     m_Animations[name] = anim;
 }
 
-void SpriteRenderer::PlayAnimation(const std::string& name) {
+    void SpriteRenderer::PlayAnimation(const std::string& name) {
+    std::cout << name << std::endl;
     auto it = m_Animations.find(name);
     if (it != m_Animations.end()) {
-        m_CurrentAnimation = name;
-        m_IsPlaying = true;
-        it->second.currentFrame = 0;
-        it->second.currentTime = 0.0f;
-        m_CurrentTileIndex = it->second.frames[0];
+        if (m_CurrentAnimation != name) {
+            m_CurrentAnimation = name;
+            m_IsPlaying = true;
+            it->second.currentFrame = 0;
+            it->second.currentTime = 0.0f;
+            m_CurrentTileIndex = it->second.frames[0];
+            CalculateSourceRect();
+        }
+    } else if (m_CurrentAnimation.empty()) {
+        m_CurrentTileIndex = 0;
         CalculateSourceRect();
     }
 }
@@ -91,6 +100,96 @@ void SpriteRenderer::SetTileSize(int width, int height) {
 void SpriteRenderer::SetTileIndex(int index) {
     m_CurrentTileIndex = index;
     CalculateSourceRect();
+}
+
+void SpriteRenderer::ImGuiInspector() {
+    if (ImGui::TreeNode("SpriteRenderer")) {
+        // Texture selection
+        static char texturePath[256] = "";
+        if (m_Texture) {
+            strncpy_s(texturePath, m_Texture->GetPath().c_str(), sizeof(texturePath));
+        }
+
+        if (ImGui::InputText("Texture Path", texturePath, sizeof(texturePath))) {
+            if (texturePath[0] != '\0') {
+                SetTexture(texturePath);
+            }
+        }
+
+        // Color editing
+        // ImGui::ColorEdit4("Color", &m_Color.r);
+
+        // Tile settings
+        ImGui::Separator();
+        ImGui::Text("Tile Settings");
+        ImGui::InputInt("Tile Width", &m_TileWidth);
+        ImGui::InputInt("Tile Height", &m_TileHeight);
+        ImGui::InputInt("Tile Index", &m_CurrentTileIndex);
+
+        // Destination size
+        ImGui::Separator();
+        ImGui::Text("Destination Size");
+        ImGui::InputInt("Dest Width", &m_DestTileWidth);
+        ImGui::InputInt("Dest Height", &m_DestTileHeight);
+
+        // Flip options
+        ImGui::Separator();
+        ImGui::Checkbox("Flip Horizontal", &m_FlipHorizontal);
+        ImGui::Checkbox("Flip Vertical", &m_FlipVertical);
+
+        // Animation controls
+        ImGui::Separator();
+        ImGui::Text("Animation");
+        static char animName[64] = "";
+        static std::vector<int> animFrames;
+        static float animFrameTime = 0.1f;
+        static bool animLoop = true;
+
+        ImGui::InputText("Animation Name", animName, sizeof(animName));
+
+        if (ImGui::Button("Add Frame")) {
+            animFrames.push_back(m_CurrentTileIndex);
+        }
+
+        if (!animFrames.empty()) {
+            if (ImGui::Button("Clear Frames")) {
+                animFrames.clear();
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Last")) {
+                animFrames.pop_back();
+            }
+
+            std::string framesStr;
+            for (int frame : animFrames) {
+                framesStr += std::to_string(frame) + " ";
+            }
+            ImGui::Text("Frames: %s", framesStr.c_str());
+        }
+
+        ImGui::InputFloat("Frame Time", &animFrameTime, 0.01f, 0.1f, "%.2f");
+        ImGui::Checkbox("Loop", &animLoop);
+
+        if (ImGui::Button("Add Animation") && animName[0] != '\0' && !animFrames.empty()) {
+            AddAnimation(animName, animFrames, animFrameTime, animLoop);
+            animFrames.clear();
+            animName[0] = '\0';
+        }
+
+        // Play existing animations
+        if (!m_Animations.empty()) {
+            ImGui::Separator();
+            ImGui::Text("Existing Animations");
+            for (auto& [name, anim] : m_Animations) {
+                if (ImGui::Button(name.c_str())) {
+                    PlayAnimation(name);
+                }
+            }
+        }
+
+        ImGui::TreePop();
+    }
 }
 
 void SpriteRenderer::UpdateAnimation(float deltaTime) {

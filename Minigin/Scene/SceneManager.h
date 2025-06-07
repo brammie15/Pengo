@@ -11,6 +11,9 @@ namespace fovy {
     public:
         Scene &CreateScene(const std::string &name);
 
+        //TODO: Verry bad fix
+        Scene& GetCurrentScene() const { return *m_scenes[0]; }
+
         void Update();
         void FixedUpdate();
         void LateUpdate();
