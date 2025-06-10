@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include "../Singleton.h"
@@ -12,7 +13,7 @@ namespace fovy {
         Scene &CreateScene(const std::string &name);
 
         //TODO: Verry bad fix
-        Scene& GetCurrentScene() const { return *m_scenes[0]; }
+        Scene& GetCurrentScene() const { return *m_scenes[m_ActiveSceneIndex]; }
 
         void Update();
         void FixedUpdate();
@@ -30,10 +31,19 @@ namespace fovy {
 
         void Destroy();
 
+        void SwitchScene(int index) {
+            if (index < 0 || index >= static_cast<int>(m_scenes.size())) {
+                throw std::out_of_range("Scene index out of range");
+            }
+            m_ActiveSceneIndex = index;
+        }
+
     private:
         friend class Singleton<SceneManager>;
 
         SceneManager() = default;
+
+        int m_ActiveSceneIndex{0};
 
         std::vector<std::shared_ptr<Scene> > m_scenes;
     };

@@ -53,6 +53,11 @@ namespace fovy {
         void SetTileIndex(int index);
         [[nodiscard]] int GetTileIndex() const { return m_CurrentTileIndex; }
 
+        [[nodiscard]] float GetCurrentAnimationDuration() {
+            if (m_CurrentAnimation.empty()) return 0.0f;
+            return m_Animations[m_CurrentAnimation].frameTime * static_cast<float>(m_Animations[m_CurrentAnimation].frames.size());
+        }
+
         void ImGuiInspector() override;
 
     private:

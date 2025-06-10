@@ -1,5 +1,6 @@
 #ifndef PENGOSTATES_H
 #define PENGOSTATES_H
+
 #include <memory>
 
 #include "Components/TextureComponent.h"
@@ -17,7 +18,7 @@ namespace pengo {
         virtual std::unique_ptr<PengoState> OnMove(pengo::PengoComponent* pengo, glm::ivec2 dir) = 0;
         virtual std::unique_ptr<PengoState> OnPush(pengo::PengoComponent* pengo) = 0;
 
-        std::string GetName() const {
+        [[nodiscard]] std::string GetName() const {
             return typeid(*this).name();
         }
     };
@@ -62,8 +63,11 @@ namespace pengo {
         void Enter(PengoComponent* comp) override;
         void Exit(PengoComponent* comp) override;
         std::unique_ptr<PengoState> Update(pengo::PengoComponent* pengo) override;
+        std::unique_ptr<PengoState> OnMove(pengo::PengoComponent* pengo, glm::ivec2 dir) override;
+        std::unique_ptr<PengoState> OnPush(pengo::PengoComponent* pengo) override;
 
-
+    private:
+        bool m_validPush{ false };
     };
 }
 

@@ -12,8 +12,8 @@ void pengo::PengoMovingState::Enter(pengo::PengoComponent* comp) {
     const auto* gridComponent = comp->GetGrid();
     const glm::vec2 dir = comp->GetCurrentDirection();
 
-    auto gridPostion = gridComponent->GridPositionFromWorld(comp->GetGameObject()->GetTransform().GetWorldPosition());
-    auto nextGridPosition = gridPostion + glm::ivec2{static_cast<int>(dir.x), static_cast<int>(dir.y)};
+    const auto gridPostion = gridComponent->GridPositionFromWorld(comp->GetGameObject()->GetTransform().GetWorldPosition());
+    const auto nextGridPosition = gridPostion + glm::ivec2{static_cast<int>(dir.x), static_cast<int>(dir.y)};
     m_isValidMove = gridComponent->IsWithinBounds(nextGridPosition) && !gridComponent->IsOccupied(nextGridPosition);
     m_TargetPosition = gridComponent->WorldPositionFromGrid(nextGridPosition);
     m_StartPosition = comp->GetGameObject()->GetTransform().GetWorldPosition();
@@ -81,18 +81,38 @@ std::unique_ptr<pengo::PengoState> pengo::PengoIdleState::OnMove(pengo::PengoCom
     return std::make_unique<PengoMovingState>();
 }
 
-std::unique_ptr<pengo::PengoState> pengo::PengoIdleState::OnPush(pengo::PengoComponent* pengo) {
+std::unique_ptr<pengo::PengoState> pengo::PengoIdleState::OnPush(pengo::PengoComponent*) {
+    return std::make_unique<PengoPushState>();
+}
+
+void pengo::PengoPushState::Enter(PengoComponent* pengo) {
     auto gridPos = pengo->GetGrid()->GridPositionFromWorld(pengo->GetGameObject()->GetTransform().GetWorldPosition());
     gridPos += glm::ivec2{static_cast<int>(pengo->GetCurrentDirection().x), static_cast<int>(pengo->GetCurrentDirection().y)};
     if (!pengo->GetGrid()->IsWithinBounds(gridPos) || !pengo->GetGrid()->IsOccupied(gridPos)) {
-        return nullptr;
-    }
-    auto* iceBlock = pengo->GetGrid()->GetCell(gridPos).occupant;
-    if (iceBlock) {
-        if (auto* iceBlockComponent = iceBlock->GetComponent<pengo::IceBlockComponent>()) {
-            iceBlockComponent->Push(glm::ivec2{static_cast<int>(pengo->GetCurrentDirection().x), static_cast<int>(pengo->GetCurrentDirection().y)});
+        m_validPush = false;
+        std::cerr << "Invalid push: out of bounds or no ice block at target position." << std::endl;
+    } else {
+        auto* iceBlock = pengo->GetGrid()->GetCell(gridPos).occupant;
+        if (iceBlock) {
+            if (auto* iceBlockComponent = iceBlock->GetComponent<pengo::IceBlockComponent>()) {
+                iceBlockComponent->Push(glm::ivec2{static_cast<int>(pengo->GetCurrentDirection().x), static_cast<int>(pengo->GetCurrentDirection().y)});
+                m_validPush = true;
+            }
         }
     }
+}
 
+void pengo::PengoPushState::Exit(PengoComponent*) {
+}
+
+std::unique_ptr<pengo::PengoState> pengo::PengoPushState::Update(pengo::PengoComponent*) {
+    return std::make_unique<PengoIdleState>();
+}
+
+std::unique_ptr<pengo::PengoState> pengo::PengoPushState::OnMove(pengo::PengoComponent*, glm::ivec2) {
+    return nullptr;
+}
+
+std::unique_ptr<pengo::PengoState> pengo::PengoPushState::OnPush(pengo::PengoComponent*) {
     return nullptr;
 }

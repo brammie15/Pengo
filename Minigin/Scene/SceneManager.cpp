@@ -2,33 +2,23 @@
 #include "Scene.h"
 
 void fovy::SceneManager::Update() {
-    for (auto &scene: m_scenes) {
-        scene->Update();
-    }
+    m_scenes[m_ActiveSceneIndex]->Update();
 }
 
 void fovy::SceneManager::FixedUpdate() {
-    for (auto &scene: m_scenes) {
-        scene->FixedUpdate();
-    }
+    m_scenes[m_ActiveSceneIndex]->FixedUpdate();
 }
 
 void fovy::SceneManager::LateUpdate() {
-    for (auto &scene: m_scenes) {
-        scene->LateUpdate();
-    }
+    m_scenes[m_ActiveSceneIndex]->LateUpdate();
 }
 
 void fovy::SceneManager::Render() {
-    for (const auto &scene: m_scenes) {
-        scene->Render();
-    }
+    m_scenes[m_ActiveSceneIndex]->Render();
 }
 
 void fovy::SceneManager::RenderImgui() {
-    for (const auto & scene : m_scenes) {
-        scene->RenderImgui();
-    }
+    m_scenes[m_ActiveSceneIndex]->RenderImgui();
 }
 
 void fovy::SceneManager::HandleGameObjectDestroy() {

@@ -63,10 +63,7 @@ void GridComponent::LoadLevel(const std::string& filename) {
 
     static const std::unordered_map<int, std::string> tilePrefabMap = {
         {1, "WallTile"},
-        {2, "Enemy"},
-        {3, "GrassTile"},
-        {4, "WaterTile"},
-        // Extend as needed
+        {2, "Enemy"}
     };
 
     std::string line;
@@ -88,11 +85,11 @@ void GridComponent::LoadLevel(const std::string& filename) {
                     toAddTiles.push_back(cellPos);
                     break;
                 }
+                default:
+                    break;
             }
 
             std::cout << "Processed: " << cellPos.x << " : " << cellPos.y << std::endl;
-
-
             ++x;
         }
 
@@ -110,6 +107,8 @@ void GridComponent::LoadLevel(const std::string& filename) {
         tileSprite->SetTexture("PengoBlocks.png");
         tileSprite->SetTileIndex(0);
 
+        tileSprite->AddAnimation("break", {28,29,30,31,32,33,34, 35}, 0.05f, false);
+
         tileSprite->GetTransform().SetParent(&this->GetGameObject()->GetTransform());
 
 
@@ -123,19 +122,22 @@ void GridComponent::Update() {
 }
 
 void GridComponent::Render() {
-    const glm::vec3 offset = GetGameObject()->GetTransform().GetWorldPosition();
-
-    for (int x = 0; x < m_width; ++x) {
-        for (int y = 0; y < m_height; ++y) {
-            fovy::Renderer::GetInstance().RenderRect(
-                offset.x + static_cast<float>(x) * m_cellSize.x, offset.y + y * m_cellSize.y, m_cellSize.x,
-                m_cellSize.y, {255, 255, 255, 255}, false);
+    if (m_renderDebugGrid) {
+        const glm::vec3 offset = GetGameObject()->GetTransform().GetWorldPosition();
+        for (int x = 0; x < m_width; ++x) {
+            for (int y = 0; y < m_height; ++y) {
+                fovy::Renderer::GetInstance().RenderRect(
+                    offset.x + static_cast<float>(x) * m_cellSize.x, offset.y + y * m_cellSize.y, m_cellSize.x,
+                    m_cellSize.y, {255, 255, 255, 255}, false);
+            }
         }
     }
+
 }
 
 void GridComponent::ImGuiInspector() {
     if (ImGui::TreeNode("GridComponent")) {
+        ImGui::Checkbox("Render Debug Grid", &m_renderDebugGrid);
         ImGui::Text("Grid Size: X: %d, Y: %d", m_width, m_height);
         ImGui::Text("Cell Size: X: %.1f, Y: %.1f", m_cellSize.x, m_cellSize.y);
         ImGui::Separator();
@@ -161,6 +163,8 @@ void GridComponent::ImGuiInspector() {
                 if (cell.occupant != nullptr) {
                     if (cell.occupant->GetName() == "Player1") { //TODO: remove debug bad >:(
                         color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);  // Player: Green
+                    } else if (cell.occupant->GetName().find("SnoBee") != std::string::npos) {
+                        color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
                     } else {
                         color = ImVec4(0.2f, 0.6f, 1.0f, 1.0f);  // Occupied: Blue
                     }

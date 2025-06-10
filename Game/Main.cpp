@@ -29,6 +29,7 @@
 #include "Components/SpriteRenderer.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
+#include "Components/SnoBee/SnoBeeComponent.h"
 #include "Components/Tile/TileComponent.h"
 #include "Input/InputAction.h"
 #include "Input/InputBinding.h"
@@ -39,10 +40,23 @@ namespace fs = std::filesystem;
 
 
 void load() {
-    auto& scene = fovy::SceneManager::GetInstance().CreateScene("Game");
+
+    auto& mainMenuScene = fovy::SceneManager::GetInstance().CreateScene("MainMenu");
     fovy::ServiceLocator<fovy::ISoundSystem>::RegisterService(std::make_unique<fovy::SDLSoundSystem>());
 
-    glm::vec2 widnowSize = {224.f * 3.f, 288.f * 3.f};
+    auto testObject = std::make_shared<fovy::GameObject>("TestObject");
+    [[maybe_unused]] auto testText = testObject->AddComponent<fovy::TextComponent>("Hello World", fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36));
+
+    mainMenuScene.Add(testObject);
+
+
+
+
+    auto& scene = fovy::SceneManager::GetInstance().CreateScene("Game");
+    fovy::ServiceLocator<fovy::ISoundSystem>::RegisterService(std::make_unique<fovy::SDLSoundSystem>());
+    fovy::SceneManager::GetInstance().SwitchScene(1);
+
+    glm::vec2 windowSize = {224.f * 3.f, 288.f * 3.f};
 
     auto font = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
     auto smallerFont = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 22);
@@ -60,8 +74,8 @@ void load() {
     //Center the background
     glm::vec2 textureSize = backgroundTexture->GetSize();
     glm::vec2 bgOffset = {textureSize.x / 2.f, textureSize.y / 2.f};
-    bgOffset.x = (widnowSize.x / 2.f) - bgOffset.x;
-    bgOffset.y = (widnowSize.y / 2.f) - bgOffset.y;
+    bgOffset.x = (windowSize.x / 2.f) - bgOffset.x;
+    bgOffset.y = (windowSize.y / 2.f) - bgOffset.y;
     testBackground->GetTransform().SetLocalPosition({bgOffset.x, bgOffset.y, 0.f});
 
     scene.Add(testBackground);
@@ -82,8 +96,8 @@ void load() {
     int GridHeight = 15;
 
     glm::vec2 offset = {static_cast<float>(GridWidth) * cellWidth / 2.f, static_cast<float>(GridHeight) * cellHeight / 2.f};
-    offset.x = (widnowSize.x / 2.f) - offset.x;
-    offset.y = (widnowSize.y / 2.f) - offset.y;
+    offset.x = (windowSize.x / 2.f) - offset.x;
+    offset.y = (windowSize.y / 2.f) - offset.y;
 
     mainGridObject->GetTransform().SetLocalPosition({offset.x, offset.y, 0.f});
     auto gridComponent = mainGridObject->AddComponent<GridComponent>(glm::ivec2{GridWidth, GridHeight}, glm::vec2{cellWidth, cellHeight});
@@ -125,10 +139,10 @@ void load() {
     };
 
     constexpr std::array directions{
-        pengo::MoveDirection::Up,
-        pengo::MoveDirection::Left,
-        pengo::MoveDirection::Down,
-        pengo::MoveDirection::Right
+        MoveDirection::Up,
+        MoveDirection::Left,
+        MoveDirection::Down,
+        MoveDirection::Right
     };
 
     for (int index{ 0 }; index < KeyboardInputs.size(); ++index) {
@@ -146,7 +160,7 @@ void load() {
             input,
             fovy::ButtonState::Released,
             playerComponent,
-            pengo::MoveDirection::None // clears m_HeldDirection
+            MoveDirection::None // clears m_HeldDirection
         );
     }
 
@@ -159,7 +173,6 @@ void load() {
 
     scene.Add(Player1);
 
-
     // auto tileObject = std::make_shared<fovy::GameObject>("Tile");
     // [[maybe_unused]] auto tileComponent = tileObject->AddComponent<TileComponent>(gridComponent, glm::ivec2{0, 2});
     // auto tileSprite = tileObject->AddComponent<fovy::SpriteRenderer>();
@@ -167,6 +180,54 @@ void load() {
     // tileSprite->SetTileIndex(0);
 
     // scene.Add(tileObject);
+
+    auto testSnoBee = std::make_shared<fovy::GameObject>("TestSnoBee");
+    auto snoBeeSprite = testSnoBee->AddComponent<fovy::SpriteRenderer>();
+    snoBeeSprite->SetTexture("PengoSnoBee.png");
+    snoBeeSprite->SetTileIndex(0);
+    snoBeeSprite->AddAnimation("spawn", {0, 1, 2, 3, 4, 5}, 0.2f, false);
+    snoBeeSprite->AddAnimation("idle_down", {9}, 0.5f, true);
+    snoBeeSprite->AddAnimation("idle_left", {11}, 0.5f, true);
+    snoBeeSprite->AddAnimation("idle_up", {13}, 0.5f, true);
+    snoBeeSprite->AddAnimation("idle_right", {15}, 0.5f, true);
+
+    snoBeeSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
+    snoBeeSprite->AddAnimation("walk_left", {10, 11}, 0.5f, true);
+    snoBeeSprite->AddAnimation("walk_up", {12,13}, 0.5f, true);
+    snoBeeSprite->AddAnimation("walk_right", {14,15}, 0.5f, true);
+
+
+    auto snoBeeComponent = testSnoBee->AddComponent<pengo::SnoBeeComponent>(gridComponent, glm::vec2{0.f, 2.f});
+
+    const std::array testInputs{
+        InputAction{{SDL_SCANCODE_I, SDL_SCANCODE_UP}, {}},
+        InputAction{{SDL_SCANCODE_J, SDL_SCANCODE_LEFT}, {{}}},
+        InputAction{{SDL_SCANCODE_K, SDL_SCANCODE_DOWN}, {{}}},
+        InputAction{{SDL_SCANCODE_L, SDL_SCANCODE_RIGHT}, {{}}},
+    };
+
+    for (int index{ 0 }; index < KeyboardInputs.size(); ++index) {
+        const auto& input = testInputs[index];
+        auto dir = directions[index];
+
+        fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
+            input,
+            fovy::ButtonState::Down,
+            snoBeeComponent,
+            dir // sets m_HeldDirection
+        );
+
+        fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
+            input,
+            fovy::ButtonState::Released,
+            snoBeeComponent,
+            MoveDirection::None // clears m_HeldDirection
+        );
+    }
+
+    scene.Add(testSnoBee);
+    fovy::SceneManager::GetInstance().SwitchScene(1);
+
 
 
 

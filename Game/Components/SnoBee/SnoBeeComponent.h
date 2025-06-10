@@ -1,22 +1,22 @@
-#ifndef PLAYERCOMPONENT_H
-#define PLAYERCOMPONENT_H
+#ifndef SNOBEE_H
+#define SNOBEE_H
 
-#include "PengoStates.h"
-#include "../GridComponent.h"
-#include "../SpriteRenderer.h"
+#include <memory>
+
+#include "SnoBeeStates.h"
+#include "Components/GridComponent.h"
+#include "Components/SpriteRenderer.h"
 #include "ObjectModel/Component.h"
 
 
 namespace pengo {
-
-
-    class PengoComponent final : public fovy::Component {
+    class SnoBeeComponent final : public fovy::Component {
     public:
         void Destroy() override;
 
         [[nodiscard]] GridComponent* GetGrid() const { return m_pGrid; }
-        explicit PengoComponent(fovy::GameObject& parent, GridComponent* grid);
-        
+        explicit SnoBeeComponent(fovy::GameObject& parent, GridComponent* grid, glm::vec2 startPosition);
+
         void Update() override;
         void Render() override;
         void ImGuiInspector() override;
@@ -27,16 +27,17 @@ namespace pengo {
 
         void Move(MoveDirection direction);
         void Push();
-
     private:
         GridComponent* m_pGrid{ nullptr };
 
         glm::vec2 m_direction{ 0.0f, 0.0f };
 
-        std::unique_ptr<pengo::PengoState> m_CurrentState{ nullptr };
+        std::unique_ptr<pengo::SnoBeeState> m_CurrentState{ nullptr };
 
         fovy::SpriteRenderer* m_spriteRenderer;
     };
 }
 
-#endif // PLAYERCOMPONENT_H 
+
+
+#endif //SNOBEE_H

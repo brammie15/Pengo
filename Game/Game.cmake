@@ -50,6 +50,12 @@ add_executable(${GAME_NAME} WIN32
 
         Game/Components/Pengo/PengoStates.h
         Game/Components/Pengo/PengoStates.cpp
+
+        Game/Components/SnoBee/SnoBeeComponent.cpp
+        Game/Components/SnoBee/SnoBeeComponent.h
+
+        Game/Components/SnoBee/SnoBeeStates.h
+        Game/Components/SnoBee/SnoBeeStates.cpp
 )
 
 target_include_directories(${GAME_NAME} PRIVATE

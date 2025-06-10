@@ -6,7 +6,13 @@
 #include <vector>
 
 #include "ObjectModel/Component.h"
-
+enum class MoveDirection{
+    None,
+    Up,
+    Down,
+    Left,
+    Right
+};
 class GridComponent final: public fovy::Component {
 public:
     explicit GridComponent(fovy::GameObject& pParent, glm::ivec2 size, glm::vec2 cellSize);
@@ -45,6 +51,7 @@ private:
     int m_height{-1};
     glm::vec2 m_cellSize{1, 1};
 
+    bool m_renderDebugGrid{true};
 };
 
 #endif //GRIDCOMPONENT_H

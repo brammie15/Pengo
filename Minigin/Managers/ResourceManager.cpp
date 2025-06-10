@@ -24,7 +24,7 @@ std::shared_ptr<fovy::Texture2D> fovy::ResourceManager::LoadTexture(const std::s
         std::cout << "Not yet loaded: " << file << std::endl;
     }
 
-    std::cout << "Alreayd loaded: " << file << std::endl;
+    std::cout << "Found Loaded: " << file << std::endl;
     return m_loadedTextures.at(filename);
 }
 
