@@ -20,6 +20,9 @@ void fovy::Component::Destroy() {
     Object::Destroy();
 }
 
+void fovy::Component::Start() {
+}
+
 void fovy::Component::SetEnabled(bool enabled) {
     m_IsEnabled = enabled;
 }

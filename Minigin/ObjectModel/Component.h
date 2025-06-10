@@ -22,6 +22,7 @@ namespace fovy {
         [[nodiscard]] Transform& GetTransform() const;
 
         void Destroy() override;
+        virtual void Start();
         virtual void SetEnabled(bool enabled);
         virtual void Update() = 0;
         virtual void LateUpdate();
@@ -31,12 +32,16 @@ namespace fovy {
 
 
         virtual void Render();
+
+
+        bool HasStarted{false};
     protected:
         explicit Component(GameObject& pParent, const std::string& name = "Component");
 
     private:
         GameObject* m_ParentGameObjectPtr{};
         bool m_IsEnabled{true};
+
     };
 } // dae
 

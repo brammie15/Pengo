@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include "Tile/IceBlockComponent.h"
-#include "SpriteRenderer.h"
-#include "Texture2D.h"
+#include "../../Minigin/Components/SpriteRenderer.h"
+#include "../../Minigin/Resources/Texture2D.h"
 #include "Tile/TileComponent.h"
 #include "Managers/Renderer.h"
 #include "Managers/ResourceManager.h"

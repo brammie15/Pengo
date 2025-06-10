@@ -3,8 +3,8 @@
 #include <iostream>
 #include <SDL_ttf.h>
 #include <stdexcept>
-#include "Font.h"
-#include "Texture2D.h"
+#include "../Resources/Font.h"
+#include "../Resources/Texture2D.h"
 
 namespace fs = std::filesystem;
 

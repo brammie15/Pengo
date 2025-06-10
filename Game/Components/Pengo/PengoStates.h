@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Components/TextureComponent.h"
+#include "../../../Minigin/Components/TextureComponent.h"
 
 namespace pengo {
     class PengoComponent;

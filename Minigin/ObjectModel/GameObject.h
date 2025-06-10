@@ -7,7 +7,6 @@
 #include "Transform.h"
 
 namespace fovy {
-    class Scene;
     class Texture2D;
 
     class GameObject final: public Object {
@@ -29,7 +28,7 @@ namespace fovy {
 
         [[nodiscard]] std::vector<std::unique_ptr<Component>>& GetComponents() { return m_Components; }
 
-        [[nodiscard]] Transform& GetTransform() { return m_TransformPtr; };
+        [[nodiscard]] Transform& GetTransform() { return m_TransformPtr; }
 
         explicit GameObject(const std::string& name = "GameObject");
         ~GameObject() override;

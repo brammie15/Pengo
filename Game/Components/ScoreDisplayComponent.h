@@ -1,7 +1,7 @@
 #ifndef SCOREDISPLAYCOMPONENT_H
 #define SCOREDISPLAYCOMPONENT_H
 #include "Event.h"
-#include "TextComponent.h"
+#include "../../Minigin/Components/TextComponent.h"
 #include "ObjectModel/Component.h"
 
 namespace fovy {

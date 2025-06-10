@@ -3,7 +3,7 @@
 
 #include "PengoStates.h"
 #include "../GridComponent.h"
-#include "../SpriteRenderer.h"
+#include "../../../Minigin/Components/SpriteRenderer.h"
 #include "ObjectModel/Component.h"
 
 

@@ -3,59 +3,35 @@ set(GAME_NAME "Pengo")
 add_executable(${GAME_NAME} WIN32
         Game/main.cpp
 
-        Game/GameCommands.h
-        Game/GameCommands.cpp
+        Game/GameCommands.h Game/GameCommands.cpp
 
-        Game/Components/FPSComponent.cpp
-        Game/Components/FPSComponent.h
+        Game/Components/FPSComponent.h Game/Components/FPSComponent.cpp
 
-        Game/Components/Rotator.cpp
-        Game/Components/Rotator.h
+        Game/Components/Rotator.h Game/Components/Rotator.cpp
 
-        Game/Components/TextureComponent.cpp
-        Game/Components/TextureComponent.h
+        Game/Components/HealthComponent.h Game/Components/HealthComponent.cpp
 
-        Game/Components/TextComponent.cpp
-        Game/Components/TextComponent.h
+        Game/Components/LivesDisplayComponent.h Game/Components/LivesDisplayComponent.cpp
 
-        Game/Components/HealthComponent.cpp
-        Game/Components/HealthComponent.h
+        Game/Components/ScoreDisplayComponent.h Game/Components/ScoreDisplayComponent.cpp
 
-        Game/Components/LivesDisplayComponent.cpp
-        Game/Components/LivesDisplayComponent.h
+        Game/Components/ScoreComponent.h Game/Components/ScoreComponent.cpp
 
-        Game/Components/ScoreDisplayComponent.cpp
-        Game/Components/ScoreDisplayComponent.h
+        Game/Components/GridComponent.h Game/Components/GridComponent.cpp
 
-        Game/Components/ScoreComponent.cpp
-        Game/Components/ScoreComponent.h
+        Game/Components/Pengo/PengoComponent.h Game/Components/Pengo/PengoComponent.cpp
 
-        Game/Components/GridComponent.cpp
-        Game/Components/GridComponent.h
+        Game/Components/Tile/TileComponent.cpp Game/Components/Tile/TileComponent.h
 
-        Game/Components/Pengo/PengoComponent.cpp
-        Game/Components/Pengo/PengoComponent.h
+        Game/Components/Tile/IceBlockComponent.cpp Game/Components/Tile/IceBlockComponent.h
 
-        Game/Components/SpriteRenderer.cpp
-        Game/Components/SpriteRenderer.h
+        Game/Components/Tile/IceblockStates.cpp Game/Components/Tile/IceblockStates.h
 
-        Game/Components/Tile/TileComponent.h
-        Game/Components/Tile/TileComponent.cpp
+        Game/Components/Pengo/PengoStates.cpp Game/Components/Pengo/PengoStates.h
 
-        Game/Components/Tile/IceBlockComponent.h
-        Game/Components/Tile/IceBlockComponent.cpp
+        Game/Components/SnoBee/SnoBeeComponent.h Game/Components/SnoBee/SnoBeeComponent.cpp
 
-        Game/Components/Tile/IceblockStates.h
-        Game/Components/Tile/IceblockStates.cpp
-
-        Game/Components/Pengo/PengoStates.h
-        Game/Components/Pengo/PengoStates.cpp
-
-        Game/Components/SnoBee/SnoBeeComponent.cpp
-        Game/Components/SnoBee/SnoBeeComponent.h
-
-        Game/Components/SnoBee/SnoBeeStates.h
-        Game/Components/SnoBee/SnoBeeStates.cpp
+        Game/Components/SnoBee/SnoBeeStates.cpp Game/Components/SnoBee/SnoBeeStates.h
 )
 
 target_include_directories(${GAME_NAME} PRIVATE

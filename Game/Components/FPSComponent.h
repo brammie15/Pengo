@@ -2,7 +2,7 @@
 #define FPSCOMPONENT_H
 
 #include "ObjectModel/Component.h"
-#include "TextComponent.h"
+#include "../../Minigin/Components/TextComponent.h"
 
 namespace fovy {
     class FPSComponent final: public Component {

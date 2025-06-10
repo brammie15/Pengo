@@ -1,5 +1,7 @@
 #pragma once
 #include <SDL.h>
+#include <vec2.hpp>
+
 #include "../Singleton.h"
 
 #include "imgui.h"
@@ -35,5 +37,8 @@ namespace fovy {
         void RenderRect(float x, float y, float width, float height, const SDL_Color& color, bool filled = true) const;
         void RenderCircle(float centerX, float centerY, float radius, const SDL_Color& color, bool filled = true) const;
         void RenderPoint(float x, float y, const SDL_Color& color) const;
+
+        void RenderArrow(float x1, float y1, float x2, float y2, const SDL_Color& color, float arrowSize = 10.0f) const;
+        void RenderArrow(glm::vec2 start, glm::vec2 end, const SDL_Color& color, float arrowSize = 10.0f) const;
     };
 }

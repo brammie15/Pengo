@@ -1,7 +1,7 @@
 #include "IceblockStates.h"
 
 #include "Timer.h"
-#include "Components/SpriteRenderer.h"
+#include "../../../Minigin/Components/SpriteRenderer.h"
 #include "ObjectModel/GameObject.h"
 
 void pengo::IceBlockIdleState::Enter(pengo::IceBlockComponent*) {

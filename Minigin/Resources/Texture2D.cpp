@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdexcept>
-#include "./Managers/Renderer.h"
+#include "../Managers/Renderer.h"
 
 fovy::Texture2D::~Texture2D() {
     SDL_DestroyTexture(m_texture);

@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "Texture2D.h"
+#include "../Resources/Texture2D.h"
 #include "ObjectModel/Component.h"
 #include <SDL.h>
 
@@ -59,6 +59,9 @@ namespace fovy {
         }
 
         void ImGuiInspector() override;
+        glm::vec2 GetSize() const {
+            return {static_cast<float>(m_DestTileWidth), static_cast<float>(m_DestTileHeight)};
+        }
 
     private:
         struct Animation {

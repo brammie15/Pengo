@@ -5,7 +5,7 @@
 
 #include "SnoBeeStates.h"
 #include "Components/GridComponent.h"
-#include "Components/SpriteRenderer.h"
+#include "../../../Minigin/Components/SpriteRenderer.h"
 #include "ObjectModel/Component.h"
 
 

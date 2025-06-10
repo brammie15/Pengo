@@ -10,7 +10,7 @@
 #include <gtc/type_ptr.hpp>
 
 #include "Managers/Renderer.h"
-#include "Texture2D.h"
+#include "../Resources/Texture2D.h"
 #include "ObjectModel/Transform.h"
 
 namespace fovy {

@@ -3,7 +3,7 @@
 #include "Renderer.h"
 
 #include "Scene/SceneManager.h"
-#include "Texture2D.h"
+#include "../Resources/Texture2D.h"
 
 int GetOpenGLDriverIndex() {
     auto openglIndex = -1;
@@ -161,4 +161,37 @@ void fovy::Renderer::RenderCircle(float centerX, float centerY, float radius, co
 void fovy::Renderer::RenderPoint(float x, float y, const SDL_Color& color) const {
     SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDrawPointF(m_renderer, x, y);
+}
+
+void fovy::Renderer::RenderArrow(float x1, float y1, float x2, float y2, const SDL_Color& color, float arrowSize) const {
+    SDL_Color originalColor;
+    SDL_GetRenderDrawColor(m_renderer, &originalColor.r, &originalColor.g, &originalColor.b, &originalColor.a);
+
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+
+    SDL_RenderDrawLineF(m_renderer, x1, y1, x2, y2);
+
+    const float angle = atan2f(y2 - y1, x2 - x1);
+
+    const double arrowAngle1 = angle + M_PI * 5.0f / 6.0f;  // 150 degrees
+    const double arrowAngle2 = angle - M_PI * 5.0f / 6.0f;  // -150 degrees
+
+    SDL_FPoint arrowPoint1 = {
+        x2 + arrowSize * cosf(static_cast<float>(arrowAngle1)),
+        y2 + arrowSize * sinf(static_cast<float>(arrowAngle1))
+    };
+
+    SDL_FPoint arrowPoint2 = {
+        x2 + arrowSize * cosf(static_cast<float>(arrowAngle2)),
+        y2 + arrowSize * sinf(static_cast<float>(arrowAngle2))
+    };
+
+    SDL_RenderDrawLineF(m_renderer, x2, y2, arrowPoint1.x, arrowPoint1.y);
+    SDL_RenderDrawLineF(m_renderer, x2, y2, arrowPoint2.x, arrowPoint2.y);
+
+    SDL_SetRenderDrawColor(m_renderer, originalColor.r, originalColor.g, originalColor.b, originalColor.a);
+}
+
+void fovy::Renderer::RenderArrow(glm::vec2 start, glm::vec2 end, const SDL_Color& color, float arrowSize) const {
+    RenderArrow(start.x, start.y, end.x, end.y, color, arrowSize);
 }

@@ -3,9 +3,7 @@
 
 #include <iostream>
 
-#include "Managers/Renderer.h"
 #include "Managers/ResourceManager.h"
-
 
 fovy::GameObject::~GameObject() {
     std::cout << "gameobject destroyed: " << GetName() << std::endl;
@@ -16,6 +14,10 @@ fovy::GameObject::GameObject(const std::string& name): Object(name) {
 
 void fovy::GameObject::Update() {
     for (const auto& component: m_Components) {
+        if (!component->HasStarted) {
+            component->Start();
+            component->HasStarted = true;
+        }
         component->Update();
     }
 }

@@ -6,9 +6,8 @@
 #include <string>
 
 #include "ObjectModel/Component.h"
-#include "Font.h"
-#include "Texture2D.h"
-#include <memory>
+#include "Resources/Font.h"
+#include "Resources/Texture2D.h"
 
 namespace fovy {
     class TextComponent final: public Component {
@@ -21,12 +20,27 @@ namespace fovy {
 
         void ImGuiInspector() override;
 
+        void SetFont(const std::shared_ptr<Font>& font) {
+            m_Font = font;
+            m_isDirty = true; // Mark as dirty to update the texture
+        }
+
+        [[nodiscard]] const std::string& GetText() const { return m_Text; }
+        [[nodiscard]] const SDL_Color& GetColor() const { return m_Color; }
+
         TextComponent(const TextComponent& other) = delete;
         TextComponent(TextComponent&& other) noexcept = delete;
         TextComponent& operator=(const TextComponent& other) = delete;
         TextComponent& operator=(TextComponent&& other) noexcept = delete;
 
         ~TextComponent() override = default;
+
+        [[nodiscard]] glm::vec2 GetSize() const {
+            if (m_TextTexture) {
+                return m_TextTexture->GetSize();
+            }
+            return {0.0f, 0.0f};
+        }
 
     private:
         bool m_isDirty{true};

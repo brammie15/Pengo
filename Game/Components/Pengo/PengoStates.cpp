@@ -5,7 +5,7 @@
 #include "PengoComponent.h"
 #include "Timer.h"
 #include "../Tile/IceBlockComponent.h"
-#include "Components/SpriteRenderer.h"
+#include "../../../Minigin/Components/SpriteRenderer.h"
 #include "ObjectModel/GameObject.h"
 
 void pengo::PengoMovingState::Enter(pengo::PengoComponent* comp) {

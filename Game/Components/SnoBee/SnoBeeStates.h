@@ -5,7 +5,7 @@
 #include <string>
 #include <vec2.hpp>
 
-#include "Components/SpriteRenderer.h"
+#include "../../../Minigin/Components/SpriteRenderer.h"
 
 namespace pengo {
 
