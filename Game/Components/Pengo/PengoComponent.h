@@ -1,6 +1,7 @@
 #ifndef PLAYERCOMPONENT_H
 #define PLAYERCOMPONENT_H
 
+#include "Direction.h"
 #include "PengoStates.h"
 #include "../GridComponent.h"
 #include "../../../Minigin/Components/SpriteRenderer.h"
@@ -25,7 +26,7 @@ namespace pengo {
         glm::vec2 GetCurrentDirection() const { return m_direction; }
         void SetCurrentDirection(const glm::vec2& direction) { m_direction = direction; }
 
-        void Move(MoveDirection direction);
+        void Move(fovy::Direction direction);
         void Push();
 
     private:

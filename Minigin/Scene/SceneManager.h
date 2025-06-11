@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
 #include "../Singleton.h"
 
 namespace fovy {
@@ -31,12 +32,7 @@ namespace fovy {
 
         void Destroy();
 
-        void SwitchScene(int index) {
-            if (index < 0 || index >= static_cast<int>(m_scenes.size())) {
-                throw std::out_of_range("Scene index out of range");
-            }
-            m_ActiveSceneIndex = index;
-        }
+        void SwitchScene(int index);
 
     private:
         friend class Singleton<SceneManager>;

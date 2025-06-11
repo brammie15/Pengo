@@ -11,3 +11,8 @@ void fovy::Focusable::Update() {
 void fovy::Focusable::OnInteract() {
     std::cout << "Focusable interacted with: " << GetName() << std::endl;
 }
+
+bool fovy::Focusable::OnMove(Direction) {
+    return false; //Default does not override movement
+}
+

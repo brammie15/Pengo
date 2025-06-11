@@ -3,6 +3,8 @@ set(GAME_NAME "Pengo")
 add_executable(${GAME_NAME} WIN32
         Game/main.cpp
 
+        Game/ScoreManager.h Game/ScoreManager.cpp
+
         Game/GameCommands.h Game/GameCommands.cpp
 
         Game/Components/FPSComponent.h Game/Components/FPSComponent.cpp
@@ -32,6 +34,12 @@ add_executable(${GAME_NAME} WIN32
         Game/Components/SnoBee/SnoBeeComponent.h Game/Components/SnoBee/SnoBeeComponent.cpp
 
         Game/Components/SnoBee/SnoBeeStates.cpp Game/Components/SnoBee/SnoBeeStates.h
+
+        Game/Components/UI/LetterRoller.h Game/Components/UI/LetterRoller.cpp
+
+        Game/Components/UI/MainMenuUiManager.h Game/Components/UI/MainMenuUiManager.cpp
+
+        Game/Components/ScoreScreenManager.h Game/Components/ScoreScreenManager.cpp
 )
 
 target_include_directories(${GAME_NAME} PRIVATE

@@ -42,6 +42,11 @@ namespace fovy {
             return {0.0f, 0.0f};
         }
 
+        void SetColor(const SDL_Color& color) {
+            m_Color = color;
+            m_isDirty = true; // Mark as dirty to update the texture
+        }
+
     private:
         bool m_isDirty{true};
 

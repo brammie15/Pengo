@@ -43,6 +43,12 @@ namespace fovy {
             m_Bindings.emplace_back(state, controllerId, action, command);
         }
 
+        //Remove all bindings for a specific action
+        void RemoveBindings(const InputAction& action) {
+            std::erase_if(m_Bindings,
+                          [&action](const InputBinding& binding) { return binding.action == action; });
+        }
+
     private:
         void HandleControllerInput();
         void HandleKeyboardHeld();

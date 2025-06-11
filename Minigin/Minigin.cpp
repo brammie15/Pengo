@@ -124,6 +124,7 @@ void fovy::Minigin::Run(const std::function<void()>& load) {
 
 void fovy::Minigin::RunOneFrame() {
     auto& Time{Time::GetInstance()};
+    auto& SceneManager{ SceneManager::GetInstance() };
     Time.Update();
 
     const bool shouldContinue = InputManager::GetInstance().ProcessInput();
@@ -136,15 +137,15 @@ void fovy::Minigin::RunOneFrame() {
 
     while (m_AccumulatedTime >= Time.FixedDeltaTime()) {
         m_AccumulatedTime -= Time.FixedDeltaTime();
-        SceneManager::GetInstance().FixedUpdate();
+        SceneManager.FixedUpdate();
     }
 
-    SceneManager::GetInstance().Update();
-    SceneManager::GetInstance().LateUpdate();
+    SceneManager.Update();
+    SceneManager.LateUpdate();
 
     Renderer::GetInstance().Render();
 
-    SceneManager::GetInstance().HandleScene();
+    SceneManager.HandleScene();
 
     std::this_thread::sleep_for(Time.SleepDuration());
 }

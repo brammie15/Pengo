@@ -28,9 +28,12 @@
 #include "Components/Pengo/PengoComponent.h"
 #include "../Minigin/Components/SpriteRenderer.h"
 #include "../Minigin/Components/TextComponent.h"
+#include "Components/ScoreScreenManager.h"
 #include "Components/TextureComponent.h"
 #include "Components/SnoBee/SnoBeeComponent.h"
 #include "Components/Tile/TileComponent.h"
+#include "Components/UI/LetterRoller.h"
+#include "Components/UI/MainMenuUiManager.h"
 #include "Input/InputAction.h"
 #include "Input/InputBinding.h"
 #include "Input/InputManager.h"
@@ -40,11 +43,43 @@
 
 namespace fs = std::filesystem;
 
+const std::array KeyboardInputs{
+    fovy::InputAction{{SDL_SCANCODE_W, SDL_SCANCODE_UP}, {SDL_CONTROLLER_BUTTON_DPAD_UP}},
+    fovy::InputAction{{SDL_SCANCODE_A, SDL_SCANCODE_LEFT}, {{SDL_CONTROLLER_BUTTON_DPAD_LEFT}}},
+    fovy::InputAction{{SDL_SCANCODE_S, SDL_SCANCODE_DOWN}, {{SDL_CONTROLLER_BUTTON_DPAD_DOWN}}},
+    fovy::InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {{SDL_CONTROLLER_BUTTON_DPAD_RIGHT}}},
+};
+
+constexpr std::array Directions{
+    fovy::Direction::Up,
+    fovy::Direction::Left,
+    fovy::Direction::Down,
+    fovy::Direction::Right
+};
+
+fovy::GameObject* CreateLetterRoller(fovy::Scene* scene, fovy::GameObject* canvas, glm::vec3 position, std::shared_ptr<fovy::Font> font, const std::string& name) {
+    const auto letterObject = std::make_shared<fovy::GameObject>(name);
+    const auto letterTextObject = std::make_shared<fovy::GameObject>(name + "Text");
+    letterTextObject->AddComponent<fovy::TextComponent>("A", font);
+
+    letterTextObject->GetTransform().SetParent(&letterObject->GetTransform());
+    letterTextObject->GetTransform().SetLocalPosition(glm::vec3(18, 30, 0));
+
+    letterObject->GetTransform().SetParent(&canvas->GetTransform());
+    [[maybe_unused]] auto letter1Text = letterObject->AddComponent<pengo::LetterRoller>();
+    letterObject->GetTransform().SetWorldPosition(position);
+
+    scene->Add(letterObject);
+    scene->Add(letterTextObject);
+
+    return letterObject.get();
+}
+
+
 void AddButtonToCanvas(
     const std::shared_ptr<fovy::GameObject>& button,
     const std::shared_ptr<fovy::GameObject>& canvas,
     const glm::vec3& position) {
-
     glm::vec2 buttonSize = button->GetComponent<fovy::TextComponent>()->GetSize();
     // Adjust the position to center the button on the canvas
     button->GetTransform().SetLocalPosition(glm::vec3(position.x - buttonSize.x / 2, position.y - buttonSize.y / 2, position.z));
@@ -52,48 +87,101 @@ void AddButtonToCanvas(
 }
 
 void load() {
+    const auto windowSize = glm::vec2(224.f * 3.f, 288.f * 3.f); //TODO: make this global
 
     auto& mainMenuScene = fovy::SceneManager::GetInstance().CreateScene("MainMenu");
     fovy::ServiceLocator<fovy::ISoundSystem>::RegisterService(std::make_unique<fovy::SDLSoundSystem>());
 
-    auto testObject = std::make_shared<fovy::GameObject>("TestObject");
-    [[maybe_unused]] auto testText = testObject->AddComponent<fovy::TextComponent>("P U S H", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
+    auto pengoLogo = std::make_shared<fovy::GameObject>("PengoLogo");
+    pengoLogo->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("Logo.png"));
+    pengoLogo->GetTransform().SetWorldPosition(glm::vec3(120, 100, 0));
+    pengoLogo->GetTransform().SetLocalScale(3, 3, 1);
 
-    mainMenuScene.Add(testObject);
+
+    mainMenuScene.Add(pengoLogo);
+
+
+    auto copyrightText = std::make_shared<fovy::GameObject>("CopyrightText");
+    copyrightText->AddComponent<fovy::TextComponent>("Bram Verhulst - 2025", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
+    copyrightText->GetTransform().SetWorldPosition(glm::vec3(150, windowSize.y - 50, 0));
+
+    mainMenuScene.Add(copyrightText);
 
     auto MainCanvas = std::make_shared<fovy::GameObject>("MainCanvas");
     auto canvasComponent = MainCanvas->AddComponent<fovy::Canvas>();
 
     auto OnePlayerButton = std::make_shared<fovy::GameObject>("1PlayerButton");
-    [[maybe_unused]] auto buttonComponent = OnePlayerButton->AddComponent<fovy::Button>("1P Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
+    auto buttonComponent = OnePlayerButton->AddComponent<fovy::Button>("1P Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
-    AddButtonToCanvas(OnePlayerButton, MainCanvas, glm::vec3(260, 515, 0));
+
+
+    auto MMMObject = std::make_shared<fovy::GameObject>("MainMenuManager");
+    auto mainUiManager = MMMObject->AddComponent<pengo::MainMenuUiManager>();
+
+
+    buttonComponent->GetClickEvent().AddListener([mainUiManager]() {
+        mainUiManager->OnStartGame();
+    });
+
+    mainMenuScene.Add(MMMObject);
+
+    AddButtonToCanvas(OnePlayerButton, MainCanvas, glm::vec3(265, 515, 0));
 
     auto TwoPlayerButton = std::make_shared<fovy::GameObject>("2PlayerButton");
     [[maybe_unused]] auto button2Component = TwoPlayerButton->AddComponent<fovy::Button>("2P Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
-    AddButtonToCanvas(TwoPlayerButton, MainCanvas, glm::vec3(260, 615, 0));
+    AddButtonToCanvas(TwoPlayerButton, MainCanvas, glm::vec3(265, 615, 0));
 
     auto VersusButton = std::make_shared<fovy::GameObject>("Versus Mode");
     [[maybe_unused]] auto button3Component = VersusButton->AddComponent<fovy::Button>("Versus Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
-    AddButtonToCanvas(VersusButton, MainCanvas, glm::vec3(220, 715, 0));
+    AddButtonToCanvas(VersusButton, MainCanvas, glm::vec3(227, 715, 0));
+
+
+    auto DancingPengo = std::make_shared<fovy::GameObject>("DancingPengo");
+    auto pengoComponent = DancingPengo->AddComponent<fovy::SpriteRenderer>();
+    pengoComponent->SetTexture(fovy::ResourceManager::GetInstance().LoadTexture("playerSpritesheet.png"));
+
+    pengoComponent->AddAnimation("dance", {20, 21, 20, 21, 20, 21, 20, 21, 22, 23, 22, 23, 22, 23 ,22, 23}, 0.1f, true);
+    pengoComponent->PlayAnimation("dance");
+
+    DancingPengo->GetTransform().SetWorldPosition(glm::vec3(200, 400, 0));
+    DancingPengo->GetTransform().SetWorldScale(glm::vec3(1.5f, 1.5f, 1));
+
+
+    mainMenuScene.Add(DancingPengo);
 
 
     using fovy::InputAction;
-    const std::array KeyboardInputs{
-        InputAction{{SDL_SCANCODE_W, SDL_SCANCODE_UP}, {SDL_CONTROLLER_BUTTON_DPAD_UP}},
-        InputAction{{SDL_SCANCODE_A, SDL_SCANCODE_LEFT}, {{SDL_CONTROLLER_BUTTON_DPAD_LEFT}}},
-        InputAction{{SDL_SCANCODE_S, SDL_SCANCODE_DOWN}, {{SDL_CONTROLLER_BUTTON_DPAD_DOWN}}},
-        InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {{SDL_CONTROLLER_BUTTON_DPAD_RIGHT}}},
-    };
 
-    const std::array Directions{
-        fovy::Direction::Up,
-        fovy::Direction::Left,
-        fovy::Direction::Down,
-        fovy::Direction::Right
-    };
+    mainMenuScene.SetRegisterBindings([canvasComponent]() {
+        for (int index{0}; index < KeyboardInputs.size(); ++index) {
+            fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+                KeyboardInputs[index],
+                fovy::ButtonState::Pressed,
+                [canvasComponent, index]() {
+                    canvasComponent->Move(Directions[index]);
+                }
+            );
+        }
+
+        fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+            InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
+            fovy::ButtonState::Pressed,
+            [canvasComponent]() {
+                canvasComponent->Interact();
+            }
+        );
+    });
+
+    mainMenuScene.SetUnregisterBindings([]() {
+        fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_W, SDL_SCANCODE_UP}, {SDL_CONTROLLER_BUTTON_DPAD_UP}});
+        fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_A, SDL_SCANCODE_LEFT}, {{SDL_CONTROLLER_BUTTON_DPAD_LEFT}}});
+        fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_S, SDL_SCANCODE_DOWN}, {{SDL_CONTROLLER_BUTTON_DPAD_DOWN}}});
+        fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {{SDL_CONTROLLER_BUTTON_DPAD_RIGHT}}});
+        fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}});
+    });
+
 
 
     mainMenuScene.Add(MainCanvas);
@@ -105,19 +193,25 @@ void load() {
         fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
             KeyboardInputs[index],
             fovy::ButtonState::Pressed,
-            [canvasComponent, Directions, index]() {
+            [canvasComponent, index]() {
                 canvasComponent->Move(Directions[index]);
             }
         );
     }
 
+    fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+        InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
+        fovy::ButtonState::Pressed,
+        [canvasComponent]() {
+            canvasComponent->Interact();
+        }
+    );
 
 
     auto& scene = fovy::SceneManager::GetInstance().CreateScene("Game");
     fovy::ServiceLocator<fovy::ISoundSystem>::RegisterService(std::make_unique<fovy::SDLSoundSystem>());
     fovy::SceneManager::GetInstance().SwitchScene(1);
 
-    glm::vec2 windowSize = {224.f * 3.f, 288.f * 3.f};
 
     auto font = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
     auto smallerFont = fovy::ResourceManager::GetInstance().LoadFont("Lingua.otf", 22);
@@ -183,46 +277,12 @@ void load() {
 
     playerSprite->AddAnimation("walk_up", {4, 5}, 0.5f, true);
     playerSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
-    playerSprite->AddAnimation("walk_left", {2,3}, 0.5f, true);
+    playerSprite->AddAnimation("walk_left", {2, 3}, 0.5f, true);
     playerSprite->AddAnimation("walk_right", {7, 6}, 0.5f, true);
 
     playerSprite->PlayAnimation("idle_up");
 
     auto playerComponent = Player1->AddComponent<pengo::PengoComponent>(gridComponent);
-
-
-
-    constexpr std::array directions{
-        MoveDirection::Up,
-        MoveDirection::Left,
-        MoveDirection::Down,
-        MoveDirection::Right
-    };
-
-    for (int index{ 0 }; index < KeyboardInputs.size(); ++index) {
-        const auto& input = KeyboardInputs[index];
-        auto dir = directions[index];
-
-        fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
-            input,
-            fovy::ButtonState::Down,
-            playerComponent,
-            dir // sets m_HeldDirection
-        );
-
-        fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
-            input,
-            fovy::ButtonState::Released,
-            playerComponent,
-            MoveDirection::None // clears m_HeldDirection
-        );
-    }
-
-    fovy::InputManager::GetInstance().AddCommand<PlayerPushCommand>(
-        InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
-        fovy::ButtonState::Pressed,
-        playerComponent
-    );
 
 
     scene.Add(Player1);
@@ -247,44 +307,149 @@ void load() {
 
     snoBeeSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
     snoBeeSprite->AddAnimation("walk_left", {10, 11}, 0.5f, true);
-    snoBeeSprite->AddAnimation("walk_up", {12,13}, 0.5f, true);
-    snoBeeSprite->AddAnimation("walk_right", {14,15}, 0.5f, true);
+    snoBeeSprite->AddAnimation("walk_up", {12, 13}, 0.5f, true);
+    snoBeeSprite->AddAnimation("walk_right", {14, 15}, 0.5f, true);
 
 
     auto snoBeeComponent = testSnoBee->AddComponent<pengo::SnoBeeComponent>(gridComponent, glm::vec2{0.f, 2.f});
 
-    const std::array testInputs{
-        InputAction{{SDL_SCANCODE_I, SDL_SCANCODE_UP}, {}},
-        InputAction{{SDL_SCANCODE_J, SDL_SCANCODE_LEFT}, {{}}},
-        InputAction{{SDL_SCANCODE_K, SDL_SCANCODE_DOWN}, {{}}},
-        InputAction{{SDL_SCANCODE_L, SDL_SCANCODE_RIGHT}, {{}}},
-    };
 
-    for (int index{ 0 }; index < KeyboardInputs.size(); ++index) {
-        const auto& input = testInputs[index];
-        auto dir = directions[index];
+    scene.SetRegisterBindings([playerComponent, snoBeeComponent]() {
 
-        fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
-            input,
-            fovy::ButtonState::Down,
-            snoBeeComponent,
-            dir // sets m_HeldDirection
+        for (int index{0}; index < KeyboardInputs.size(); ++index) {
+            const auto& input = KeyboardInputs[index];
+            auto dir = Directions[index];
+
+            fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
+                input,
+                fovy::ButtonState::Down,
+                playerComponent,
+                dir
+            );
+
+            fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
+                input,
+                fovy::ButtonState::Released,
+                playerComponent,
+                fovy::Direction::None
+            );
+        }
+
+        fovy::InputManager::GetInstance().AddCommand<PlayerPushCommand>(
+            InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
+            fovy::ButtonState::Pressed,
+            playerComponent
         );
 
-        fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
-            input,
-            fovy::ButtonState::Released,
-            snoBeeComponent,
-            MoveDirection::None // clears m_HeldDirection
-        );
-    }
+        const std::array testInputs{
+            InputAction{{SDL_SCANCODE_I, SDL_SCANCODE_UP}, {}},
+            InputAction{{SDL_SCANCODE_J, SDL_SCANCODE_LEFT}, {{}}},
+            InputAction{{SDL_SCANCODE_K, SDL_SCANCODE_DOWN}, {{}}},
+            InputAction{{SDL_SCANCODE_L, SDL_SCANCODE_RIGHT}, {{}}},
+        };
+
+        for (int index{0}; index < KeyboardInputs.size(); ++index) {
+            const auto& input = testInputs[index];
+            auto dir = Directions[index];
+
+            fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
+                input,
+                fovy::ButtonState::Down,
+                snoBeeComponent,
+                dir
+            );
+
+            fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
+                input,
+                fovy::ButtonState::Released,
+                snoBeeComponent,
+                fovy::Direction::None
+            );
+        }
+    });
+
 
     scene.Add(testSnoBee);
-    fovy::SceneManager::GetInstance().SwitchScene(0);
 
 
 
 
+    {
+        auto& scoreScene = fovy::SceneManager::GetInstance().CreateScene("Score");
+
+        auto scoreCanvas = std::make_shared<fovy::GameObject>("ScoreCanvas");
+        [[maybe_unused]] auto scoreCanvasComponent = scoreCanvas->AddComponent<fovy::Canvas>();
+        scoreScene.Add(scoreCanvas);
+
+        auto scoreText = std::make_shared<fovy::GameObject>("ScoreText");
+        scoreText->AddComponent<fovy::TextComponent>("Score: 0", smallerFont);
+
+        scoreScene.Add(scoreText);
+
+        //18, 30
+
+        auto letterRollerFont = fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 40);
+
+        auto* roller1 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(100, 200, 0), letterRollerFont, "Letter1");
+        auto* roller2 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(200, 200, 0), letterRollerFont, "Letter2");
+        auto* roller3 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(300, 200, 0), letterRollerFont, "Letter3");
+
+        auto scoreScreenManager = std::make_shared<fovy::GameObject>("ScoreScreenManager");
+        auto scoreCanvasManager = scoreScreenManager->AddComponent<pengo::ScoreScreenManager>(std::array{
+            roller1->GetComponent<pengo::LetterRoller>(),
+            roller2->GetComponent<pengo::LetterRoller>(),
+            roller3->GetComponent<pengo::LetterRoller>()
+        });
+
+        auto scoreButton = std::make_shared<fovy::GameObject>("ScoreButton");
+        auto scoreButtonComponent = scoreButton->AddComponent<fovy::Button>("Submit Score", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
+        scoreButton->GetTransform().SetLocalPosition(glm::vec3(200, 400, 0));
+        scoreButtonComponent->GetClickEvent().AddListener([scoreCanvasManager]() {
+            scoreCanvasManager->SubmitScore();
+        });
+        scoreButton->GetTransform().SetParent(&scoreCanvas->GetTransform());
+
+        roller3->GetComponent<pengo::LetterRoller>()->SetNavigationDirection(
+            fovy::Direction::Right,
+            scoreButton.get()
+        );
+
+        buttonComponent->SetNavigationDirection(
+            fovy::Direction::Left,
+            roller3
+        );
+
+        // buttonComponent->SetNavigationDirection(
+        //     fovy::Direction::Up,
+        //     nullptr
+        // );
+
+        scoreScene.Add(scoreScreenManager);
+        scoreScene.Add(scoreButton);
+
+
+
+        scoreScene.SetRegisterBindings([scoreCanvasComponent]() {
+            for (int index{0}; index < KeyboardInputs.size(); ++index) {
+                fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+                    KeyboardInputs[index],
+                    fovy::ButtonState::Pressed,
+                    [scoreCanvasComponent, index]() {
+                        scoreCanvasComponent->Move(Directions[index]);
+                    }
+                );
+            }
+
+            fovy::InputManager::GetInstance().AddCommand<fovy::FunctionCommand>(
+                InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
+                fovy::ButtonState::Pressed,
+                [scoreCanvasComponent]() {
+                    scoreCanvasComponent->Interact();
+                }
+            );
+        });
+    }
+    fovy::SceneManager::GetInstance().SwitchScene(2);
 }
 
 int main(int, char*[]) {

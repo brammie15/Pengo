@@ -1,4 +1,6 @@
 #pragma once
+#include <functional>
+
 #include "SceneManager.h"
 
 namespace fovy
@@ -12,6 +14,8 @@ namespace fovy
 		void Remove(const std::shared_ptr<GameObject>& object);
 		void RemoveAll();
 
+		void Load();
+
 		void Update();
 		void FixedUpdate();
 		void LateUpdate();
@@ -23,6 +27,26 @@ namespace fovy
 		void DestroyGameObjects();
 
 		[[nodiscard]] bool IsBeingUnloaded() const { return m_BeingUnloaded; }
+
+		void SetRegisterBindings(std::function<void()> registerBindings) {
+			m_registerBindings = std::move(registerBindings);
+		}
+		void SetUnregisterBindings(std::function<void()> unregisterBindings) {
+			m_unregisterBindings = std::move(unregisterBindings);
+		}
+		void UnloadBindings() {
+			if (m_unregisterBindings) {
+				m_unregisterBindings();
+			}
+		}
+		void LoadBindings() {
+			if (m_registerBindings) {
+				m_registerBindings();
+			}
+		}
+
+		[[nodiscard]] const std::string& GetName() const { return m_name; }
+		[[nodiscard]] unsigned int GetId() const { return m_idCounter++; }
 
 		~Scene();
 		Scene(const Scene& other) = delete;
@@ -41,6 +65,9 @@ namespace fovy
 
 		//Imgui vars
 		bool m_ShowDemoWindow{ false };
+
+		std::function<void()> m_registerBindings;
+		std::function<void()> m_unregisterBindings;
 	};
 
 }

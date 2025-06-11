@@ -45,22 +45,22 @@ void pengo::SnoBeeComponent::ImGuiInspector() {
     }
 }
 
-void pengo::SnoBeeComponent::Move(MoveDirection direction) {
-    if (direction == MoveDirection::None) {
+void pengo::SnoBeeComponent::Move(fovy::Direction direction) {
+    if (direction == fovy::Direction::None) {
         return;
     }
 
     switch (direction) {
-        case MoveDirection::Up:
+        case fovy::Direction::Up:
             m_direction = {0.0f, -1.0f};
             break;
-        case MoveDirection::Down:
+        case fovy::Direction::Down:
             m_direction = {0.0f, 1.0f};
             break;
-        case MoveDirection::Left:
+        case fovy::Direction::Left:
             m_direction = {-1.0f, 0.0f};
             break;
-        case MoveDirection::Right:
+        case fovy::Direction::Right:
             m_direction = {1.0f, 0.0f};
             break;
         default:

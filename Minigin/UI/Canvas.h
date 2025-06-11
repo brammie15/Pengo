@@ -8,15 +8,10 @@
 #include "Components/SpriteRenderer.h"
 #include "ObjectModel/Component.h"
 #include "ObjectModel/GameObject.h"
+#include "Direction.h"
 
 namespace fovy {
 
-enum class Direction {
-    Up,
-    Down,
-    Left,
-    Right
-};
 
 struct Rect {
     glm::vec2 position;

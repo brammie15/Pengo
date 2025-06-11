@@ -37,7 +37,7 @@ namespace fovy {
 
         void RemoveEvent(BaseEvent* event) { m_Events.erase(event); }
 
-        std::unordered_set<BaseEvent*> m_Events;
+        std::unordered_set<BaseEvent*> m_Events{};
     };
 
     template <typename... EventArgs>

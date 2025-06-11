@@ -28,6 +28,18 @@ void fovy::TextureComponent::Render() {
         static_cast<float>(textureSize.x) * renderScale.x,
         static_cast<float>(textureSize.y) * renderScale.y
     );
+
+    // glm::vec2 center = {renderPos.x + (textureSize.x * renderScale.x) / 2.f, renderPos.y + (textureSize.y * renderScale.y) / 2.f};
+    // Renderer::GetInstance().RenderLine(
+    //     center.x, renderPos.y,
+    //     center.x, renderPos.y + (textureSize.y * renderScale.y),
+    //     SDL_Color(255, 0, 0, 255) // Red vertical line
+    // );
+    // Renderer::GetInstance().RenderLine(
+    //     renderPos.x, center.y,
+    //     renderPos.x + (textureSize.x * renderScale.x), center.y,
+    //     SDL_Color(0, 255, 0, 255) // Green horizontal line
+    // );
 }
 
 void fovy::TextureComponent::ImGuiInspector() {

@@ -19,6 +19,29 @@ namespace fovy {
         bool HasKeyboardKey(SDL_Scancode compareKey) const;
         bool HasControllerButton(int compareButton) const;
         bool HasAxis(SDL_GameControllerAxis axis, bool positive) const;
+        bool operator==(const InputAction& action) const {
+            //Check if both actions have the same keyboard buttons
+            if (keyboardButtons.size() != action.keyboardButtons.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < keyboardButtons.size(); ++i) {
+                if (keyboardButtons[i] != action.keyboardButtons[i]) {
+                    return false;
+                }
+            }
+
+            //Check if both actions have the same controller buttons
+            if (controllerButtons.size() != action.controllerButtons.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < controllerButtons.size(); ++i) {
+                if (controllerButtons[i] != action.controllerButtons[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     };
 }
 

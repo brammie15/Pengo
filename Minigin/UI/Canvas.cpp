@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "Button.h"
 #include "Focusable.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
@@ -77,10 +78,10 @@ void fovy::Canvas::ImGuiInspector() {
 
 void fovy::Canvas::Render() {
     if (m_drawConnections) {
-        for (const auto& [from, neighbors] : m_navigationGraph) {
+        for (const auto& [from, neighbors]: m_navigationGraph) {
             const glm::vec2 fromCenter = GetScreenRect(from).GetCenter();
 
-            for (const auto& [dir, to] : neighbors) {
+            for (const auto& [dir, to]: neighbors) {
                 if (!to) continue;
                 const glm::vec2 toCenter = GetScreenRect(to).GetCenter();
 
@@ -94,6 +95,22 @@ void fovy::Canvas::Render() {
 void fovy::Canvas::Move(Direction dir) {
     if (!m_currentFocus) return;
 
+    auto* focusable = m_currentFocus->GetComponent<Focusable>();
+    if (focusable) {
+
+        if (focusable->GetNavigationOverrides().contains(dir)) {
+            auto* overrideFocus = focusable->GetNavigationOverrides().at(dir);
+            if (overrideFocus) {
+                SetFocus(overrideFocus);
+                return;
+            }
+        }
+
+        if (focusable->OnMove(dir)) {
+            return;
+        }
+
+    }
     const auto next = m_navigationGraph[m_currentFocus][dir];
     if (next) {
         SetFocus(next);
@@ -101,7 +118,14 @@ void fovy::Canvas::Move(Direction dir) {
 }
 
 void fovy::Canvas::Interact() {
-    m_currentFocus->GetComponent<Focusable>()->OnInteract();
+    if (m_currentFocus == nullptr) {
+        return; // No focus to interact with
+    }
+
+    auto* focusable = m_currentFocus->GetComponent<Button>();
+    if (focusable != nullptr) {
+        focusable->OnInteract();
+    }
 }
 
 void fovy::Canvas::SetFocus(GameObject* object) {
@@ -140,6 +164,13 @@ void fovy::Canvas::BuildNavigationGraph() {
 }
 
 fovy::Rect fovy::Canvas::GetScreenRect(GameObject* obj) {
+    if (const auto focusable = obj->GetComponent<Focusable>()) {
+        glm::vec2 size = focusable->GetSize();
+        glm::vec2 position = obj->GetTransform().GetWorldPosition();
+        return Rect({position.x, position.y}, {size.x, size.y});
+    }
+
+    //Fallbacks
     if (const auto sprite = obj->GetComponent<SpriteRenderer>()) {
         glm::vec2 size = sprite->GetSize(); // Sprite's native size in pixels
         glm::vec2 position = obj->GetTransform().GetWorldPosition();
@@ -151,6 +182,7 @@ fovy::Rect fovy::Canvas::GetScreenRect(GameObject* obj) {
         glm::vec2 position = obj->GetTransform().GetWorldPosition();
         return Rect({position.x, position.y}, {size.x, size.y});
     }
+
     return Rect{{0.0f, 0.0f}, {100.0f, 50.0f}}; // Default rect if no specific component found
 }
 

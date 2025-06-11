@@ -9,6 +9,33 @@ fovy::GameObject::~GameObject() {
     std::cout << "gameobject destroyed: " << GetName() << std::endl;
 }
 
+void fovy::GameObject::SetActiveDirty() {
+    m_ActiveDirty = true;
+    for (const Transform* child : m_TransformPtr.GetChildren()) {
+        child->GetOwner()->SetActiveDirty();
+    }
+}
+
+void fovy::GameObject::UpdateActiveState() {
+    auto* parentPtr = m_TransformPtr.GetParent();
+
+    if(parentPtr == nullptr) {
+        m_ActiveInHierarchy = m_Active;
+    } else {
+        m_ActiveInHierarchy = m_Active && parentPtr->GetOwner()->IsActiveInHierarchy();
+    }
+
+    m_ActiveDirty = false;
+}
+
+bool fovy::GameObject::IsActiveInHierarchy() {
+    if (m_ActiveDirty) {
+        UpdateActiveState();
+    }
+
+    return m_ActiveInHierarchy;
+}
+
 fovy::GameObject::GameObject(const std::string& name): Object(name) {
 }
 

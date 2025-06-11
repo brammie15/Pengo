@@ -9,8 +9,8 @@
 
 namespace fovy {
 
-SpriteRenderer::SpriteRenderer(GameObject& pParent, const std::string& name)
-    : Component(pParent, name) {}
+SpriteRenderer::SpriteRenderer(GameObject& pParent)
+    : Component(pParent, "SpriteRenderer") {}
 
 void SpriteRenderer::Update() {
     if (m_IsPlaying) {
@@ -25,7 +25,7 @@ void SpriteRenderer::Render() {
     const auto& position = transform.GetWorldPosition();
     const auto& scale = transform.GetWorldScale();
 
-    SDL_Rect destRect{
+    const SDL_Rect destRect{
         static_cast<int>(position.x),
         static_cast<int>(position.y),
         static_cast<int>(m_DestTileWidth * scale.x),

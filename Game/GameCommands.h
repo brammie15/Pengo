@@ -1,15 +1,16 @@
 #ifndef GAMECOMMANDS_H
 #define GAMECOMMANDS_H
 #include "Command.h"
+#include "Direction.h"
 #include "Components/Pengo/PengoComponent.h"
 #include "Components/SnoBee/SnoBeeComponent.h"
 
 class PlayerMoveCommand final: public fovy::BaseCommand {
 public:
-    explicit PlayerMoveCommand(pengo::PengoComponent* component, MoveDirection dir);
+    explicit PlayerMoveCommand(pengo::PengoComponent* component, fovy::Direction dir);
     void Execute() override;
 private:
-    MoveDirection m_dir;
+    fovy::Direction m_dir;
     pengo::PengoComponent* m_pComponent;
 };
 
@@ -23,10 +24,10 @@ private:
 
 class SnoBeeMoveCommand final: public fovy::BaseCommand {
 public:
-    explicit SnoBeeMoveCommand(pengo::SnoBeeComponent* component, MoveDirection dir);
+    explicit SnoBeeMoveCommand(pengo::SnoBeeComponent* component, fovy::Direction dir);
     void Execute() override;
 private:
-    MoveDirection m_dir;
+    fovy::Direction m_dir;
     pengo::SnoBeeComponent* m_pComponent;
 };
 

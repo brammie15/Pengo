@@ -62,6 +62,16 @@ void fovy::SceneManager::Destroy() {
     HandleSceneDestroy();
 }
 
+void fovy::SceneManager::SwitchScene(int index) {
+    if (index < 0 || index >= static_cast<int>(m_scenes.size())) {
+        throw std::out_of_range("Scene index out of range");
+    }
+    // m_scenes[m_ActiveSceneIndex]->Unload();
+    m_scenes[m_ActiveSceneIndex]->UnloadBindings();
+    m_ActiveSceneIndex = index;
+    m_scenes[m_ActiveSceneIndex]->LoadBindings();
+}
+
 fovy::Scene &fovy::SceneManager::CreateScene(const std::string &name) {
     const auto &scene = std::shared_ptr<Scene>(new Scene(name));
     m_scenes.push_back(scene);

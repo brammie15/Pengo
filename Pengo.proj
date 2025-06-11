@@ -1,0 +1,18 @@
+// raddbg 0.9.19 project file
+
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include/xhash"
+recent_file: path: "minigin/event.h"
+recent_file: path: "game/main.cpp"
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include/vector"
+recent_file: path: "minigin/objectmodel/gameobject.h"
+recent_file: path: "minigin/audio/sdlsoundsystem.cpp"
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/mutex"
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/type_traits"
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/thread"
+recent_file: path: "minigin/ui/canvas.cpp"
+target:
+{
+  executable: "cmake-build-debug-visual-studio/Pengo.exe"
+  working_directory: "cmake-build-debug-visual-studio"
+  enabled: 1
+}

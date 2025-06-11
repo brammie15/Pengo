@@ -68,19 +68,19 @@ void pengo::PengoComponent::ImGuiInspector() {
     }
 }
 
-void pengo::PengoComponent::Move(MoveDirection direction) {
-    if (direction != MoveDirection::None) {
+void pengo::PengoComponent::Move(fovy::Direction direction) {
+    if (direction != fovy::Direction::None) {
         switch (direction) {
-            case MoveDirection::Up:
+            case fovy::Direction::Up:
                 m_direction = glm::vec2(0.0f, -1.0f);
                 break;
-            case MoveDirection::Down:
+            case fovy::Direction::Down:
                 m_direction = glm::vec2(0.0f, 1.0f);
                 break;
-            case MoveDirection::Left:
+            case fovy::Direction::Left:
                 m_direction = glm::vec2(-1.0f, 0.0f);
                 break;
-            case MoveDirection::Right:
+            case fovy::Direction::Right:
                 m_direction = glm::vec2(1.0f, 0.0f);
                 break;
             default:

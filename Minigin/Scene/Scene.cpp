@@ -11,6 +11,7 @@
 #include <gtc/type_ptr.hpp>
 
 #include "Input/InputManager.h"
+#include "Managers/Renderer.h"
 
 
 using namespace fovy;
@@ -34,36 +35,62 @@ void Scene::RemoveAll() {
     m_objects.clear();
 }
 
+void Scene::Load() {
+    if (m_registerBindings) {
+        m_registerBindings();
+    }
+}
+
 void Scene::Update() {
     if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
         m_ShowDemoWindow = !m_ShowDemoWindow;
     }
 
     for (auto& object: m_objects) {
-        object->Update();
+        if (object->IsActiveInHierarchy()) {
+            object->Update();
+        }
     }
 }
 
 void Scene::FixedUpdate() {
     for (auto& object: m_objects) {
-        object->FixedUpdate();
+        if (object->IsActiveInHierarchy()) {
+            object->FixedUpdate();
+        }
     }
 }
 
 void Scene::LateUpdate() {
     for (auto& object: m_objects) {
-        object->LateUpdate();
+        if (object->IsActiveInHierarchy()) {
+            object->LateUpdate();
+        }
     }
 }
 
 void Scene::Render() const {
     for (const auto& object: m_objects) {
-        object->Render();
+        if (object->IsActiveInHierarchy()) {
+            object->Render();
+        }
     }
+
+    // int width, height;
+    // SDL_GetWindowSize(Renderer::GetInstance().GetSDLWindow(), &width, &height);
+    //
+    // Renderer::GetInstance().RenderLine(
+    //     static_cast<float>(width / 2), 0,
+    //     static_cast<float>(width / 2), static_cast<float>(height), SDL_Color(255, 0, 0, 255) // Red vertical line
+    // );
+    //
+    // Renderer::GetInstance().RenderLine(
+    //     0, static_cast<float>(height / 2), static_cast<float>(width), static_cast<float>(height / 2), SDL_Color(0, 255, 0, 255) // Green horizontal line
+    // );
 }
 
 void Scene::RenderImgui() {
-    for (auto& object : m_objects) {
+    for (auto& object: m_objects) {
         object->ImGuiRender();
     }
 
@@ -76,7 +103,7 @@ void Scene::RenderImgui() {
     int id = 0;
 
     // Recursive function to render an object and its children
-    std::function<void(GameObject*)> RenderObject = [&](GameObject* object) {
+    std::function<void(GameObject*)> RenderObject = [&] (GameObject* object) {
         ImGui::PushID(id++);
         bool treeOpen = ImGui::TreeNodeEx(object->GetName().c_str(), ImGuiTreeNodeFlags_AllowOverlap);
 
@@ -86,8 +113,14 @@ void Scene::RenderImgui() {
             object->Destroy();
         }
 
+
         if (treeOpen) {
             auto& transform = object->GetTransform();
+
+            bool isActive = object->IsActiveInHierarchy();
+            if (ImGui::Checkbox("Active", &isActive)) {
+                object->SetActive(isActive);
+            }
 
             // Transform UI
             ImGui::Text("Transform");
@@ -107,7 +140,7 @@ void Scene::RenderImgui() {
                 transform.SetWorldPosition(worldPos);
             }
 
-            constexpr float scaleSpeed{ 0.05f };
+            constexpr float scaleSpeed{0.05f};
 
             ImGui::Text("Scale");
             glm::vec3 localScale = transform.GetLocalScale();
@@ -127,14 +160,14 @@ void Scene::RenderImgui() {
             ImGui::SeparatorText("Object's Components");
 
             // Render components
-            for (auto& component : object->GetComponents()) {
+            for (auto& component: object->GetComponents()) {
                 ImGui::PushID(id++);
                 component->ImGuiInspector();
                 ImGui::PopID();
             }
             ImGui::SeparatorText("Children");
             // Render children recursively
-            for (auto child : transform.GetChildren()) {
+            for (auto child: transform.GetChildren()) {
                 RenderObject(child->GetOwner());
             }
 
@@ -146,8 +179,9 @@ void Scene::RenderImgui() {
     ImGui::Checkbox("Show Demo Window", &m_ShowDemoWindow);
     // Start rendering the root node
     if (ImGui::TreeNode("ROOT")) {
-        for (auto& object : m_objects) {
-            if (!object->GetTransform().GetParent()) { // Only render root objects
+        for (auto& object: m_objects) {
+            if (!object->GetTransform().GetParent()) {
+                // Only render root objects
                 RenderObject(object.get());
             }
         }
@@ -178,12 +212,15 @@ void Scene::CleanupDestroyedGameObjects() {
     //     }
     // }
 
-    std::erase_if(m_objects, [](const std::shared_ptr<GameObject>& gameObject) {
+    std::erase_if(m_objects, [] (const std::shared_ptr<GameObject>& gameObject) {
         return gameObject->IsBeingDestroyed();
     });
 }
 
 void Scene::Unload() {
+    if (m_unregisterBindings) {
+        m_unregisterBindings();
+    }
     m_BeingUnloaded = true;
 }
 

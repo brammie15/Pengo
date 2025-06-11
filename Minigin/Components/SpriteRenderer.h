@@ -22,7 +22,7 @@ namespace fovy {
 
     class SpriteRenderer: public Component {
     public:
-        explicit SpriteRenderer(GameObject& pParent, const std::string& name = "SpriteRenderer");
+        explicit SpriteRenderer(GameObject& pParent);
         ~SpriteRenderer() override = default;
 
         void Update() override;

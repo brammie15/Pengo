@@ -6,13 +6,7 @@
 #include <vector>
 
 #include "ObjectModel/Component.h"
-enum class MoveDirection{
-    None,
-    Up,
-    Down,
-    Left,
-    Right
-};
+
 class GridComponent final: public fovy::Component {
 public:
     explicit GridComponent(fovy::GameObject& pParent, glm::ivec2 size, glm::vec2 cellSize);

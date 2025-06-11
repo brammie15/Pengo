@@ -1,6 +1,6 @@
 #include "GameCommands.h"
 
-PlayerMoveCommand::PlayerMoveCommand(pengo::PengoComponent* component, MoveDirection dir): m_pComponent{component}, m_dir{dir} {
+PlayerMoveCommand::PlayerMoveCommand(pengo::PengoComponent* component, fovy::Direction dir): m_pComponent{component}, m_dir{dir} {
 }
 
 void PlayerMoveCommand::Execute() {
@@ -14,7 +14,7 @@ void PlayerPushCommand::Execute() {
     m_pComponent->Push();
 }
 
-SnoBeeMoveCommand::SnoBeeMoveCommand(pengo::SnoBeeComponent* component, MoveDirection dir): m_pComponent{component}, m_dir{dir} {
+SnoBeeMoveCommand::SnoBeeMoveCommand(pengo::SnoBeeComponent* component, fovy::Direction dir): m_pComponent{component}, m_dir{dir} {
 }
 
 void SnoBeeMoveCommand::Execute() {
