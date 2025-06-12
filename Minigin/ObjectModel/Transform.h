@@ -59,7 +59,7 @@ namespace fovy {
         [[nodiscard]] bool IsChild(Transform* child) const;
 
         [[nodiscard]] int GetChildCount() const { return static_cast<int>(m_Children.size()); }
-        [[nodiscard]] const std::vector<Transform*>& GetChildren() const { return m_Children; }
+        [[nodiscard]] const std::vector<Transform*>& GetChildren() const;
         [[nodiscard]] fovy::GameObject* GetOwner() const;
 
     private:

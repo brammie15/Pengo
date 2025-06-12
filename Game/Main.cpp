@@ -57,7 +57,7 @@ constexpr std::array Directions{
     fovy::Direction::Right
 };
 
-fovy::GameObject* CreateLetterRoller(fovy::Scene* scene, fovy::GameObject* canvas, glm::vec3 position, std::shared_ptr<fovy::Font> font, const std::string& name) {
+fovy::GameObject *CreateLetterRoller(fovy::Scene* scene, fovy::GameObject* canvas, glm::vec3 position, std::shared_ptr<fovy::Font> font, const std::string& name) {
     const auto letterObject = std::make_shared<fovy::GameObject>(name);
     const auto letterTextObject = std::make_shared<fovy::GameObject>(name + "Text");
     letterTextObject->AddComponent<fovy::TextComponent>("A", font);
@@ -114,7 +114,6 @@ void load() {
     auto buttonComponent = OnePlayerButton->AddComponent<fovy::Button>("1P Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
 
-
     auto MMMObject = std::make_shared<fovy::GameObject>("MainMenuManager");
     auto mainUiManager = MMMObject->AddComponent<pengo::MainMenuUiManager>();
 
@@ -142,7 +141,7 @@ void load() {
     auto pengoComponent = DancingPengo->AddComponent<fovy::SpriteRenderer>();
     pengoComponent->SetTexture(fovy::ResourceManager::GetInstance().LoadTexture("playerSpritesheet.png"));
 
-    pengoComponent->AddAnimation("dance", {20, 21, 20, 21, 20, 21, 20, 21, 22, 23, 22, 23, 22, 23 ,22, 23}, 0.1f, true);
+    pengoComponent->AddAnimation("dance", {20, 21, 20, 21, 20, 21, 20, 21, 22, 23, 22, 23, 22, 23, 22, 23}, 0.1f, true);
     pengoComponent->PlayAnimation("dance");
 
     DancingPengo->GetTransform().SetWorldPosition(glm::vec3(200, 400, 0));
@@ -181,7 +180,6 @@ void load() {
         fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_D, SDL_SCANCODE_RIGHT}, {{SDL_CONTROLLER_BUTTON_DPAD_RIGHT}}});
         fovy::InputManager::GetInstance().RemoveBindings(InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}});
     });
-
 
 
     mainMenuScene.Add(MainCanvas);
@@ -261,6 +259,7 @@ void load() {
     gridComponent->LoadLevel("level1.txt");
     std::cout << "Ending load" << std::endl;
 
+
     scene.Add(mainGridObject);
 
     auto Player1 = std::make_shared<fovy::GameObject>("Player1");
@@ -286,6 +285,83 @@ void load() {
 
 
     scene.Add(Player1);
+
+    auto wallShake = fovy::Animation{
+        {0, 1, 0, 1, 0, 1, 0, 1, 2},
+        0.1f,
+        false
+    };
+
+
+    auto topWallObject = std::make_shared<fovy::GameObject>("TopWall");
+    auto topWallComponent = topWallObject->AddComponent<fovy::SpriteRenderer>();
+    topWallComponent->SetTexture("wall-horizontal.png");
+    topWallComponent->SetTileSize(224, 8);
+    topWallComponent->SetDestTileSize(214 * 3, 6 * 3 + 2);
+    topWallComponent->SetTileIndex(2);
+    topWallComponent->AddAnimation("shake", wallShake.frames, wallShake.frameDuration, wallShake.loop);
+
+
+    topWallObject->GetTransform().SetWorldPosition(glm::vec3(16, 70, 0));
+
+    scene.Add(topWallObject);
+
+    auto bottomWallObject = std::make_shared<fovy::GameObject>("BottomWall");
+    auto bottomWallComponent = bottomWallObject->AddComponent<fovy::SpriteRenderer>();
+    bottomWallComponent->SetTexture("wall-horizontal.png");
+    bottomWallComponent->SetTileSize(224, 8);
+    bottomWallComponent->SetDestTileSize(214 * 3, 6 * 3 + 2);
+    bottomWallComponent->SetTileIndex(2);
+    bottomWallComponent->AddAnimation("shake", wallShake.frames, wallShake.frameDuration, wallShake.loop);
+
+
+    bottomWallObject->GetTransform().SetWorldPosition(glm::vec3(16, 777, 0));
+
+    scene.Add(bottomWallObject);
+
+    auto leftWallObject = std::make_shared<fovy::GameObject>("LeftWall");
+    auto leftWallComponent = leftWallObject->AddComponent<fovy::SpriteRenderer>();
+    leftWallComponent->SetTexture("wall-vertical.png");
+    leftWallComponent->SetTileSize(8, 224);
+    leftWallComponent->SetDestTileSize(6 * 3 + 2, 240 * 3);
+    leftWallComponent->SetTileIndex(2);
+    leftWallComponent->AddAnimation("shake", wallShake.frames, wallShake.frameDuration, wallShake.loop);
+
+    leftWallObject->GetTransform().SetWorldPosition(glm::vec3(14, 70, 0));
+
+    scene.Add(leftWallObject);
+
+    auto rightWallObject = std::make_shared<fovy::GameObject>("RightWall");
+    auto rightWallComponent = rightWallObject->AddComponent<fovy::SpriteRenderer>();
+    rightWallComponent->SetTexture("wall-vertical.png");
+    rightWallComponent->SetTileSize(8, 224);
+    rightWallComponent->SetDestTileSize(6 * 3 + 2, 240 * 3);
+    rightWallComponent->SetTileIndex(2);
+    rightWallComponent->AddAnimation("shake", wallShake.frames, wallShake.frameDuration, wallShake.loop);
+
+    rightWallObject->GetTransform().SetWorldPosition(glm::vec3(640, 70, 0));
+
+    scene.Add(rightWallObject);
+
+    playerComponent->GetWallPushEvent().AddListener([topWallObject] (fovy::Direction dir) {
+        if (dir != fovy::Direction::Up) return;
+        topWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+    });
+
+    playerComponent->GetWallPushEvent().AddListener([bottomWallObject] (fovy::Direction dir) {
+       if (dir != fovy::Direction::Down) return;
+       bottomWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+    });
+
+    playerComponent->GetWallPushEvent().AddListener([leftWallObject] (fovy::Direction dir) {
+        if (dir != fovy::Direction::Left) return;
+        leftWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+    });
+
+    playerComponent->GetWallPushEvent().AddListener([rightWallObject] (fovy::Direction dir) {
+        if (dir != fovy::Direction::Right) return;
+        rightWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+    });
 
     // auto tileObject = std::make_shared<fovy::GameObject>("Tile");
     // [[maybe_unused]] auto tileComponent = tileObject->AddComponent<TileComponent>(gridComponent, glm::ivec2{0, 2});
@@ -315,7 +391,6 @@ void load() {
 
 
     scene.SetRegisterBindings([playerComponent, snoBeeComponent]() {
-
         for (int index{0}; index < KeyboardInputs.size(); ++index) {
             const auto& input = KeyboardInputs[index];
             auto dir = Directions[index];
@@ -369,16 +444,11 @@ void load() {
     });
 
 
-    scene.Add(testSnoBee);
-
-
-
-
-    {
+    scene.Add(testSnoBee); {
         auto& scoreScene = fovy::SceneManager::GetInstance().CreateScene("Score");
 
         auto scoreCanvas = std::make_shared<fovy::GameObject>("ScoreCanvas");
-        [[maybe_unused]] auto scoreCanvasComponent = scoreCanvas->AddComponent<fovy::Canvas>();
+        auto scoreCanvasComponent = scoreCanvas->AddComponent<fovy::Canvas>();
         scoreScene.Add(scoreCanvas);
 
         auto scoreText = std::make_shared<fovy::GameObject>("ScoreText");
@@ -389,21 +459,29 @@ void load() {
         //18, 30
 
         auto letterRollerFont = fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 40);
+        auto enterNameFont = fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20);
 
-        auto* roller1 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(100, 200, 0), letterRollerFont, "Letter1");
-        auto* roller2 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(200, 200, 0), letterRollerFont, "Letter2");
-        auto* roller3 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(300, 200, 0), letterRollerFont, "Letter3");
+        auto EnterNameObject = std::make_shared<fovy::GameObject>("EnterNameText");
+        EnterNameObject->AddComponent<fovy::TextComponent>("Enter Name.", enterNameFont);
+        EnterNameObject->GetTransform().SetLocalPosition(glm::vec3(100, 250, 0));
+
+        scoreScene.Add(EnterNameObject);
+
+
+        auto* roller1 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(150, 500, 0), letterRollerFont, "Letter1");
+        auto* roller2 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(250, 500, 0), letterRollerFont, "Letter2");
+        auto* roller3 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(350, 500, 0), letterRollerFont, "Letter3");
 
         auto scoreScreenManager = std::make_shared<fovy::GameObject>("ScoreScreenManager");
         auto scoreCanvasManager = scoreScreenManager->AddComponent<pengo::ScoreScreenManager>(std::array{
-            roller1->GetComponent<pengo::LetterRoller>(),
-            roller2->GetComponent<pengo::LetterRoller>(),
-            roller3->GetComponent<pengo::LetterRoller>()
-        });
+                                                                                                  roller1->GetComponent<pengo::LetterRoller>(),
+                                                                                                  roller2->GetComponent<pengo::LetterRoller>(),
+                                                                                                  roller3->GetComponent<pengo::LetterRoller>()
+                                                                                              }, scoreCanvasComponent);
 
         auto scoreButton = std::make_shared<fovy::GameObject>("ScoreButton");
         auto scoreButtonComponent = scoreButton->AddComponent<fovy::Button>("Submit Score", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
-        scoreButton->GetTransform().SetLocalPosition(glm::vec3(200, 400, 0));
+        scoreButton->GetTransform().SetLocalPosition(glm::vec3(225, 600, 0));
         scoreButtonComponent->GetClickEvent().AddListener([scoreCanvasManager]() {
             scoreCanvasManager->SubmitScore();
         });
@@ -416,7 +494,12 @@ void load() {
 
         buttonComponent->SetNavigationDirection(
             fovy::Direction::Left,
-            roller3
+            roller3->GetTransform().GetOwner()
+        );
+
+        buttonComponent->SetNavigationDirection(
+            fovy::Direction::Right,
+            roller3->GetTransform().GetOwner()
         );
 
         // buttonComponent->SetNavigationDirection(
@@ -426,7 +509,6 @@ void load() {
 
         scoreScene.Add(scoreScreenManager);
         scoreScene.Add(scoreButton);
-
 
 
         scoreScene.SetRegisterBindings([scoreCanvasComponent]() {
@@ -449,7 +531,7 @@ void load() {
             );
         });
     }
-    fovy::SceneManager::GetInstance().SwitchScene(2);
+    fovy::SceneManager::GetInstance().SwitchScene(1);
 }
 
 int main(int, char*[]) {

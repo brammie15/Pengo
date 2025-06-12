@@ -1,8 +1,10 @@
 // raddbg 0.9.19 project file
 
-recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include/xhash"
-recent_file: path: "minigin/event.h"
+recent_file: path: "game/components/scorescreenmanager.cpp"
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include/xstring"
 recent_file: path: "game/main.cpp"
+recent_file: path: "minigin/event.h"
+recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include/xhash"
 recent_file: path: "../../../../../Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include/vector"
 recent_file: path: "minigin/objectmodel/gameobject.h"
 recent_file: path: "minigin/audio/sdlsoundsystem.cpp"
@@ -15,4 +17,14 @@ target:
   executable: "cmake-build-debug-visual-studio/Pengo.exe"
   working_directory: "cmake-build-debug-visual-studio"
   enabled: 1
+}
+watch_pin:
+{
+  expression: roller
+  source_location: "game/components/scorescreenmanager.cpp:47:1"
+}
+watch_pin:
+{
+  expression: "roller[0]"
+  source_location: "game/components/scorescreenmanager.cpp:47:1"
 }

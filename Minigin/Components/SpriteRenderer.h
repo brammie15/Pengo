@@ -33,9 +33,17 @@ namespace fovy {
         void SetTexture(const std::string& filename);
         [[nodiscard]] const std::shared_ptr<Texture2D>& GetTexture() const { return m_Texture; }
 
+        void SetTileSize(int width, int height);
+        void SetDestTileSize(int width, int height) {
+            m_DestTileWidth = width;
+            m_DestTileHeight = height;
+        }
+        [[nodiscard]] int GetTileWidth() const { return m_TileWidth; }
+        [[nodiscard]] int GetTileHeight() const { return m_TileHeight; }
+
         // Animation management
         void AddAnimation(const std::string& name, const std::vector<int>& frames, float frameTime = 0.1f, bool loop = true);
-        void PlayAnimation(const std::string& name);
+        void PlayAnimation(const std::string& name, bool force = false);
         void StopAnimation();
         [[nodiscard]] bool IsPlaying() const { return m_IsPlaying; }
         [[nodiscard]] const std::string& GetCurrentAnimation() const { return m_CurrentAnimation; }
@@ -49,7 +57,6 @@ namespace fovy {
         [[nodiscard]] bool GetFlipVertical() const { return m_FlipVertical; }
 
         // Tile properties
-        void SetTileSize(int width, int height);
         void SetTileIndex(int index);
         [[nodiscard]] int GetTileIndex() const { return m_CurrentTileIndex; }
 
@@ -59,7 +66,7 @@ namespace fovy {
         }
 
         void ImGuiInspector() override;
-        glm::vec2 GetSize() const {
+        [[nodiscard]] glm::vec2 GetSize() const {
             return {static_cast<float>(m_DestTileWidth), static_cast<float>(m_DestTileHeight)};
         }
 

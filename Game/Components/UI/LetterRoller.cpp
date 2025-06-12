@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "Timer.h"
 #include "Managers/Renderer.h"
 #include "UI/Canvas.h"
 
@@ -12,7 +13,7 @@ pengo::LetterRoller::LetterRoller(fovy::GameObject& pParent): Focusable{pParent,
         return;
     }
 
-    m_textComponent->SetColor({0, 255, 255, 255}); // White color
+    m_textComponent->SetColor({255, 255, 255, 255}); // White color
     m_textComponent->SetText(m_currentLetter);
 }
 
@@ -21,6 +22,12 @@ void pengo::LetterRoller::Start() {
 }
 
 void pengo::LetterRoller::Update() {
+    m_blinkTimer += static_cast<float>(fovy::Time::GetInstance().DeltaTime());
+
+    if (m_blinkTimer >= m_blinkInterval) {
+        m_blinking = !m_blinking; // Toggle blinking state
+        m_blinkTimer = 0.0f; // Reset timer
+    }
 }
 
 void pengo::LetterRoller::Render() {
@@ -28,19 +35,25 @@ void pengo::LetterRoller::Render() {
     auto& transform = GetGameObject()->GetTransform();
     const glm::vec3 position = transform.GetWorldPosition();
     const glm::vec3 scale = transform.GetWorldScale();
-    fovy::Renderer::GetInstance().RenderRect(
-        position.x - scale.x / 2.0f, position.y - scale.y / 2.0f,
-        scale.x * 75, scale.y * 100,
-        {255, 255, 255, 255}, // White color
-        true
-    );
 
-    if (m_selected) {
+
+    //if selected Underline
+    if (m_selected && m_blinking) {
+        glm::vec2 size = GetSize();
+        float fullWidth = size.x * scale.x;
+        float renderWidth = fullWidth * 0.75f;
+        float height = 10.f;
+
+        // Position the underline centered horizontally and near the bottom
+        glm::vec2 center = {
+            position.x + fullWidth / 2.0f,
+            position.y + size.y * scale.y - height / 2.0f
+        };
+
         fovy::Renderer::GetInstance().RenderRect(
-            position.x - scale.x / 2.0f, position.y - scale.y / 2.0f,
-            scale.x * 75, scale.y * 100,
-            {255, 0, 0, 255}, // Red border
-            false
+            center.x - renderWidth / 2.0f, center.y,
+            renderWidth, height,
+            {255, 255, 0, 255}
         );
     }
 
@@ -49,6 +62,8 @@ void pengo::LetterRoller::Render() {
 
 void pengo::LetterRoller::OnSelect() {
     m_selected = true;
+    m_blinking = true;
+    m_blinkTimer = 0.0f;
 }
 
 void pengo::LetterRoller::OnDeselect() {

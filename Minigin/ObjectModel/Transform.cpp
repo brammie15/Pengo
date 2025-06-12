@@ -168,6 +168,17 @@ bool fovy::Transform::IsChild(fovy::Transform* child) const {
     return std::ranges::find(m_Children, child) != m_Children.end();
 }
 
+const std::vector<fovy::Transform*>& fovy::Transform::GetChildren() const {
+    // std::vector<Transform*> validChildren;
+    // for (auto* child : m_Children) {
+    //     if (child && !child->GetOwner()->IsBeingDestroyed()) {
+    //         validChildren.push_back(child);
+    //     }
+    // }
+    // return validChildren;
+    return m_Children;
+}
+
 fovy::GameObject *fovy::Transform::GetOwner() const {
     return m_Owner;
 }

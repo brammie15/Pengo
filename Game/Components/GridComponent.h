@@ -5,6 +5,8 @@
 #include <vec3.hpp>
 #include <vector>
 
+#include "Direction.h"
+#include "Event.h"
 #include "ObjectModel/Component.h"
 
 class GridComponent final: public fovy::Component {
@@ -12,9 +14,8 @@ public:
     explicit GridComponent(fovy::GameObject& pParent, glm::ivec2 size, glm::vec2 cellSize);
 
     struct Cell {
-        fovy::GameObject* occupant = nullptr; // null if empty
+        fovy::GameObject* occupant = nullptr;
         bool walkable = true;
-        // add tile type, cost, etc.
     };
 
 

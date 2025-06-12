@@ -2,16 +2,19 @@
 
 #include <iostream>
 
+#include "Input/InputBinding.h"
+#include "Input/InputManager.h"
 #include "Managers/ResourceManager.h"
 #include "ObjectModel/GameObject.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneManager.h"
+#include "UI/Canvas.h"
 
-pengo::ScoreScreenManager::ScoreScreenManager(fovy::GameObject& pParent, std::array<pengo::LetterRoller*, 3> letterRollers): Component{pParent, "ScoreScreenManager"}, m_letterRollers{std::move(letterRollers)} {
+pengo::ScoreScreenManager::ScoreScreenManager(fovy::GameObject& pParent, std::array<pengo::LetterRoller*, 3> letterRollers, fovy::Canvas* canvas): Component{pParent, "ScoreScreenManager"}, m_canvas{canvas}, m_letterRollers{std::move(letterRollers)} {
 }
 
 void pengo::ScoreScreenManager::Start() {
-    m_manager.LoadFromFile("Data/Scores.txt");
+    m_manager. LoadFromFile("Data/Scores.txt");
     m_manager.AddScore("Bra", 200);
 
     //Add textcomponents for top 5
@@ -19,8 +22,8 @@ void pengo::ScoreScreenManager::Start() {
     for (size_t i = 0; i < topScores.size(); ++i) {
         const auto& [name, score] = topScores[i];
         auto scoreTextObject = std::make_shared<fovy::GameObject>("ScoreText" + std::to_string(i));
-        scoreTextObject->GetTransform().SetLocalPosition(glm::vec3(100, 50 + i * 30, 0));
-        scoreTextObject->AddComponent<fovy::TextComponent>(name + ": " + std::to_string(score), fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 24));
+        scoreTextObject->GetTransform().SetLocalPosition(glm::vec3(150, 50 + i * 30, 0));
+        scoreTextObject->AddComponent<fovy::TextComponent>(name + " - " + std::to_string(score), fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 24));
 
         scoreTextObject->GetTransform().SetParent(&GetGameObject()->GetTransform());
 
@@ -52,7 +55,9 @@ void pengo::ScoreScreenManager::SubmitScore() {
         std::cout << "Scores saved successfully." << std::endl;
     }
 
-    for (auto & roller : m_letterRollers) {
-        roller->Destroy();
+    for (auto& roller : m_letterRollers) {
+        roller->GetGameObject()->Destroy();
     }
+
+    m_canvas->BuildNavigationGraph();
 }

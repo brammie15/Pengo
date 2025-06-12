@@ -62,13 +62,16 @@ void GridComponent::LoadLevel(const std::string& filename) {
 
     static const std::unordered_map<int, std::string> tilePrefabMap = {
         {1, "WallTile"},
-        {2, "Enemy"}
+        {2, "Enemy"},
+        {3, "Player"},
+        {4, "DiamondBlock"},
     };
 
     std::string line;
     int y = 0;
 
     std::vector<glm::ivec2> toAddTiles{};
+    std::vector<glm::vec2> toAddDiamondBlocks{};
 
     while (std::getline(inFile, line) && y < m_height) {
         std::istringstream ss(line);
@@ -82,6 +85,9 @@ void GridComponent::LoadLevel(const std::string& filename) {
                     break;
                 case 1: {
                     toAddTiles.push_back(cellPos);
+                    break;
+                case 4:
+                    toAddDiamondBlocks.push_back(cellPos);
                     break;
                 }
                 default:
@@ -110,6 +116,21 @@ void GridComponent::LoadLevel(const std::string& filename) {
 
         tileSprite->GetTransform().SetParent(&this->GetGameObject()->GetTransform());
 
+
+        sm.GetCurrentScene().Add(tileObject);
+    }
+
+    for (auto diamondPos: toAddDiamondBlocks) {
+        auto tileObject = std::make_shared<fovy::GameObject>("DiamondBlock");
+        [[maybe_unused]] auto tileComponent = tileObject->AddComponent<TileComponent>(this, diamondPos);
+        [[maybe_unused]] auto iceBlockComponent = tileObject->AddComponent<pengo::IceBlockComponent>(this, true);
+        auto tileSprite = tileObject->AddComponent<fovy::SpriteRenderer>();
+        tileSprite->SetTexture("PengoBlocks.png");
+        tileSprite->SetTileIndex(9);
+
+        // tileSprite->AddAnimation("break", {28,29,30,31,32,33,34, 35}, 0.05f, false);
+
+        tileSprite->GetTransform().SetParent(&this->GetGameObject()->GetTransform());
 
         sm.GetCurrentScene().Add(tileObject);
     }

@@ -3,15 +3,16 @@
 
 #include <memory>
 
-#include "ObjectModel/Component.h"
+#include "IceblockStates.h"
 #include "../GridComponent.h"
+#include "ObjectModel/Component.h"
 
 namespace pengo {
     class IceBlockState;
 
-    class IceBlockComponent : public fovy::Component {
+    class IceBlockComponent final: public fovy::Component {
     public:
-        IceBlockComponent(fovy::GameObject& parent, GridComponent* grid);
+        explicit IceBlockComponent(fovy::GameObject& parent, GridComponent* grid, bool isDiamond = false);
         ~IceBlockComponent() override = default;
         void Destroy() override;
 
@@ -24,6 +25,8 @@ namespace pengo {
         glm::ivec2 GetSlideDirection() const { return m_SlideDirection; }
         GridComponent* GetGrid() const { return m_pGrid; }
 
+        bool IsDiamond() const { return m_isDiamond; }
+
     private:
         GridComponent* m_pGrid;
         glm::ivec2 m_GridPosition;
@@ -31,6 +34,8 @@ namespace pengo {
         glm::ivec2 m_SlideDirection;
 
         std::unique_ptr<IceBlockState> m_CurrentState{ nullptr };
+
+        bool m_isDiamond{ false };
     };
 
 } // namespace fovy

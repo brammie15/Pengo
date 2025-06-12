@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "Direction.h"
 #include "PengoStates.h"
 #include "Timer.h"
 #include "../Tile/IceBlockComponent.h"
@@ -96,6 +97,7 @@ void pengo::PengoComponent::Move(fovy::Direction direction) {
 }
 
 void pengo::PengoComponent::Push() {
+    m_onPushEvent.Invoke(fovy::VectorToDirection(m_direction));
     auto newState = m_CurrentState->OnPush(this);
     if (newState) {
         m_CurrentState->Exit(this);

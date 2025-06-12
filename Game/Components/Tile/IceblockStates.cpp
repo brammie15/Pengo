@@ -1,8 +1,12 @@
 #include "IceblockStates.h"
 
+#include <iostream>
+
 #include "Timer.h"
 #include "../../../Minigin/Components/SpriteRenderer.h"
+#include "Components/SnoBee/SnoBeeComponent.h"
 #include "ObjectModel/GameObject.h"
+#include "Components/Tile/IceBlockComponent.h"
 
 void pengo::IceBlockIdleState::Enter(pengo::IceBlockComponent*) {
 }
@@ -16,12 +20,24 @@ std::unique_ptr<pengo::IceBlockState> pengo::IceBlockIdleState::Update(pengo::Ic
 
 std::unique_ptr<pengo::IceBlockState> pengo::IceBlockIdleState::OnPush(pengo::IceBlockComponent* iceBlock) {
     const auto dir = iceBlock->GetSlideDirection();
-    const auto* grid = iceBlock->GetGrid();
+    auto* grid = iceBlock->GetGrid();
     const auto currentGridPos = grid->GridPositionFromWorld(iceBlock->GetGameObject()->GetTransform().GetWorldPosition());
     const glm::ivec2 targetPos = currentGridPos + dir;
 
+
     if (!grid->IsWithinBounds(targetPos) || grid->IsOccupied(targetPos)) {
-        return std::make_unique<pengo::IceBlockBreakState>();
+
+        fovy::GameObject* targetOccupant = grid->GetCell(targetPos).occupant;
+        bool isSnobee = targetOccupant && targetOccupant->HasComponent<pengo::SnoBeeComponent>();
+
+        if (isSnobee) {
+            return std::make_unique<pengo::IceBlockSlidingState>();
+        }
+        if (!iceBlock->IsDiamond()) {
+            return std::make_unique<pengo::IceBlockBreakState>();
+        } else {
+            return nullptr;
+        }
     }
 
     return std::make_unique<pengo::IceBlockSlidingState>();
@@ -32,12 +48,29 @@ void pengo::IceBlockSlidingState::Enter(IceBlockComponent* iceBlock) {
     m_grid = iceBlock->GetGrid();
     m_iceBlock = iceBlock;
 
+
     auto* go = iceBlock->GetGameObject();
     m_startPos = go->GetTransform().GetWorldPosition();
     const auto currentGridPos = m_grid->GridPositionFromWorld(glm::vec3(m_startPos, 0.0f));
     const auto nextPos = currentGridPos + m_slideDirection;
-
+    const auto nextNextPos = nextPos + m_slideDirection;
     m_targetPos = m_grid->WorldPositionFromGrid(nextPos);
+
+    fovy::GameObject* nextOccupant = m_grid->GetCell(nextPos).occupant;
+    if (nextOccupant != nullptr && nextOccupant->HasComponent<pengo::SnoBeeComponent>()) {
+        if (!m_grid->IsWithinBounds(nextNextPos)) {
+            nextOccupant->Destroy();
+            m_attachedEnemy = nullptr;
+
+            return; // SnoBee is at the edge of the grid, cannot attach
+        }
+
+        m_attachedEnemy = nextOccupant;
+        nextOccupant->GetTransform().SetParent(&go->GetTransform());
+    } else {
+        m_attachedEnemy = nullptr;
+    }
+
 }
 
 void pengo::IceBlockSlidingState::Exit(IceBlockComponent*) {
@@ -61,8 +94,41 @@ std::unique_ptr<pengo::IceBlockState> pengo::IceBlockSlidingState::Update(IceBlo
     if (t >= 1.0f) {
         const glm::ivec2 currentGrid = m_grid->GridPositionFromWorld(glm::vec3(m_targetPos, 0.0f));
         const glm::ivec2 nextGrid = currentGrid + m_slideDirection;
+        const glm::ivec2 nextNextGrid = nextGrid + m_slideDirection;
 
-        if (m_grid->IsWithinBounds(nextGrid) && !m_grid->IsOccupied(nextGrid)) {
+        if (m_attachedEnemy != nullptr) {
+            if (!m_grid->IsWithinBounds(nextNextGrid) || m_grid->IsOccupied(nextNextGrid)) {
+                m_attachedEnemy->Destroy();
+                m_attachedEnemy = nullptr;
+            }
+
+            m_slideTimer = 0.0f;
+            m_updatedGrid = false;
+            m_startPos = m_targetPos;
+            m_targetPos = m_grid->WorldPositionFromGrid(nextGrid);
+            return nullptr;
+        }
+
+
+        if (!m_grid->IsWithinBounds(nextGrid)) {
+            //Hitting wall Stop
+            return std::make_unique<IceBlockIdleState>();
+        }
+
+        fovy::GameObject* nextOccupant = m_grid->GetCell(nextGrid).occupant;
+        if (nextOccupant != nullptr) {
+            if (nextOccupant->HasComponent<SnoBeeComponent>()) {
+                m_attachedEnemy = nextOccupant;
+                nextOccupant->GetTransform().SetParent(&iceBlock->GetTransform());
+
+                m_slideTimer = 0.0f;
+                m_updatedGrid = false;
+                m_startPos = m_targetPos;
+                m_targetPos = m_grid->WorldPositionFromGrid(nextGrid);
+                return nullptr;
+            }
+        }
+        if (!m_grid->IsOccupied(nextGrid)) {
             m_slideTimer = 0.0f;
             m_updatedGrid = false;
             m_startPos = m_targetPos;

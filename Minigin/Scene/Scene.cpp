@@ -24,7 +24,8 @@ Scene::Scene(const std::string& name) : m_name(name) {
 Scene::~Scene() = default;
 
 void Scene::Add(std::shared_ptr<GameObject> object) {
-    m_objects.emplace_back(std::move(object));
+    // m_objects.emplace_back(std::move(object));
+    m_pendingAdditions.emplace_back(std::move(object));
 }
 
 void Scene::Remove(const std::shared_ptr<GameObject>& object) {
@@ -45,6 +46,14 @@ void Scene::Update() {
     if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
         m_ShowDemoWindow = !m_ShowDemoWindow;
     }
+
+    if (!m_pendingAdditions.empty()) {
+        for (auto& obj : m_pendingAdditions) {
+            m_objects.emplace_back(std::move(obj));
+        }
+        m_pendingAdditions.clear();
+    }
+
 
     for (auto& object: m_objects) {
         if (object->IsActiveInHierarchy()) {
@@ -226,6 +235,12 @@ void Scene::Unload() {
 
 void Scene::DestroyGameObjects() {
     if (m_BeingUnloaded) {
+
+        for (auto& obj : m_pendingAdditions) {
+            m_objects.emplace_back(std::move(obj));
+        }
+        m_pendingAdditions.clear();
+
         //Scene is gone anyways, kill everything
         for (auto& gameObject: m_objects) {
             gameObject->Destroy();

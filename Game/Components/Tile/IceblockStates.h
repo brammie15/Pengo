@@ -2,10 +2,12 @@
 #define TILESTATES_H
 #include <memory>
 
-#include "IceBlockComponent.h"
 #include "../../../Minigin/Components/TextureComponent.h"
+#include "Components/GridComponent.h"
+
 
 namespace pengo {
+    class IceBlockComponent;
     class IceBlockState {
     public:
         virtual ~IceBlockState() = default;
@@ -46,6 +48,9 @@ namespace pengo {
         glm::vec2 m_startPos{};
         glm::vec2 m_targetPos{};
         bool m_updatedGrid = false;
+
+        bool m_hasEnemy{ false };
+        fovy::GameObject* m_attachedEnemy = nullptr;
     };
 
     class IceBlockBreakState final: public IceBlockState {

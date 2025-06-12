@@ -76,6 +76,8 @@ void fovy::GameObject::ImGuiRender() {
 void fovy::GameObject::Destroy() {
     Object::Destroy();
 
+    m_TransformPtr.SetParent(nullptr);
+
     for (const auto& component: m_Components) {
         component->Destroy();
     }

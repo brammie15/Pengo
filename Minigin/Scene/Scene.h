@@ -59,6 +59,7 @@ namespace fovy
 
 		std::string m_name;
 		std::vector <std::shared_ptr<GameObject>> m_objects{};
+		std::vector<std::shared_ptr<GameObject>> m_pendingAdditions{};
 		bool m_BeingUnloaded{ false };
 
 		static unsigned int m_idCounter;

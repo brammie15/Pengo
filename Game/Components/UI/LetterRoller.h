@@ -7,9 +7,9 @@
 
 
 namespace pengo {
-    class LetterRoller: public fovy::Focusable{
+    class LetterRoller final: public fovy::Focusable{
     public:
-        LetterRoller(fovy::GameObject& pParent);
+        explicit LetterRoller(fovy::GameObject& pParent);
 
         void Start() override;
 
@@ -19,12 +19,12 @@ namespace pengo {
         void OnSelect() override;
         void OnDeselect() override;
 
-        glm::vec2 GetSize() const {
+        [[nodiscard]] glm::vec2 GetSize() const {
             return {75.0f, 100.0f};
         }
 
         bool OnMove(fovy::Direction dir) override;
-        fovy::TextComponent* GetTextComponent() const {
+        [[nodiscard]] fovy::TextComponent* GetTextComponent() const {
             return m_textComponent;
         }
 
@@ -33,8 +33,13 @@ namespace pengo {
     private:
         bool m_selected{false};
 
-        std::string m_currentLetter{"A"}; // Default letter
+        std::string m_currentLetter{"A"};
         fovy::TextComponent* m_textComponent{nullptr};
+
+        float m_blinkTimer{0.0f};
+        float m_blinkInterval{0.5f};
+
+        bool m_blinking{ false };
     };
 }
 

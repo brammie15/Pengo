@@ -2,6 +2,7 @@
 #define PLAYERCOMPONENT_H
 
 #include "Direction.h"
+#include "Event.h"
 #include "PengoStates.h"
 #include "../GridComponent.h"
 #include "../../../Minigin/Components/SpriteRenderer.h"
@@ -17,7 +18,7 @@ namespace pengo {
 
         [[nodiscard]] GridComponent* GetGrid() const { return m_pGrid; }
         explicit PengoComponent(fovy::GameObject& parent, GridComponent* grid);
-        
+
         void Update() override;
         void Render() override;
         void ImGuiInspector() override;
@@ -29,6 +30,10 @@ namespace pengo {
         void Move(fovy::Direction direction);
         void Push();
 
+        [[nodiscard]] const fovy::Event<fovy::Direction>& GetOnPushEvent() const { return m_onPushEvent; }
+
+        fovy::Event<fovy::Direction>& GetWallPushEvent() { return m_onWallPushEvent; }
+
     private:
         GridComponent* m_pGrid{ nullptr };
 
@@ -37,6 +42,9 @@ namespace pengo {
         std::unique_ptr<pengo::PengoState> m_CurrentState{ nullptr };
 
         fovy::SpriteRenderer* m_spriteRenderer;
+
+        fovy::Event<fovy::Direction> m_onPushEvent{};
+        fovy::Event<fovy::Direction> m_onWallPushEvent{};
     };
 }
 

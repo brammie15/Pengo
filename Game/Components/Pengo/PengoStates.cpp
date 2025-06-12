@@ -88,7 +88,12 @@ std::unique_ptr<pengo::PengoState> pengo::PengoIdleState::OnPush(pengo::PengoCom
 void pengo::PengoPushState::Enter(PengoComponent* pengo) {
     auto gridPos = pengo->GetGrid()->GridPositionFromWorld(pengo->GetGameObject()->GetTransform().GetWorldPosition());
     gridPos += glm::ivec2{static_cast<int>(pengo->GetCurrentDirection().x), static_cast<int>(pengo->GetCurrentDirection().y)};
+    if (!pengo->GetGrid()->IsWithinBounds(gridPos)) {
+        pengo->GetWallPushEvent().Invoke(fovy::VectorToDirection(pengo->GetCurrentDirection()));
+    }
+
     if (!pengo->GetGrid()->IsWithinBounds(gridPos) || !pengo->GetGrid()->IsOccupied(gridPos)) {
+
         m_validPush = false;
         std::cerr << "Invalid push: out of bounds or no ice block at target position." << std::endl;
     } else {

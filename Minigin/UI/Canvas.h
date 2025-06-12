@@ -35,6 +35,7 @@ public:
     void Move(Direction dir);
 
     void Interact();
+    void BuildNavigationGraph();
 private:
     void SetFocus(GameObject* object);
 
@@ -49,7 +50,6 @@ private:
     glm::vec2 m_size{};
     bool m_drawConnections{ true };
 
-    void BuildNavigationGraph();
 
     Rect GetScreenRect(GameObject* obj);
 
