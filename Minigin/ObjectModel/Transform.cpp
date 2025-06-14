@@ -186,7 +186,7 @@ fovy::GameObject *fovy::Transform::GetOwner() const {
 void fovy::Transform::SetPositionDirty() {
     m_PositionDirty = true;
     m_MatrixDirty = true;
-    for (auto child: m_Children) {
+    for (const auto child: m_Children) {
         child->SetPositionDirty();
     }
 }

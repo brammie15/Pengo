@@ -4,7 +4,7 @@
 #include "ObjectModel/Component.h"
 
 
-class WallComponent: public fovy::Component {
+class WallComponent final: public fovy::Component {
 public:
     WallComponent(fovy::GameObject& pParent, fovy::Direction)
         : Component{pParent, "WallComponent"} {

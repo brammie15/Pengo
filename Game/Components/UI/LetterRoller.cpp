@@ -39,12 +39,11 @@ void pengo::LetterRoller::Render() {
 
     //if selected Underline
     if (m_selected && m_blinking) {
-        glm::vec2 size = GetSize();
-        float fullWidth = size.x * scale.x;
+        const glm::vec2 size = GetSize();
+        const float fullWidth = size.x * scale.x;
         float renderWidth = fullWidth * 0.75f;
         float height = 10.f;
 
-        // Position the underline centered horizontally and near the bottom
         glm::vec2 center = {
             position.x + fullWidth / 2.0f,
             position.y + size.y * scale.y - height / 2.0f

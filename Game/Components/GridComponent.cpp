@@ -59,6 +59,11 @@ void GridComponent::LoadLevel(const std::string& filename) {
     m_infestedTiles.clear();
     m_playerSpawns.clear();
 
+    //destroy all children
+    // for (const auto& child : GetGameObject()->GetTransform().GetChildren()) {
+    //     child->GetOwner()->Destroy();
+    // }
+
 
     std::ifstream inFile("Data/" + filename);
     if (!inFile) {
@@ -111,7 +116,6 @@ void GridComponent::LoadLevel(const std::string& filename) {
     }
 
     inFile.close();
-    auto& sm = fovy::SceneManager::GetInstance();
 
     //Select 3 random tiles from the vevtor, than remove them from the vector
 
@@ -130,7 +134,7 @@ void GridComponent::LoadLevel(const std::string& filename) {
 
         tileSprite->GetTransform().SetParent(&this->GetGameObject()->GetTransform());
 
-        sm.GetCurrentScene().Add(tileObject);
+        fovy::SceneManager::GetInstance().GetCurrentScene().Add(tileObject);
 
         // return tileComponent;
 
@@ -208,8 +212,12 @@ void GridComponent::ImGuiInspector() {
                         color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);  // Player: Green
                     } else if (cell.occupant->GetName().find("SnoBee") != std::string::npos) {
                         color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-                    } else {
-                        color = ImVec4(0.2f, 0.6f, 1.0f, 1.0f);  // Occupied: Blue
+                    } else if (cell.occupant->HasComponent<pengo::IceBlockComponent>()) {
+                        if (cell.occupant->GetComponent<pengo::IceBlockComponent>()->HasEgg()) {
+                            color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);  // Egg: Yellow
+                        } else {
+                            color = ImVec4(0.2f, 0.6f, 1.0f, 1.0f);  // Occupied: Blue
+                        }
                     }
                 } else if (!cell.walkable) {
                     color = ImVec4(0.7f, 0.1f, 0.1f, 1.0f);  // Unwalkable: Red

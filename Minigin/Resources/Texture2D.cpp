@@ -44,7 +44,7 @@ std::vector<std::vector<glm::vec4>> fovy::Texture2D::GetPixels() {
 
 	SDL_LockSurface(surface);
 	
-	[[maybe_unused]] Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+	[[maybe_unused]] auto pixels = static_cast<Uint32*>(surface->pixels);
 
 
 	std::vector<std::vector<glm::vec4>> pixelData(height, std::vector<glm::vec4>(width));

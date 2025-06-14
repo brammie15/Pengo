@@ -3,8 +3,8 @@
 
 #include <functional>
 
-#include "./ObjectModel/GameObject.h"
 #include <glm.hpp>
+#include "./ObjectModel/GameObject.h"
 
 namespace fovy {
     class BaseCommand {
@@ -33,7 +33,7 @@ namespace fovy {
         GameObject* m_GameObject;
     };
 
-    class MoveCommand: public GameObjectCommand {
+    class MoveCommand final: public GameObjectCommand {
     public:
         MoveCommand(GameObject* gameObject, float moveSpeed, glm::vec3 moveDirection);
         void Execute() override;
@@ -43,7 +43,7 @@ namespace fovy {
         glm::vec3 m_MoveDirection;
     };
 
-    class ConsoleLogCommand: public BaseCommand {
+    class ConsoleLogCommand final: public BaseCommand {
     public:
         explicit ConsoleLogCommand(const std::string& message);
         void Execute() override;
@@ -51,9 +51,9 @@ namespace fovy {
         std::string m_Message;
     };
 
-    class FunctionCommand: public BaseCommand {
+    class FunctionCommand final: public BaseCommand {
     public:
-        explicit FunctionCommand(const std::function<void(void)> function);
+        explicit FunctionCommand(const std::function<void(void)>& function);
         void Execute() override;
     private:
 

@@ -12,7 +12,7 @@
 namespace fovy {
     class TextComponent final: public Component {
     public:
-        TextComponent(GameObject &parent, std::string text, std::shared_ptr<Font> font);
+        TextComponent(GameObject &parent, const std::string& text, std::shared_ptr<Font> font);
 
         void Render() override;
         void Update() override;

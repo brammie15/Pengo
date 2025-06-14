@@ -19,6 +19,8 @@ namespace fovy {
         SoundClip& Load(const std::string& filePath) override;
         void PlayAsync(const std::string& path, float volume, int loops) override;
 
+        void ToggleMute() override;
+
     private:
         class SoundSystemImpl;
         SoundSystemImpl* m_impl;

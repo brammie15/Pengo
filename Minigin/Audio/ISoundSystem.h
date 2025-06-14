@@ -10,6 +10,7 @@ class ISoundSystem
 {
 public:
     virtual ~ISoundSystem() = default;
+    virtual void ToggleMute() = 0;
 
     struct SoundClip
     {

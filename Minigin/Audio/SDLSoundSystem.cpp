@@ -23,7 +23,7 @@ namespace fovy {
                 throw std::runtime_error("Failed to initialize SDL audio");
             }
 
-            int flags = MIX_INIT_OGG | MIX_INIT_MP3;
+            const int flags = MIX_INIT_OGG | MIX_INIT_MP3;
             if ((Mix_Init(flags) & flags) != flags) {
                 throw std::runtime_error("Failed to initialize SDL audio formats");
             }
@@ -72,16 +72,22 @@ namespace fovy {
         }
 
         SoundClip& Load(const std::string& filePath) {
-            std::filesystem::path path{ filePath };
+            const std::filesystem::path path{ filePath };
             if (!std::filesystem::exists(path)) {
                 throw std::runtime_error("File not found: " + filePath);
             }
-            std::string extension = path.extension().string();
+            const std::string extension = path.extension().string();
             if (extension == ".wav") {
                 return *m_loadedEffects.insert({ filePath, std::make_unique<SDLSound>(filePath) }).first->second;
             } else {
                 return *m_loadedMusic.insert({ filePath, std::make_unique<SDLMusic>(filePath) }).first->second;
             }
+        }
+
+        void ToggleMute() {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            Mix_Resume(-1);
+            Mix_ResumeMusic();
         }
     private:
         struct PlayRequest {
@@ -248,5 +254,9 @@ namespace fovy {
 
     void SDLSoundSystem::PlayAsync(const std::string& path, float volume, int loops) {
         return m_impl->PlayAsync(path, volume, loops);
+    }
+
+    void SDLSoundSystem::ToggleMute() {
+        return m_impl->ToggleMute();
     }
 }

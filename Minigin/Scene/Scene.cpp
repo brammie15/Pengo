@@ -10,6 +10,7 @@
 #include <glm.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include "ServiceLocator.h"
 #include "Input/InputManager.h"
 #include "Managers/Renderer.h"
 
@@ -44,8 +45,17 @@ void Scene::Load() {
 }
 
 void Scene::Update() {
-    if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
+    if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F3)) {
         m_ShowDemoWindow = !m_ShowDemoWindow;
+    }
+
+    if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
+        const int currentSceneId = SceneManager::GetInstance().GetActiveSceneId();
+        SceneManager::GetInstance().SwitchScene((currentSceneId + 1) % SceneManager::GetInstance().GetSceneCount());
+    }
+
+    if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F2)) {
+        ServiceLocator<fovy::ISoundSystem>::GetService().ToggleMute();
     }
 
     if (!m_pendingAdditions.empty()) {
@@ -56,7 +66,7 @@ void Scene::Update() {
     }
 
 
-    for (auto& object: m_objects) {
+    for (const auto& object: m_objects) {
         if (object->IsActiveInHierarchy()) {
             object->Update();
         }
@@ -64,7 +74,7 @@ void Scene::Update() {
 }
 
 void Scene::FixedUpdate() {
-    for (auto& object: m_objects) {
+    for (const auto& object: m_objects) {
         if (object->IsActiveInHierarchy()) {
             object->FixedUpdate();
         }
@@ -72,7 +82,7 @@ void Scene::FixedUpdate() {
 }
 
 void Scene::LateUpdate() {
-    for (auto& object: m_objects) {
+    for (const auto& object: m_objects) {
         if (object->IsActiveInHierarchy()) {
             object->LateUpdate();
         }
@@ -100,7 +110,7 @@ void Scene::Render() const {
 }
 
 void Scene::RenderImgui() {
-    for (auto& object: m_objects) {
+    for (const auto& object: m_objects) {
         object->ImGuiRender();
     }
 
@@ -116,7 +126,7 @@ void Scene::RenderImgui() {
     // Recursive function to render an object and its children
     std::function<void(GameObject*)> RenderObject = [&] (GameObject* object) {
         ImGui::PushID(id++);
-        bool treeOpen = ImGui::TreeNodeEx(object->GetName().c_str(), ImGuiTreeNodeFlags_AllowOverlap);
+        const bool treeOpen = ImGui::TreeNodeEx(object->GetName().c_str(), ImGuiTreeNodeFlags_AllowOverlap);
 
         // Destroy button on the same line
         ImGui::SameLine();
@@ -171,14 +181,14 @@ void Scene::RenderImgui() {
             ImGui::SeparatorText("Object's Components");
 
             // Render components
-            for (auto& component: object->GetComponents()) {
+            for (const auto& component: object->GetComponents()) {
                 ImGui::PushID(id++);
                 component->ImGuiInspector();
                 ImGui::PopID();
             }
             ImGui::SeparatorText("Children");
             // Render children recursively
-            for (auto child: transform.GetChildren()) {
+            for (const auto child: transform.GetChildren()) {
                 RenderObject(child->GetOwner());
             }
 
@@ -209,7 +219,7 @@ void Scene::CleanupDestroyedGameObjects() {
         return;
     }
 
-    for (auto& gameObject: m_objects) {
+    for (const auto& gameObject: m_objects) {
         //First check if a gameobjects components needs to be destroyed
         gameObject->CleanupComponents();
     }
@@ -244,7 +254,7 @@ void Scene::DestroyGameObjects() {
         m_pendingAdditions.clear();
 
         //Scene is gone anyways, kill everything
-        for (auto& gameObject: m_objects) {
+        for (const auto& gameObject: m_objects) {
             gameObject->Destroy();
         }
     } else {

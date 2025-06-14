@@ -6,7 +6,7 @@
 
 
 namespace pengo {
-    class MainMenuUiManager: public fovy::EventListener, public fovy::Component {
+    class MainMenuUiManager final: public fovy::EventListener, public fovy::Component {
     public:
         explicit MainMenuUiManager(fovy::GameObject& parent)
             : Component{parent, "MainMenuUiManager"} {

@@ -71,6 +71,17 @@ namespace pengo {
         float m_pushDuration{ 0.0f };
         float m_pushTimer{ 0.0f };
     };
+
+    class pengoDieState final : public PengoState {
+        void Enter(PengoComponent* comp) override;
+        void Exit(PengoComponent* comp) override;
+        std::unique_ptr<PengoState> Update(pengo::PengoComponent* pengo) override;
+        std::unique_ptr<PengoState> OnMove(pengo::PengoComponent* pengo, glm::ivec2 dir) override;
+        std::unique_ptr<PengoState> OnPush(pengo::PengoComponent* pengo) override;
+    private:
+        float m_deathTimer{ 0.0f };
+        float m_deathDuration{};
+    };
 }
 
 

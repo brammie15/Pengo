@@ -23,6 +23,8 @@ namespace pengo {
         void Render() override;
         void ImGuiInspector() override;
 
+        void Die();
+
 
         glm::vec2 GetCurrentDirection() const { return m_direction; }
         void SetCurrentDirection(const glm::vec2& direction) { m_direction = direction; }

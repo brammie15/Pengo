@@ -91,7 +91,7 @@ namespace fovy {
                 state.currControlerState = {};
                 XInputGetState(controllerIndex, &state.currControlerState);
 
-                WORD changes = state.currControlerState.Gamepad.wButtons ^ state.prevControllerState.Gamepad.wButtons;
+                const WORD changes = state.currControlerState.Gamepad.wButtons ^ state.prevControllerState.Gamepad.wButtons;
                 state.buttonsPressed = changes & state.currControlerState.Gamepad.wButtons;
                 state.buttonsReleased = changes & (~state.currControlerState.Gamepad.wButtons);
             }

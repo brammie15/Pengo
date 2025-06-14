@@ -1,9 +1,9 @@
-#include <stdexcept>
-#include <cstring>
 #include "Renderer.h"
+#include <cstring>
+#include <stdexcept>
 
-#include "Scene/SceneManager.h"
 #include "../Resources/Texture2D.h"
+#include "Scene/SceneManager.h"
 
 int GetOpenGLDriverIndex() {
     auto openglIndex = -1;
@@ -54,7 +54,7 @@ void fovy::Renderer::Render() const {
 
     ImGui::Render();
 
-    ImGuiIO& io = ImGui::GetIO();
+    const ImGuiIO& io = ImGui::GetIO();
     (void)io;
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         ImGui::UpdatePlatformWindows();
@@ -107,7 +107,7 @@ void fovy::Renderer::RenderLine(float x1, float y1, float x2, float y2, const SD
 }
 
 void fovy::Renderer::RenderRect(float x, float y, float width, float height, const SDL_Color& color, bool filled) const {
-    SDL_FRect rect{x, y, width, height};
+    const SDL_FRect rect{x, y, width, height};
     SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
 
     if (filled) {
@@ -176,12 +176,12 @@ void fovy::Renderer::RenderArrow(float x1, float y1, float x2, float y2, const S
     const double arrowAngle1 = angle + M_PI * 5.0f / 6.0f;  // 150 degrees
     const double arrowAngle2 = angle - M_PI * 5.0f / 6.0f;  // -150 degrees
 
-    SDL_FPoint arrowPoint1 = {
+    const SDL_FPoint arrowPoint1 = {
         x2 + arrowSize * cosf(static_cast<float>(arrowAngle1)),
         y2 + arrowSize * sinf(static_cast<float>(arrowAngle1))
     };
 
-    SDL_FPoint arrowPoint2 = {
+    const SDL_FPoint arrowPoint2 = {
         x2 + arrowSize * cosf(static_cast<float>(arrowAngle2)),
         y2 + arrowSize * sinf(static_cast<float>(arrowAngle2))
     };

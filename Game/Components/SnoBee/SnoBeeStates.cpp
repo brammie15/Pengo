@@ -56,7 +56,17 @@ std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeIdleState::Update(pengo::SnoBee
     return nullptr;
 }
 
-std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeIdleState::OnMove(pengo::SnoBeeComponent* snoBee, glm::ivec2) {
+std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeIdleState::OnMove(pengo::SnoBeeComponent* snoBee, glm::ivec2 direction) {
+    const auto gridPosition = snoBee->GetGrid()->GridPositionFromWorld(snoBee->GetGameObject()->GetTransform().GetWorldPosition());
+    const auto nextGridPosition = gridPosition + direction;
+    if (snoBee->GetGrid()->IsWithinBounds(nextGridPosition)) {
+        const bool isPlayer = snoBee->GetGrid()->GetCell(nextGridPosition).occupant &&
+            snoBee->GetGrid()->GetCell(nextGridPosition).occupant->HasComponent<pengo::PengoComponent>();
+
+        if (isPlayer) {
+            GameController::GetInstance().GetPengo()->Die();
+        }
+    }
 
     if (!snoBee->IsCaught()) {
         return std::make_unique<SnoBeeMoveState>();
@@ -69,12 +79,12 @@ std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeIdleState::OnPush(pengo::SnoBee
 }
 
 std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeIdleState::OnBreak(pengo::SnoBeeComponent* snoBee) {
-    auto direction = snoBee->GetCurrentDirection();
+    const auto direction = snoBee->GetCurrentDirection();
     // snoBee->GetGameObject()->GetComponent<fovy::SpriteRenderer>()->PlayAnimation(
     //     std::string("break_") + (direction.x > 0 ? "right" : direction.x < 0 ? "left" : direction.y > 0 ? "down" : "up"));
     //
 
-    auto toBreakTile = snoBee->GetGrid()->GridPositionFromWorld(snoBee->GetGameObject()->GetTransform().GetWorldPosition()) +
+    const auto toBreakTile = snoBee->GetGrid()->GridPositionFromWorld(snoBee->GetGameObject()->GetTransform().GetWorldPosition()) +
         glm::ivec2{static_cast<int>(direction.x), static_cast<int>(direction.y)};
 
     if (snoBee->GetGrid()->IsWithinBounds(toBreakTile) && snoBee->GetGrid()->IsOccupied(toBreakTile)) {
@@ -92,14 +102,22 @@ void pengo::SnoBeeMoveState::Enter(pengo::SnoBeeComponent* snoBee) {
     auto* gridComponent = snoBee->GetGrid();
     const glm::vec2 dir = snoBee->GetCurrentDirection();
 
-    auto gridPosition = gridComponent->GridPositionFromWorld(snoBee->GetGameObject()->GetTransform().GetWorldPosition());
-    auto nextGridPosition = gridPosition + glm::ivec2{static_cast<int>(dir.x), static_cast<int>(dir.y)};
+    const auto gridPosition = gridComponent->GridPositionFromWorld(snoBee->GetGameObject()->GetTransform().GetWorldPosition());
+    const auto nextGridPosition = gridPosition + glm::ivec2{static_cast<int>(dir.x), static_cast<int>(dir.y)};
+
+    if (gridComponent->IsWithinBounds(nextGridPosition)) {
+        fovy::GameObject* nextOccupant = gridComponent->GetCell(nextGridPosition).occupant;
+        if (nextOccupant != nullptr && nextOccupant->HasComponent<pengo::PengoComponent>()) {
+            GameController::GetInstance().GetPengo()->Die();
+        }
+    }
 
     m_isValidMove = gridComponent->IsWithinBounds(nextGridPosition) && !gridComponent->IsOccupied(nextGridPosition);
     m_TargetPosition = gridComponent->WorldPositionFromGrid(nextGridPosition);
     m_StartPosition = snoBee->GetGameObject()->GetTransform().GetWorldPosition();
 
     m_spriteRenderer = snoBee->GetGameObject()->GetComponent<fovy::SpriteRenderer>();
+
 }
 
 void pengo::SnoBeeMoveState::Exit(pengo::SnoBeeComponent*) {
@@ -141,5 +159,34 @@ std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeMoveState::OnMove(pengo::SnoBee
 }
 
 std::unique_ptr<pengo::SnoBeeState> pengo::SnoBeeMoveState::OnPush(pengo::SnoBeeComponent*) {
+    return nullptr;
+}
+
+void pengo::SnobeeStunState::Enter(pengo::SnoBeeComponent* snoBee) {
+    auto spriteRenderer = snoBee->GetGameObject()->GetComponent<fovy::SpriteRenderer>();
+    if (spriteRenderer) {
+        spriteRenderer->PlayAnimation("stun");
+        m_stunDuration = spriteRenderer->GetCurrentAnimationDuration();
+    } else {
+        std::cerr << "SpriteRenderer not found in SnoBeeComponent" << std::endl;
+    }
+
+}
+
+void pengo::SnobeeStunState::Exit(pengo::SnoBeeComponent*) {
+}
+
+std::unique_ptr<pengo::SnoBeeState> pengo::SnobeeStunState::Update(pengo::SnoBeeComponent* snoBee) {
+    m_stunTimer += static_cast<float>(fovy::Time::GetInstance().DeltaTime());
+    if (m_stunTimer >= m_stunDuration) {
+        snoBee->SetCaught(false);
+        return std::make_unique<pengo::SnoBeeIdleState>();
+    }
+    return nullptr;
+}
+std::unique_ptr<pengo::SnoBeeState> pengo::SnobeeStunState::OnMove(pengo::SnoBeeComponent* , glm::ivec2 ) {
+    return nullptr;
+}
+std::unique_ptr<pengo::SnoBeeState> pengo::SnobeeStunState::OnPush(pengo::SnoBeeComponent* ) {
     return nullptr;
 }

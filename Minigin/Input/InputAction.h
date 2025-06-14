@@ -1,7 +1,7 @@
 #ifndef INPUTACTION_H
 #define INPUTACTION_H
-#include <vector>
 #include <SDL.h>
+#include <vector>
 
 namespace fovy {
     struct AxisBinding {

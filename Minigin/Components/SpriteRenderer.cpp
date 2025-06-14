@@ -77,7 +77,7 @@ namespace fovy {
 
     void SpriteRenderer::PlayAnimation(const std::string& name, bool force) {
         std::cout << name << std::endl;
-        auto it = m_Animations.find(name);
+        const auto it = m_Animations.find(name);
         if (it != m_Animations.end()) {
             if (m_CurrentAnimation != name || force) {
                 m_CurrentAnimation = name;
@@ -162,7 +162,7 @@ namespace fovy {
                 }
 
                 std::string framesStr;
-                for (int frame: animFrames) {
+                for (const int frame: animFrames) {
                     framesStr += std::to_string(frame) + " ";
                 }
                 ImGui::Text("Frames: %s", framesStr.c_str());
@@ -220,9 +220,9 @@ namespace fovy {
         int textureWidth, textureHeight;
         SDL_QueryTexture(m_Texture->GetSDLTexture(), nullptr, nullptr, &textureWidth, &textureHeight);
 
-        int tilesPerRow = textureWidth / m_TileWidth;
-        int row = m_CurrentTileIndex / tilesPerRow;
-        int col = m_CurrentTileIndex % tilesPerRow;
+        const int tilesPerRow = textureWidth / m_TileWidth;
+        const int row = m_CurrentTileIndex / tilesPerRow;
+        const int col = m_CurrentTileIndex % tilesPerRow;
 
         m_SourceRect.x = col * m_TileWidth;
         m_SourceRect.y = row * m_TileHeight;

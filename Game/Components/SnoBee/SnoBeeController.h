@@ -66,7 +66,7 @@ namespace pengo {
             fovy::Direction m_direction;
         };
 
-        class IdleCommand : public AICommand {
+        class IdleCommand final: public AICommand {
         public:
             void Execute(SnoBeeComponent*) override {
             }

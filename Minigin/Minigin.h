@@ -1,7 +1,7 @@
 #pragma once
-#include <string>
-#include <functional>
 #include <filesystem>
+#include <functional>
+#include <string>
 
 namespace fovy {
 	class Minigin final {

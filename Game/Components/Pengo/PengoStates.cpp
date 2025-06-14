@@ -2,11 +2,12 @@
 
 #include <iostream>
 
+#include "GameController.h"
 #include "PengoComponent.h"
 #include "ServiceLocator.h"
 #include "Timer.h"
-#include "../Tile/IceBlockComponent.h"
 #include "../../../Minigin/Components/SpriteRenderer.h"
+#include "../Tile/IceBlockComponent.h"
 #include "ObjectModel/GameObject.h"
 
 void pengo::PengoMovingState::Enter(pengo::PengoComponent* comp) {
@@ -153,5 +154,31 @@ std::unique_ptr<pengo::PengoState> pengo::PengoPushState::OnMove(pengo::PengoCom
 }
 
 std::unique_ptr<pengo::PengoState> pengo::PengoPushState::OnPush(pengo::PengoComponent*) {
+    return nullptr;
+}
+
+void pengo::pengoDieState::Enter(PengoComponent* comp) {
+    comp->GetGameObject()->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("die");
+
+    m_deathDuration = comp->GetGameObject()->GetComponent<fovy::SpriteRenderer>()->GetCurrentAnimationDuration();
+}
+
+void pengo::pengoDieState::Exit(PengoComponent*) {
+}
+
+std::unique_ptr<pengo::PengoState> pengo::pengoDieState::Update(pengo::PengoComponent*) {
+    m_deathTimer += static_cast<float>(fovy::Time::GetInstance().DeltaTime());
+    if (m_deathTimer >= m_deathDuration) {
+        GameController::GetInstance().PlayerDied();
+        return std::make_unique<PengoIdleState>();
+    }
+    return nullptr;
+}
+
+std::unique_ptr<pengo::PengoState> pengo::pengoDieState::OnMove(pengo::PengoComponent*, glm::ivec2) {
+    return nullptr;
+}
+
+std::unique_ptr<pengo::PengoState> pengo::pengoDieState::OnPush(pengo::PengoComponent*) {
     return nullptr;
 }

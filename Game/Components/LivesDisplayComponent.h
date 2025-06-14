@@ -11,13 +11,16 @@ namespace fovy {
 
         explicit LivesDisplayComponent(fovy::GameObject& pParent);
         void Update() override;
+        void Render() override;
 
         void OnLivesUpdate(int newLifes);
 
 
     private:
+        Texture2D* m_pLifeTexture{nullptr};
 
-        TextComponent* m_textComponent{ nullptr };
+        int m_Lives{3}; // Default number of lives
+
     };
 }
 

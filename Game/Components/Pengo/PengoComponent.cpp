@@ -72,6 +72,11 @@ void pengo::PengoComponent::ImGuiInspector() {
     }
 }
 
+void pengo::PengoComponent::Die() {
+    m_CurrentState = std::make_unique<pengo::pengoDieState>();
+    m_CurrentState->Enter(this);
+}
+
 void pengo::PengoComponent::Move(fovy::Direction direction) {
     if (!GameController::GetInstance().IsGameStarted()) return;
 

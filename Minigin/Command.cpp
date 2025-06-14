@@ -22,7 +22,7 @@ void fovy::ConsoleLogCommand::Execute() {
     std::cout << m_Message << std::endl;
 }
 
-fovy::FunctionCommand::FunctionCommand(const std::function<void()> function): m_function(function) {
+fovy::FunctionCommand::FunctionCommand(const std::function<void()>& function): m_function(function) {
 }
 
 void fovy::FunctionCommand::Execute() {

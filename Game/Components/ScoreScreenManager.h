@@ -9,14 +9,14 @@
 #include "UI/LetterRoller.h"
 
 namespace pengo {
-class ScoreScreenManager: public fovy::Component, public fovy::EventListener {
+class ScoreScreenManager final: public fovy::Component, public fovy::EventListener {
 public:
     ScoreScreenManager(fovy::GameObject& pParent, std::array<pengo::LetterRoller*, 3> letterRollers, fovy::Canvas* canvas);
 
     void Start() override;
     void Update() override;
 
-    void SubmitScore();
+    void SubmitScore(fovy::Canvas* canvas);
 private:
     fovy::Canvas* m_canvas{nullptr};
     std::array<pengo::LetterRoller*, 3> m_letterRollers;

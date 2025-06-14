@@ -28,7 +28,7 @@ pengo::IceBlockComponent::~IceBlockComponent() {
 }
 
 void pengo::IceBlockComponent::Destroy() {
-    auto currentGridPosition = m_pGrid->GridPositionFromWorld(GetGameObject()->GetTransform().GetWorldPosition());
+    const auto currentGridPosition = m_pGrid->GridPositionFromWorld(GetGameObject()->GetTransform().GetWorldPosition());
     m_pGrid->SetOccupant(currentGridPosition, nullptr);
     Component::Destroy();
 }

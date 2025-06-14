@@ -1,4 +1,7 @@
 #include "SceneManager.h"
+
+#include <stdexcept>
+
 #include "Scene.h"
 #include "Input/InputManager.h"
 
@@ -23,19 +26,19 @@ void fovy::SceneManager::RenderImgui() {
 }
 
 void fovy::SceneManager::HandleGameObjectDestroy() {
-    for (auto& scene : m_scenes) {
+    for (const auto& scene : m_scenes) {
         scene->CleanupDestroyedGameObjects();
     }
 }
 
 void fovy::SceneManager::DestroyGameObjects() {
-    for (auto& scene: m_scenes) {
+    for (const auto& scene: m_scenes) {
         scene->DestroyGameObjects();
     }
 }
 
 void fovy::SceneManager::UnloadAllScenes() {
-    for (auto& scene : m_scenes) {
+    for (const auto& scene : m_scenes) {
         scene->Unload();
     }
 }

@@ -3,11 +3,14 @@
 #include <iostream>
 
 #include <imgui.h>
+
+#include "GameController.h"
 #include "ObjectModel/GameObject.h"
 
 void pengo::SnoBeeComponent::Destroy() {
     const glm::ivec2 currentGridPosition = m_pGrid->GridPositionFromWorld(GetGameObject()->GetTransform().GetLocalPosition());
     m_pGrid->SetOccupant(currentGridPosition, nullptr);
+    // GameController::GetInstance().RemoveSnoBee(GetGameObject());
     Component::Destroy();
 }
 
@@ -93,6 +96,11 @@ void pengo::SnoBeeComponent::BreakIce(fovy::Direction direction) {
         m_CurrentState = std::move(newState);
         m_CurrentState->Enter(this);
     }
+}
+
+void pengo::SnoBeeComponent::Stun() {
+    m_CurrentState = std::make_unique<pengo::SnobeeStunState>();
+    m_CurrentState->Enter(this);
 }
 
 

@@ -4,12 +4,12 @@
 #include <vec2.hpp>
 #include <vec4.hpp>
 
+#include "Direction.h"
+#include "Event.h"
 #include "Focusable.h"
 #include "Components/SpriteRenderer.h"
 #include "ObjectModel/Component.h"
 #include "ObjectModel/GameObject.h"
-#include "Direction.h"
-#include "Event.h"
 
 namespace fovy {
 
@@ -54,11 +54,11 @@ private:
 
     std::vector<GameObject*> m_uiElements;
 
-    bool m_showDebug{ true };
-    bool m_showDebugGrid{ true };
+    bool m_showDebug{ false };
+    bool m_showDebugGrid{ false };
     glm::vec4 m_backgroundColor{ 0.0f, 0.0f, 0.0f, 0.5f }; // Semi-transparent black
     glm::vec2 m_size{};
-    bool m_drawConnections{ true };
+    bool m_drawConnections{ false };
 
     Event<GameObject*> m_onFocusChanged;
 

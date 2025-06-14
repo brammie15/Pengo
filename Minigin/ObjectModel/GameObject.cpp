@@ -17,7 +17,7 @@ void fovy::GameObject::SetActiveDirty() {
 }
 
 void fovy::GameObject::UpdateActiveState() {
-    auto* parentPtr = m_TransformPtr.GetParent();
+    const auto* parentPtr = m_TransformPtr.GetParent();
 
     if(parentPtr == nullptr) {
         m_ActiveInHierarchy = m_Active;
@@ -82,7 +82,7 @@ void fovy::GameObject::Destroy() {
         component->Destroy();
     }
 
-    for (auto child : m_TransformPtr.GetChildren()) {
+    for (const auto child : m_TransformPtr.GetChildren()) {
         child->GetOwner()->Destroy();
     }
 }

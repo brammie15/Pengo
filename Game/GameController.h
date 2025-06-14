@@ -4,10 +4,12 @@
 
 #include "Event.h"
 #include "GameCommands.h"
+#include "Prefabs.h"
 #include "Singleton.h"
 #include "Components/MainGameController.h"
 #include "Components/Pengo/PengoComponent.h"
 #include "Components/SnoBee/SnoBeeComponent.h"
+#include "Components/Tile/IceBlockComponent.h"
 #include "Input/InputManager.h"
 
 namespace pengo {
@@ -104,12 +106,42 @@ public:
         m_mainGameController = mainGameController;
     }
 
+    void ResetGame() {
+        m_gameStarted = false;
+        m_score = 0;
+        m_onScoreChangedEvent.Invoke(m_score);
+        if (m_mainGameController) {
+            // m_mainGameController->ResetGame();
+        }
+    }
+
     //Forgive me for my sins
     PengoComponent* GetPengo() const {
         if (m_mainGameController) {
             return m_mainGameController->GetPengo();
         }
         return nullptr;
+    }
+
+    void enemyDied() {
+        --m_enemiesRemaining;
+        if (m_enemiesRemaining <= 0 && m_mainGameController->GetInfestedTiles().size() == 0) {
+            m_mainGameController->OnAllEnemiesDefeated();
+        }
+
+        // auto infestedTiles = m_mainGameController->GetInfestedTiles();
+        // auto gridPos = infestedTiles[0]->GetGameObject()->GetTransform().GetWorldPosition();
+        // glm::ivec2 realGridPos = m_mainGameController->GetGrid()->GridPositionFromWorld(gridPos);
+        // infestedTiles[0]->Destroy();
+        // AddEnemy(fovy::SceneManager::GetInstance().GetScenes()[1].get(), m_mainGameController->GetGrid(), realGridPos, "SnoBee1");
+
+    }
+
+    void RemoveSnoBee(fovy::GameObject* snoBee);
+    void PlayerDied() {
+        if (m_mainGameController) {
+            m_mainGameController->OnPlayerDied();
+        }
     }
 
 private:
@@ -123,6 +155,8 @@ private:
     GameMode m_gameMode{GameMode::Singleplayer};
     bool m_gameStarted{false};
     int m_score{0};
+
+    int m_enemiesRemaining{3};
 };
 }
 

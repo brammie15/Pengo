@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -33,7 +32,12 @@ namespace fovy {
         void Destroy();
 
         void SwitchScene(int index);
+        int GetActiveSceneId() const { return m_ActiveSceneIndex; }
 
+        [[nodiscard]] const std::vector<std::shared_ptr<Scene>>& GetScenes() const { return m_scenes; }
+        int GetSceneCount() const {
+            return static_cast<int>(m_scenes.size());
+        }
     private:
         friend class Singleton<SceneManager>;
 

@@ -45,6 +45,8 @@ add_executable(${GAME_NAME} WIN32
 
         Game/Components/MainGameController.h Game/Components/MainGameController.cpp
 
+        Game/GameController.h Game/GameController.cpp
+
         Game/Components/PointsCollectedText.h Game/Components/PointsCollectedText.cpp
 
         Game/Prefabs.h Game/Prefabs.cpp

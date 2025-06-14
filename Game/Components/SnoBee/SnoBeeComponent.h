@@ -35,6 +35,8 @@ namespace pengo {
 
         [[nodiscard]] fovy::SpriteRenderer* GetSpriteRenderer() const { return m_spriteRenderer; }
 
+        void Stun();
+
     private:
         GridComponent* m_pGrid{ nullptr };
 

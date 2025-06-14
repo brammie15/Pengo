@@ -20,7 +20,7 @@ namespace fovy {
         }
     };
 
-    class SpriteRenderer: public Component {
+    class SpriteRenderer final: public Component {
     public:
         explicit SpriteRenderer(GameObject& pParent);
         ~SpriteRenderer() override = default;

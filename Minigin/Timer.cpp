@@ -12,7 +12,7 @@ double fovy::Time::DeltaTime() const {
 
 std::chrono::nanoseconds fovy::Time::SleepDuration() const {
     constexpr auto msPerFrame = std::chrono::milliseconds(static_cast<int>(1000.f / FPS));
-    std::chrono::nanoseconds sleepTime = (m_PrevTime + msPerFrame - std::chrono::high_resolution_clock::now());
+    const std::chrono::nanoseconds sleepTime = (m_PrevTime + msPerFrame - std::chrono::high_resolution_clock::now());
 
     return sleepTime;
 }

@@ -6,7 +6,7 @@
 
 namespace fovy {
 
-class AchievementManager: public Singleton<AchievementManager>, public EventListener {
+class AchievementManager final: public Singleton<AchievementManager>, public EventListener {
 public:
     void ScoreChanged(int newPoints);
 private:

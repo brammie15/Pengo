@@ -38,6 +38,8 @@ bool ScoreManager::SaveToFile(const std::string& filename) const {
 
 void ScoreManager::AddScore(const std::string& name, int score) {
     scores[name] = score;
+
+    OnScoresUpdated.Invoke();
 }
 
 void ScoreManager::PrintScores() const {

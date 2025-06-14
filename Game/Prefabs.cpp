@@ -10,7 +10,7 @@
 #include "ObjectModel/GameObject.h"
 
 void pengo::SpawnPointsCollected(fovy::Scene& scene, glm::vec3 positon, int points) {
-    auto pointsCollectedObject = std::make_shared<fovy::GameObject>("PointsCollected");
+    const auto pointsCollectedObject = std::make_shared<fovy::GameObject>("PointsCollected");
 
     [[maybe_unused]] auto pointsCollectedText = pointsCollectedObject->AddComponent<fovy::TextComponent>(std::to_string(points), fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 10));
 
@@ -22,8 +22,8 @@ void pengo::SpawnPointsCollected(fovy::Scene& scene, glm::vec3 positon, int poin
 }
 
 void pengo::AddEnemy(fovy::Scene* scene, GridComponent* grid, glm::vec2 gridPos, const std::string& name) {
-    auto snoBeeObject = std::make_shared<fovy::GameObject>(name);
-    auto snoBeeSprite = snoBeeObject->AddComponent<fovy::SpriteRenderer>();
+    const auto snoBeeObject = std::make_shared<fovy::GameObject>(name);
+    const auto snoBeeSprite = snoBeeObject->AddComponent<fovy::SpriteRenderer>();
     snoBeeSprite->SetTexture("PengoSnoBee.png");
     snoBeeSprite->SetTileIndex(0);
     snoBeeSprite->AddAnimation("spawn", {0, 1, 2, 3, 4, 5}, 0.2f, false);
@@ -41,6 +41,8 @@ void pengo::AddEnemy(fovy::Scene* scene, GridComponent* grid, glm::vec2 gridPos,
     snoBeeSprite->AddAnimation("frenzy_left", {18,19}, 0.5f, true);
     snoBeeSprite->AddAnimation("frenzy_up", {20,21}, 0.5f, true);
     snoBeeSprite->AddAnimation("frenzy_right", {22,23}, 0.5f, true);
+
+    snoBeeSprite->AddAnimation("stun", {6,7,6,7,6,7,6,7}, 0.5f, false);
 
 
     [[maybe_unused]] auto snoBeeComponent = snoBeeObject->AddComponent<pengo::SnoBeeComponent>(grid, gridPos);

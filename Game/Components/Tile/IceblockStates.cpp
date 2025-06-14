@@ -73,7 +73,7 @@ std::unique_ptr<pengo::IceBlockState> pengo::IceBlockIdleState::OnPush(pengo::Ic
 
     if (grid->IsOccupied(targetPos)) {
         fovy::GameObject* targetOccupant = grid->GetCell(targetPos).occupant;
-        bool isSnobee = targetOccupant && targetOccupant->HasComponent<pengo::SnoBeeComponent>();
+        const bool isSnobee = targetOccupant && targetOccupant->HasComponent<pengo::SnoBeeComponent>();
 
         if (isSnobee) {
             return std::make_unique<pengo::IceBlockSlidingState>();
@@ -105,6 +105,7 @@ void pengo::IceBlockSlidingState::Enter(IceBlockComponent* iceBlock) {
     if (nextOccupant != nullptr && nextOccupant->HasComponent<pengo::SnoBeeComponent>()) {
         if (!m_grid->IsWithinBounds(nextNextPos) || m_grid->IsOccupied(nextNextPos)) {
             nextOccupant->Destroy();
+            GameController::GetInstance().enemyDied();
             auto* snoBeeComponent = nextOccupant->GetComponent<pengo::SnoBeeComponent>();
             snoBeeComponent->SetCaught(true);
             m_attachedEnemy = nullptr;
@@ -131,8 +132,7 @@ void pengo::IceBlockSlidingState::Exit(IceBlockComponent* block) {
     auto* grid = block->GetGrid();
     const auto currentGridPos = grid->GridPositionFromWorld(block->GetGameObject()->GetTransform().GetWorldPosition());
 
-    // Check horizontal and vertical directions
-    const glm::ivec2 directions[] = {
+    constexpr glm::ivec2 directions[] = {
         {1, 0}, // right
         {0, 1}, // up
         {-1, 0}, // left
@@ -144,8 +144,8 @@ void pengo::IceBlockSlidingState::Exit(IceBlockComponent* block) {
         const glm::ivec2 pos1 = currentGridPos + dir;
         const glm::ivec2 pos2 = currentGridPos - dir;
 
-        bool hasLeft = grid->IsWithinBounds(pos1) && grid->IsOccupied(pos1);
-        bool hasRight = grid->IsWithinBounds(pos2) && grid->IsOccupied(pos2);
+        const bool hasLeft = grid->IsWithinBounds(pos1) && grid->IsOccupied(pos1);
+        const bool hasRight = grid->IsWithinBounds(pos2) && grid->IsOccupied(pos2);
 
         if (hasLeft && hasRight) {
             auto* leftBlock = grid->GetCell(pos1).occupant->GetComponent<IceBlockComponent>();
@@ -189,9 +189,10 @@ std::unique_ptr<pengo::IceBlockState> pengo::IceBlockSlidingState::Update(IceBlo
         const glm::ivec2 nextNextGrid = nextGrid + m_slideDirection;
 
         if (m_attachedEnemy != nullptr) {
-            if (!m_grid->IsWithinBounds(nextNextGrid) || m_grid->IsOccupied(nextNextGrid)) {
+            if (!m_grid->IsWithinBounds(nextNextGrid) || (m_grid->IsOccupied(nextNextGrid) || !m_grid->IsWithinBounds(nextNextGrid))) {
                 m_attachedEnemy->Destroy();
                 GameController::GetInstance().AddScore(100);
+                GameController::GetInstance().enemyDied();
                 auto* snoBeeComponent = m_attachedEnemy->GetComponent<pengo::SnoBeeComponent>();
                 snoBeeComponent->SetCaught(true);
                 m_attachedEnemy = nullptr;
@@ -260,6 +261,10 @@ std::unique_ptr<pengo::IceBlockState> pengo::IceBlockEggBreakState::Update(pengo
         grid->SetOccupant(currentGridPos, nullptr);
         iceBlock->GetGameObject()->Destroy();
 
+
+        GameController::GetInstance().AddScore(500);
+        SpawnPointsCollected(fovy::SceneManager::GetInstance().GetCurrentScene(), iceBlock->GetGameObject()->GetTransform().GetWorldPosition(), 500);
+
         GameController::GetInstance().GetMainGameController()->RemoveInfestedTile(iceBlock);
     }
 
@@ -293,14 +298,15 @@ std::unique_ptr<pengo::IceBlockState> pengo::IceBlockBreakState::Update(pengo::I
 
     m_breakTimer += static_cast<float>(fovy::Time::GetInstance().DeltaTime());
     if (m_breakTimer >= m_breakDuration) {
-        //Infested tile
-        if (iceBlock->HasEgg()) {
-        }
-
         auto* grid = iceBlock->GetGrid();
         const auto currentGridPos = grid->GridPositionFromWorld(iceBlock->GetGameObject()->GetTransform().GetWorldPosition());
         grid->SetOccupant(currentGridPos, nullptr);
         iceBlock->GetGameObject()->Destroy();
+
+
+        GameController::GetInstance().AddScore(50);
+        SpawnPointsCollected(fovy::SceneManager::GetInstance().GetCurrentScene(), iceBlock->GetGameObject()->GetTransform().GetWorldPosition(), 50);
+
         return nullptr;
     }
 

@@ -37,7 +37,7 @@ void pengo::MainGameController::SetupBindings(GridComponent* grid) {
         fovy::Direction::Right
     };
 
-    auto currentGameMode = GameController::GetInstance().GetGameMode();
+    const auto currentGameMode = GameController::GetInstance().GetGameMode();
     if (currentGameMode == GameMode::Singleplayer || currentGameMode == GameMode::Versus || currentGameMode == GameMode::Multiplayer) {
         for (int index{0}; index < KeyboardInputs.size(); ++index) {
             const auto& input = KeyboardInputs[index];
@@ -131,5 +131,26 @@ void pengo::MainGameController::SetupBindings(GridComponent* grid) {
         );
 
         // scene.Add(Player1);
+    }
+}
+
+void pengo::MainGameController::OnAllEnemiesDefeated() {
+    // m_grid->LoadLevel("level2.txt");
+    // m_isGameStarted = false;
+    fovy::SceneManager::GetInstance().SwitchScene(2);
+}
+
+void pengo::MainGameController::OnPlayerDied() {
+    m_lives -= 1;
+    if (m_lives > 0) {
+        m_onLivesChange.Invoke(m_lives);
+        m_grid->SetOccupant(m_grid->GridPositionFromWorld(m_pengo->GetTransform().GetWorldPosition()), nullptr);
+
+        m_pengo->GetTransform().SetWorldPosition(m_grid->WorldPositionFromGrid((m_grid->GetPlayerSpawns()[0])));
+
+        m_grid->SetOccupant(m_grid->GridPositionFromWorld(m_pengo->GetTransform().GetWorldPosition()), m_pengo->GetGameObject());
+    } else {
+        m_isGameOver = true;
+        fovy::SceneManager::GetInstance().SwitchScene(2); // Switch to game over scene
     }
 }

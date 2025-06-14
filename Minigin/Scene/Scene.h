@@ -1,8 +1,8 @@
 #pragma once
 #include <functional>
 
-#include "SceneManager.h"
 #include "Event.h"
+#include "SceneManager.h"
 
 namespace fovy
 {

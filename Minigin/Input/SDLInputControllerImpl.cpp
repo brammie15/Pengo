@@ -93,11 +93,11 @@ namespace fovy {
                 state.buttonsReleased.clear();
 
                 for (int i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i) {
-                    SDL_GameControllerButton button = static_cast<SDL_GameControllerButton>(i);
-                    bool pressed = SDL_GameControllerGetButton(controller, button);
+                    auto button = static_cast<SDL_GameControllerButton>(i);
+                    const bool pressed = SDL_GameControllerGetButton(controller, button);
                     state.currentButtons[button] = pressed;
 
-                    bool wasPressed = state.previousButtons[button];
+                    const bool wasPressed = state.previousButtons[button];
                     state.buttonsPressed[button] = pressed && !wasPressed;
                     state.buttonsReleased[button] = !pressed && wasPressed;
                 }

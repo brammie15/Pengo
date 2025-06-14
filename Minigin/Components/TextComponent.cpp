@@ -14,7 +14,7 @@
 #include "ObjectModel/Transform.h"
 
 namespace fovy {
-    TextComponent::TextComponent(GameObject& parent, std::string text, std::shared_ptr<Font> font): Component(parent, "TEXT: " + text),
+    TextComponent::TextComponent(GameObject& parent, const std::string& text, std::shared_ptr<Font> font): Component(parent, "TEXT: " + text),
                                                               m_Text(text), m_Font(std::move(font)) {
     }
 
@@ -71,7 +71,7 @@ namespace fovy {
 
             ImGui::SeparatorText("Color");
 
-            glm::vec3 oldColor = glm::vec3{
+            auto oldColor = glm::vec3{
                 m_Color.r / 255.0f,
                 m_Color.g / 255.0f,
                 m_Color.b / 255.0f
