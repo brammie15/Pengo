@@ -46,7 +46,7 @@ void Scene::Load() {
 
 void Scene::Update() {
     if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F3)) {
-        m_ShowDemoWindow = !m_ShowDemoWindow;
+        m_renderImgui = !m_renderImgui;
     }
 
     if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1)) {
@@ -110,6 +110,7 @@ void Scene::Render() const {
 }
 
 void Scene::RenderImgui() {
+    if (!m_renderImgui) {return;}
     for (const auto& object: m_objects) {
         object->ImGuiRender();
     }

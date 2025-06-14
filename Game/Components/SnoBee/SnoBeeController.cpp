@@ -22,7 +22,7 @@ namespace pengo {
             m_frenzyTimer += deltaTime;
             if (m_frenzyTimer >= m_frenzyDuration) {
                 m_currentState = AIState::Normal;
-                m_rageTimer = 0.0f; // Reset rage timer
+                m_rageTimer = 0.0f;
             }
         }
 
@@ -50,7 +50,6 @@ namespace pengo {
     void SnoBeeController::EnterFrenzyMode() {
         m_currentState = AIState::Frenzy;
         m_frenzyTimer = 0.0f;
-        // Clear any existing commands
         while (!m_commandQueue.empty()) {
             m_commandQueue.pop();
         }
@@ -65,7 +64,6 @@ namespace pengo {
         const glm::ivec2 currentPos = m_pGrid->GridPositionFromWorld(GetGameObject()->GetTransform().GetWorldPosition());
 
 
-        //Check 4 tiles around snobee for player
         glm::ivec2 directions[] = {
             {1, 0},  // Right
             {-1, 0}, // Left
@@ -84,7 +82,6 @@ namespace pengo {
 
 
         if (m_currentState == AIState::Frenzy) {
-            // In frenzy mode - break blocks in current direction
             const glm::vec2 currentDirVec = snoBee->GetCurrentDirection();
             fovy::Direction currentDirection =
                     currentDirVec.x > 0 ? fovy::Direction::Right : currentDirVec.x < 0 ? fovy::Direction::Left : currentDirVec.y > 0 ? fovy::Direction::Down : fovy::Direction::Up;
@@ -95,19 +92,16 @@ namespace pengo {
             snoBee->GetGameObject()->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("frenzy_" + direction);
 
 
-            // Try to break block in current direction
             m_commandQueue.push(std::make_unique<BreakCommand>(currentDirection));
             m_commandQueue.push(std::make_unique<MoveCommand>(currentDirection));
             return;
         }
 
-        // Check if stuck (no valid moves)
         if (IsStuck(currentPos)) {
             EnterFrenzyMode();
             return;
         }
 
-        // Normal behavior
         fovy::Direction nextDirection = CalculateNextMove();
         m_commandQueue.push(std::make_unique<MoveCommand>(nextDirection));
     }

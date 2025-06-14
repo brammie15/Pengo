@@ -54,6 +54,8 @@ add_executable(${GAME_NAME} WIN32
         Game/Components/Tile/WallComponent.h Game/Components/Tile/WallComponent.cpp
 
         Game/Components/EggDisplay.h Game/Components/EggDisplay.cpp
+
+        Game/Components/PengoSlider.h Game/Components/PengoSlider.cpp
 )
 
 target_include_directories(${GAME_NAME} PRIVATE

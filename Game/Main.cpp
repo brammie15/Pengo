@@ -32,6 +32,7 @@
 #include "Components/GridComponent.h"
 #include "Components/LivesDisplayComponent.h"
 #include "Components/MainGameController.h"
+#include "Components/PengoSlider.h"
 #include "Components/ScoreScreenManager.h"
 #include "Components/TextureComponent.h"
 #include "Components/Pengo/PengoComponent.h"
@@ -134,6 +135,7 @@ void load() {
     auto DancingPengo = std::make_shared<fovy::GameObject>("DancingPengo");
     auto pengoComponent = DancingPengo->AddComponent<fovy::SpriteRenderer>();
     pengoComponent->SetTexture(fovy::ResourceManager::GetInstance().LoadTexture("playerSpritesheet.png"));
+    DancingPengo->AddComponent<pengo::PengoSlider>();
 
     pengoComponent->AddAnimation("dance", {20, 21, 20, 21, 20, 21, 20, 21, 22, 23, 22, 23, 22, 23, 22, 23}, 0.1f, true);
     pengoComponent->PlayAnimation("dance");

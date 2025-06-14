@@ -69,6 +69,8 @@ namespace fovy
 
 		static unsigned int m_idCounter;
 
+		bool m_renderImgui{ false };
+
 		//Imgui vars
 		bool m_ShowDemoWindow{ false };
 
