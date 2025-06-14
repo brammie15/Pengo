@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "Scene.h"
+#include "Input/InputManager.h"
 
 void fovy::SceneManager::Update() {
     m_scenes[m_ActiveSceneIndex]->Update();
@@ -63,6 +64,8 @@ void fovy::SceneManager::Destroy() {
 }
 
 void fovy::SceneManager::SwitchScene(int index) {
+    InputManager::GetInstance().RemoveAllBindings();
+
     if (index < 0 || index >= static_cast<int>(m_scenes.size())) {
         throw std::out_of_range("Scene index out of range");
     }

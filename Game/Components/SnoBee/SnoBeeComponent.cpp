@@ -22,6 +22,7 @@ pengo::SnoBeeComponent::SnoBeeComponent(fovy::GameObject& parent, GridComponent*
     m_pGrid->SetOccupant(m_pGrid->GridPositionFromWorld(worldGridPos), this->GetGameObject());
 
     m_CurrentState = std::make_unique<pengo::SnoBeeSpawnState>();
+    m_CurrentState->Enter(this);
 }
 
 void pengo::SnoBeeComponent::Update() {
@@ -77,6 +78,16 @@ void pengo::SnoBeeComponent::Move(fovy::Direction direction) {
 
 void pengo::SnoBeeComponent::Push() {
     auto newState = m_CurrentState->OnPush(this);
+    if (newState) {
+        m_CurrentState->Exit(this);
+        m_CurrentState = std::move(newState);
+        m_CurrentState->Enter(this);
+    }
+}
+
+void pengo::SnoBeeComponent::BreakIce(fovy::Direction direction) {
+    m_direction = fovy::DirectionToVector(direction);
+    auto newState = m_CurrentState->OnBreak(this);
     if (newState) {
         m_CurrentState->Exit(this);
         m_CurrentState = std::move(newState);

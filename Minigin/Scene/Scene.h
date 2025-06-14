@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "SceneManager.h"
+#include "Event.h"
 
 namespace fovy
 {
@@ -40,6 +41,7 @@ namespace fovy
 			}
 		}
 		void LoadBindings() {
+			OnSceneLoaded.Invoke();
 			if (m_registerBindings) {
 				m_registerBindings();
 			}
@@ -53,6 +55,9 @@ namespace fovy
 		Scene(Scene&& other) = delete;
 		Scene& operator=(const Scene& other) = delete;
 		Scene& operator=(Scene&& other) = delete;
+
+		Event<> OnSceneLoaded;
+
 
 	private: 
 		explicit Scene(const std::string& name);

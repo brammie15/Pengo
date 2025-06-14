@@ -9,6 +9,7 @@
 #include "ObjectModel/Component.h"
 #include "ObjectModel/GameObject.h"
 #include "Direction.h"
+#include "Event.h"
 
 namespace fovy {
 
@@ -36,6 +37,15 @@ public:
 
     void Interact();
     void BuildNavigationGraph();
+
+    Event<GameObject*>& GetOnFocusChanged() { return m_onFocusChanged; }
+
+    [[nodiscard]] bool IsDebugEnabled() const { return m_showDebug; }
+    [[nodiscard]] bool IsDebugGridEnabled() const { return m_showDebugGrid; }
+    [[nodiscard]] glm::vec4 GetBackgroundColor() const { return m_backgroundColor; }
+    [[nodiscard]] glm::vec2 GetSize() const { return m_size; }
+    [[nodiscard]] bool ShouldDrawConnections() const { return m_drawConnections; }
+
 private:
     void SetFocus(GameObject* object);
 
@@ -49,6 +59,8 @@ private:
     glm::vec4 m_backgroundColor{ 0.0f, 0.0f, 0.0f, 0.5f }; // Semi-transparent black
     glm::vec2 m_size{};
     bool m_drawConnections{ true };
+
+    Event<GameObject*> m_onFocusChanged;
 
 
     Rect GetScreenRect(GameObject* obj);

@@ -40,6 +40,18 @@ add_executable(${GAME_NAME} WIN32
         Game/Components/UI/MainMenuUiManager.h Game/Components/UI/MainMenuUiManager.cpp
 
         Game/Components/ScoreScreenManager.h Game/Components/ScoreScreenManager.cpp
+
+        Game/Components/SnoBee/SnoBeeController.h Game/Components/SnoBee/SnoBeeController.cpp
+
+        Game/Components/MainGameController.h Game/Components/MainGameController.cpp
+
+        Game/Components/PointsCollectedText.h Game/Components/PointsCollectedText.cpp
+
+        Game/Prefabs.h Game/Prefabs.cpp
+
+        Game/Components/Tile/WallComponent.h Game/Components/Tile/WallComponent.cpp
+
+        Game/Components/EggDisplay.h Game/Components/EggDisplay.cpp
 )
 
 target_include_directories(${GAME_NAME} PRIVATE

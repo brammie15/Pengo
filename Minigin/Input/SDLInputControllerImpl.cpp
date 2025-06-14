@@ -124,6 +124,10 @@ namespace fovy {
         return m_pImpl->IsUpThisFrame(static_cast<SDL_GameControllerButton>(button));
     }
 
+    void InputManager::RemoveAllBindings() {
+        m_Bindings.clear();
+    }
+
     void fovy::InputManager::HandleControllerInput() {
         m_pImpl->HandleController(m_Bindings);
     }

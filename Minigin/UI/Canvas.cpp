@@ -131,9 +131,11 @@ void fovy::Canvas::Interact() {
 void fovy::Canvas::SetFocus(GameObject* object) {
     if (m_currentFocus) {
         m_currentFocus->GetComponent<Focusable>()->OnDeselect();
+        m_onFocusChanged.Invoke(object);
     }
     m_currentFocus = object;
     m_currentFocus->GetComponent<Focusable>()->OnSelect();
+
 }
 
 void fovy::Canvas::BuildNavigationGraph() {

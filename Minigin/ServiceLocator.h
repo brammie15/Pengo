@@ -1,4 +1,3 @@
-
 #ifndef SERVICELOCATOR_H
 #define SERVICELOCATOR_H
 #pragma once

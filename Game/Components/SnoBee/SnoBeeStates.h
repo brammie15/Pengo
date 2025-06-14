@@ -5,6 +5,7 @@
 #include <string>
 #include <vec2.hpp>
 
+#include "Direction.h"
 #include "../../../Minigin/Components/SpriteRenderer.h"
 
 namespace pengo {
@@ -20,11 +21,15 @@ public:
 
     virtual std::unique_ptr<SnoBeeState> OnMove(pengo::SnoBeeComponent* snoBee, glm::ivec2 dir) = 0;
     virtual std::unique_ptr<SnoBeeState> OnPush(pengo::SnoBeeComponent* snoBee) = 0;
+    virtual std::unique_ptr<SnoBeeState> OnBreak(pengo::SnoBeeComponent*) {
+        return nullptr;
+    };
 
-    virtual [[nodiscard]] std::string GetName() const {
+    [[nodiscard]] virtual std::string GetName() const {
         return typeid(*this).name();
     }
-};
+
+    };
 
 class SnoBeeSpawnState final : public SnoBeeState {
 public:
@@ -46,6 +51,8 @@ public:
     std::unique_ptr<SnoBeeState> Update(pengo::SnoBeeComponent* snoBee) override;
     std::unique_ptr<SnoBeeState> OnMove(pengo::SnoBeeComponent* snoBee, glm::ivec2 dir) override;
     std::unique_ptr<SnoBeeState> OnPush(pengo::SnoBeeComponent* snoBee) override;
+
+    std::unique_ptr<SnoBeeState> OnBreak(pengo::SnoBeeComponent* snoBee) override;
 };
 
 class SnoBeeMoveState final : public SnoBeeState {

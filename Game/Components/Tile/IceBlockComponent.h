@@ -2,9 +2,9 @@
 #define ICEBLOCKCOMPONENT_H
 
 #include <memory>
+#include <vec2.hpp>
 
-#include "IceblockStates.h"
-#include "../GridComponent.h"
+#include "Components/GridComponent.h"
 #include "ObjectModel/Component.h"
 
 namespace pengo {
@@ -12,9 +12,11 @@ namespace pengo {
 
     class IceBlockComponent final: public fovy::Component {
     public:
-        explicit IceBlockComponent(fovy::GameObject& parent, GridComponent* grid, bool isDiamond = false);
-        ~IceBlockComponent() override = default;
+        explicit IceBlockComponent(fovy::GameObject& parent, GridComponent* grid, bool isDiamond = false, bool containsEgg = false);
+        ~IceBlockComponent();
         void Destroy() override;
+
+        void Start() override;
 
         void Update() override;
         void Render() override;
@@ -26,6 +28,9 @@ namespace pengo {
         GridComponent* GetGrid() const { return m_pGrid; }
 
         bool IsDiamond() const { return m_isDiamond; }
+        bool HasEgg() const { return m_containsEgg; }
+
+        void Break();
 
     private:
         GridComponent* m_pGrid;
@@ -36,6 +41,7 @@ namespace pengo {
         std::unique_ptr<IceBlockState> m_CurrentState{ nullptr };
 
         bool m_isDiamond{ false };
+        bool m_containsEgg{ false };
     };
 
 } // namespace fovy

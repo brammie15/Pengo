@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "PengoComponent.h"
+#include "ServiceLocator.h"
 #include "Timer.h"
 #include "../Tile/IceBlockComponent.h"
 #include "../../../Minigin/Components/SpriteRenderer.h"
@@ -105,13 +106,46 @@ void pengo::PengoPushState::Enter(PengoComponent* pengo) {
             }
         }
     }
+    std::string direction{ "push_" };
+    switch (fovy::VectorToDirection(pengo->GetCurrentDirection())) {
+        case fovy::Direction::Up:
+            direction += "up";
+            break;
+        case fovy::Direction::Down:
+            direction += "down";
+            break;
+        case fovy::Direction::Left:
+            direction += "left";
+            break;
+        case fovy::Direction::Right:
+            direction += "right";
+            break;
+        default:
+            m_validPush = false;
+            std::cerr << "Invalid push direction." << std::endl;
+            return;
+    }
+    pengo->GetGameObject()->GetComponent<fovy::SpriteRenderer>()->PlayAnimation(direction);
+    m_pushDuration = pengo->GetGameObject()->GetComponent<fovy::SpriteRenderer>()->GetCurrentAnimationDuration();
+
+    if (m_validPush) {
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/Sounds/push_ice_block.wav", 0.05f, 0);
+    }
 }
 
 void pengo::PengoPushState::Exit(PengoComponent*) {
 }
 
 std::unique_ptr<pengo::PengoState> pengo::PengoPushState::Update(pengo::PengoComponent*) {
-    return std::make_unique<PengoIdleState>();
+    if (!m_validPush) {
+        return std::make_unique<PengoIdleState>();
+    }
+    m_pushTimer += static_cast<float>(fovy::Time::GetInstance().DeltaTime());
+    if (m_pushTimer >= m_pushDuration) {
+        return std::make_unique<PengoIdleState>();
+    }
+
+    return nullptr;
 }
 
 std::unique_ptr<pengo::PengoState> pengo::PengoPushState::OnMove(pengo::PengoComponent*, glm::ivec2) {

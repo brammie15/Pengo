@@ -3,14 +3,14 @@
 #include <fstream>
 #include <iostream>
 
-#include "Tile/IceBlockComponent.h"
+#include <random>
 #include "../../Minigin/Components/SpriteRenderer.h"
-#include "Tile/TileComponent.h"
 #include "Managers/Renderer.h"
 #include "Managers/ResourceManager.h"
 #include "ObjectModel/GameObject.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneManager.h"
+#include "Tile/IceBlockComponent.h"
 
 GridComponent::GridComponent(fovy::GameObject& pParent, glm::ivec2 size, const glm::vec2 gridSize): Component{pParent, "GridComponent"} {
     this->m_width = size.x;
@@ -38,7 +38,9 @@ bool GridComponent::IsOccupied(const glm::ivec2& pos) const {
 bool GridComponent::IsWalkable(const glm::ivec2 vec) const { return grid[vec.x][vec.y].walkable; }
 
 void GridComponent::SetOccupant(const glm::ivec2& pos, fovy::GameObject* object) {
-    grid[pos.x][pos.y].occupant = object;
+    if (this->IsWithinBounds(pos)) {
+        grid[pos.x][pos.y].occupant = object;
+    }
 }
 
 glm::vec3 GridComponent::WorldPositionFromGrid(const glm::ivec2& pos) const {
@@ -54,6 +56,10 @@ glm::ivec2 GridComponent::GridPositionFromWorld(const glm::vec3& pos) const {
 }
 
 void GridComponent::LoadLevel(const std::string& filename) {
+    m_infestedTiles.clear();
+    m_playerSpawns.clear();
+
+
     std::ifstream inFile("Data/" + filename);
     if (!inFile) {
         std::cerr << "Failed to open level file: " << filename << std::endl;
@@ -86,8 +92,11 @@ void GridComponent::LoadLevel(const std::string& filename) {
                 case 1: {
                     toAddTiles.push_back(cellPos);
                     break;
+                case 2:
+                    m_playerSpawns.push_back(cellPos);
+                    break;
                 case 4:
-                    toAddDiamondBlocks.push_back(cellPos);
+                    toAddDiamondBlocks.emplace_back(cellPos);
                     break;
                 }
                 default:
@@ -104,35 +113,49 @@ void GridComponent::LoadLevel(const std::string& filename) {
     inFile.close();
     auto& sm = fovy::SceneManager::GetInstance();
 
-    for (auto tilePos: toAddTiles) {
-        auto tileObject = std::make_shared<fovy::GameObject>("Tile");
-        [[maybe_unused]] auto tileComponent = tileObject->AddComponent<TileComponent>(this, tilePos);
-        [[maybe_unused]] auto iceBlockComponent = tileObject->AddComponent<pengo::IceBlockComponent>(this);
-        auto tileSprite = tileObject->AddComponent<fovy::SpriteRenderer>();
+    //Select 3 random tiles from the vevtor, than remove them from the vector
+
+    auto spawnTile = [&](glm::ivec2 pos, bool hasEgg, bool isDiamond) -> pengo::IceBlockComponent* {
+        const auto tileObject = std::make_shared<fovy::GameObject>("Tile");
+        tileObject->GetTransform().SetWorldPosition(WorldPositionFromGrid(pos));
+        // const auto tileComponent = tileObject->AddComponent<TileComponent>(this, pos);
+        tileObject->AddComponent<pengo::IceBlockComponent>(this, isDiamond, hasEgg);
+        const auto tileSprite = tileObject->AddComponent<fovy::SpriteRenderer>();
         tileSprite->SetTexture("PengoBlocks.png");
-        tileSprite->SetTileIndex(0);
+        tileSprite->SetTileIndex(isDiamond ? 9 : 0);
 
         tileSprite->AddAnimation("break", {28,29,30,31,32,33,34, 35}, 0.05f, false);
+        tileSprite->AddAnimation("egg_flash", {0, 1, 0, 1, 0, 1, 0}, 0.5f, false);
+        tileSprite->AddAnimation("egg_break", {28,29,30,31,32,33,34,35, 36, 36, 45, 46, 47 }, 0.05f, false);
 
         tileSprite->GetTransform().SetParent(&this->GetGameObject()->GetTransform());
 
-
         sm.GetCurrentScene().Add(tileObject);
+
+        // return tileComponent;
+
+        return tileObject->GetComponent<pengo::IceBlockComponent>();
+    };
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::ranges::shuffle(toAddTiles, gen);
+
+    std::vector<glm::ivec2> selectedTiles(3);
+    std::copy_n(toAddTiles.begin(), 3, selectedTiles.begin());
+    toAddTiles.erase(toAddTiles.begin(), toAddTiles.begin() + 3);
+
+    for (auto tilePos: toAddTiles) {
+        spawnTile(tilePos, false, false);
+    }
+
+    for (auto tilePos: selectedTiles) {
+        auto* tile = spawnTile(tilePos, true, false);
+        m_infestedTiles.push_back(tile);
     }
 
     for (auto diamondPos: toAddDiamondBlocks) {
-        auto tileObject = std::make_shared<fovy::GameObject>("DiamondBlock");
-        [[maybe_unused]] auto tileComponent = tileObject->AddComponent<TileComponent>(this, diamondPos);
-        [[maybe_unused]] auto iceBlockComponent = tileObject->AddComponent<pengo::IceBlockComponent>(this, true);
-        auto tileSprite = tileObject->AddComponent<fovy::SpriteRenderer>();
-        tileSprite->SetTexture("PengoBlocks.png");
-        tileSprite->SetTileIndex(9);
-
-        // tileSprite->AddAnimation("break", {28,29,30,31,32,33,34, 35}, 0.05f, false);
-
-        tileSprite->GetTransform().SetParent(&this->GetGameObject()->GetTransform());
-
-        sm.GetCurrentScene().Add(tileObject);
+        spawnTile(diamondPos, false, true);
     }
 
     std::cout << "Added all tiles" << std::endl;

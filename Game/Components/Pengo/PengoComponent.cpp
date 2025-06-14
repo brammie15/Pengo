@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Direction.h"
+#include "GameController.h"
 #include "PengoStates.h"
 #include "Timer.h"
 #include "../Tile/IceBlockComponent.h"
@@ -27,8 +28,10 @@ pengo::PengoComponent::PengoComponent(fovy::GameObject& parent, GridComponent* g
     m_CurrentState = std::make_unique<PengoIdleState>();
     m_CurrentState->Enter(this);
 
-    const glm::vec2 gridPos = m_pGrid->WorldPositionFromGrid({0,0});
-    GetGameObject()->GetTransform().SetLocalPosition(glm::vec3(gridPos, 0.0f));
+
+
+    const glm::vec2 gridPos = m_pGrid->WorldPositionFromGrid(this->GetTransform().GetWorldPosition());
+    grid->SetOccupant(gridPos, this->GetGameObject());
 }
 
 void pengo::PengoComponent::Update() {
@@ -70,6 +73,8 @@ void pengo::PengoComponent::ImGuiInspector() {
 }
 
 void pengo::PengoComponent::Move(fovy::Direction direction) {
+    if (!GameController::GetInstance().IsGameStarted()) return;
+
     if (direction != fovy::Direction::None) {
         switch (direction) {
             case fovy::Direction::Up:

@@ -21,6 +21,8 @@
 #include <XInput.h>
 
 #include "GameCommands.h"
+#include "GameController.h"
+#include "Prefabs.h"
 #include "ServiceLocator.h"
 #include "Audio/SDLSoundSystem.h"
 #include "Components/FPSComponent.h"
@@ -28,9 +30,12 @@
 #include "Components/Pengo/PengoComponent.h"
 #include "../Minigin/Components/SpriteRenderer.h"
 #include "../Minigin/Components/TextComponent.h"
+#include "Components/EggDisplay.h"
+#include "Components/MainGameController.h"
 #include "Components/ScoreScreenManager.h"
 #include "Components/TextureComponent.h"
 #include "Components/SnoBee/SnoBeeComponent.h"
+#include "Components/SnoBee/SnoBeeController.h"
 #include "Components/Tile/TileComponent.h"
 #include "Components/UI/LetterRoller.h"
 #include "Components/UI/MainMenuUiManager.h"
@@ -57,34 +62,7 @@ constexpr std::array Directions{
     fovy::Direction::Right
 };
 
-fovy::GameObject *CreateLetterRoller(fovy::Scene* scene, fovy::GameObject* canvas, glm::vec3 position, std::shared_ptr<fovy::Font> font, const std::string& name) {
-    const auto letterObject = std::make_shared<fovy::GameObject>(name);
-    const auto letterTextObject = std::make_shared<fovy::GameObject>(name + "Text");
-    letterTextObject->AddComponent<fovy::TextComponent>("A", font);
 
-    letterTextObject->GetTransform().SetParent(&letterObject->GetTransform());
-    letterTextObject->GetTransform().SetLocalPosition(glm::vec3(18, 30, 0));
-
-    letterObject->GetTransform().SetParent(&canvas->GetTransform());
-    [[maybe_unused]] auto letter1Text = letterObject->AddComponent<pengo::LetterRoller>();
-    letterObject->GetTransform().SetWorldPosition(position);
-
-    scene->Add(letterObject);
-    scene->Add(letterTextObject);
-
-    return letterObject.get();
-}
-
-
-void AddButtonToCanvas(
-    const std::shared_ptr<fovy::GameObject>& button,
-    const std::shared_ptr<fovy::GameObject>& canvas,
-    const glm::vec3& position) {
-    glm::vec2 buttonSize = button->GetComponent<fovy::TextComponent>()->GetSize();
-    // Adjust the position to center the button on the canvas
-    button->GetTransform().SetLocalPosition(glm::vec3(position.x - buttonSize.x / 2, position.y - buttonSize.y / 2, position.z));
-    button->GetTransform().SetParent(&canvas->GetTransform());
-}
 
 void load() {
     const auto windowSize = glm::vec2(224.f * 3.f, 288.f * 3.f); //TODO: make this global
@@ -100,7 +78,6 @@ void load() {
 
     mainMenuScene.Add(pengoLogo);
 
-
     auto copyrightText = std::make_shared<fovy::GameObject>("CopyrightText");
     copyrightText->AddComponent<fovy::TextComponent>("Bram Verhulst - 2025", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
     copyrightText->GetTransform().SetWorldPosition(glm::vec3(150, windowSize.y - 50, 0));
@@ -110,6 +87,10 @@ void load() {
     auto MainCanvas = std::make_shared<fovy::GameObject>("MainCanvas");
     auto canvasComponent = MainCanvas->AddComponent<fovy::Canvas>();
 
+    canvasComponent->GetOnFocusChanged().AddListener([canvasComponent] (fovy::GameObject*) {
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/swipe.wav", 0.2f, 0);
+    });
+
     auto OnePlayerButton = std::make_shared<fovy::GameObject>("1PlayerButton");
     auto buttonComponent = OnePlayerButton->AddComponent<fovy::Button>("1P Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
@@ -118,23 +99,36 @@ void load() {
     auto mainUiManager = MMMObject->AddComponent<pengo::MainMenuUiManager>();
 
 
-    buttonComponent->GetClickEvent().AddListener([mainUiManager]() {
+    buttonComponent->GetClickEvent().AddListener([mainUiManager, &mainMenuScene]() {
+        pengo::GameController::GetInstance().SetGameMode(pengo::GameMode::Singleplayer);
         mainUiManager->OnStartGame();
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/click.wav", 0.2f, 0);
     });
+
 
     mainMenuScene.Add(MMMObject);
 
-    AddButtonToCanvas(OnePlayerButton, MainCanvas, glm::vec3(265, 515, 0));
+    pengo::AddButtonToCanvas(OnePlayerButton, MainCanvas, glm::vec3(265, 515, 0));
 
     auto TwoPlayerButton = std::make_shared<fovy::GameObject>("2PlayerButton");
     [[maybe_unused]] auto button2Component = TwoPlayerButton->AddComponent<fovy::Button>("2P Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
-    AddButtonToCanvas(TwoPlayerButton, MainCanvas, glm::vec3(265, 615, 0));
+    pengo::AddButtonToCanvas(TwoPlayerButton, MainCanvas, glm::vec3(265, 615, 0));
+
+    button2Component->GetClickEvent().AddListener([mainUiManager]() {
+        pengo::GameController::GetInstance().SetGameMode(pengo::GameMode::Multiplayer);
+        mainUiManager->OnStartGame();
+    });
 
     auto VersusButton = std::make_shared<fovy::GameObject>("Versus Mode");
     [[maybe_unused]] auto button3Component = VersusButton->AddComponent<fovy::Button>("Versus Mode", fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20));
 
-    AddButtonToCanvas(VersusButton, MainCanvas, glm::vec3(227, 715, 0));
+    pengo::AddButtonToCanvas(VersusButton, MainCanvas, glm::vec3(227, 715, 0));
+
+    button3Component->GetClickEvent().AddListener([mainUiManager]() {
+        pengo::GameController::GetInstance().SetGameMode(pengo::GameMode::Versus);
+        mainUiManager->OnStartGame();
+    });
 
 
     auto DancingPengo = std::make_shared<fovy::GameObject>("DancingPengo");
@@ -218,20 +212,20 @@ void load() {
     // go->AddComponent<fovy::TextureComponent>(fovy::ResourceManager::GetInstance().LoadTexture("background.tga"));
     // scene.Add(go);
 
-    const auto testBackground = std::make_shared<fovy::GameObject>("TestBackground");
-    auto backgroundTexture = fovy::ResourceManager::GetInstance().LoadTexture("screenshot.png");
-    testBackground->AddComponent<fovy::TextureComponent>(backgroundTexture);
-
-    testBackground->GetTransform().SetLocalScale(glm::vec3(1, 0.950, 1));
-
-    //Center the background
-    glm::vec2 textureSize = backgroundTexture->GetSize();
-    glm::vec2 bgOffset = {textureSize.x / 2.f, textureSize.y / 2.f};
-    bgOffset.x = (windowSize.x / 2.f) - bgOffset.x;
-    bgOffset.y = (windowSize.y / 2.f) - bgOffset.y;
-    testBackground->GetTransform().SetLocalPosition({bgOffset.x, bgOffset.y, 0.f});
-
-    scene.Add(testBackground);
+    // const auto testBackground = std::make_shared<fovy::GameObject>("TestBackground");
+    // auto backgroundTexture = fovy::ResourceManager::GetInstance().LoadTexture("screenshot.png");
+    // testBackground->AddComponent<fovy::TextureComponent>(backgroundTexture);
+    //
+    // testBackground->GetTransform().SetLocalScale(glm::vec3(1, 0.950, 1));
+    //
+    // //Center the background
+    // glm::vec2 textureSize = backgroundTexture->GetSize();
+    // glm::vec2 bgOffset = {textureSize.x / 2.f, textureSize.y / 2.f};
+    // bgOffset.x = (windowSize.x / 2.f) - bgOffset.x;
+    // bgOffset.y = (windowSize.y / 2.f) - bgOffset.y;
+    // testBackground->GetTransform().SetLocalPosition({bgOffset.x, bgOffset.y, 0.f});
+    //
+    // scene.Add(testBackground);
 
     const auto fpsGameobject = std::make_shared<fovy::GameObject>("FpsText");
     const auto textComponent = fpsGameobject->AddComponent<fovy::TextComponent>("", font);
@@ -259,11 +253,9 @@ void load() {
     gridComponent->LoadLevel("level1.txt");
     std::cout << "Ending load" << std::endl;
 
-
     scene.Add(mainGridObject);
 
     auto Player1 = std::make_shared<fovy::GameObject>("Player1");
-
 
     auto playerSprite = Player1->AddComponent<fovy::SpriteRenderer>();
     playerSprite->SetTexture("playerSpritesheet.png");
@@ -274,12 +266,21 @@ void load() {
     playerSprite->AddAnimation("idle_left", {3}, 0.5f);
     playerSprite->AddAnimation("idle_right", {7}, 0.5f);
 
-    playerSprite->AddAnimation("walk_up", {4, 5}, 0.5f, true);
-    playerSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
-    playerSprite->AddAnimation("walk_left", {2, 3}, 0.5f, true);
-    playerSprite->AddAnimation("walk_right", {7, 6}, 0.5f, true);
+    playerSprite->AddAnimation("walk_up", {4, 5, 4, 5}, 1.f, true);
+    playerSprite->AddAnimation("walk_down", {8, 9, 8, 9}, 1.f, true);
+    playerSprite->AddAnimation("walk_left", {2, 3, 2, 3}, 1.0f, true);
+    playerSprite->AddAnimation("walk_right", {7, 6, 7, 6}, 1.0f, true);
+
+    playerSprite->AddAnimation("push_left", {10, 11}, 0.1f, false);
+    playerSprite->AddAnimation("push_right", {14, 15}, 0.1f, true);
+    playerSprite->AddAnimation("push_up", {4, 5}, 0.1f, true);
+    playerSprite->AddAnimation("push_down", {8, 9}, 0.1f, true);
+
 
     playerSprite->PlayAnimation("idle_up");
+
+    glm::ivec2 spawnPos = gridComponent->GetPlayerSpawns()[0];
+    Player1->GetTransform().SetWorldPosition(gridComponent->WorldPositionFromGrid(spawnPos));
 
     auto playerComponent = Player1->AddComponent<pengo::PengoComponent>(gridComponent);
 
@@ -343,24 +344,35 @@ void load() {
 
     scene.Add(rightWallObject);
 
+    std::map<fovy::Direction, fovy::GameObject*> wallObjects{
+        {fovy::Direction::Up, topWallObject.get()},
+        {fovy::Direction::Down, bottomWallObject.get()},
+        {fovy::Direction::Left, leftWallObject.get()},
+        {fovy::Direction::Right, rightWallObject.get()}
+    };
+
     playerComponent->GetWallPushEvent().AddListener([topWallObject] (fovy::Direction dir) {
         if (dir != fovy::Direction::Up) return;
         topWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/Sounds/push_wall.wav", 0.2f, 0);
     });
 
     playerComponent->GetWallPushEvent().AddListener([bottomWallObject] (fovy::Direction dir) {
-       if (dir != fovy::Direction::Down) return;
-       bottomWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+        if (dir != fovy::Direction::Down) return;
+        bottomWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/Sounds/push_wall.wav", 0.2f, 0);
     });
 
     playerComponent->GetWallPushEvent().AddListener([leftWallObject] (fovy::Direction dir) {
         if (dir != fovy::Direction::Left) return;
         leftWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/Sounds/push_wall.wav", 0.2f, 0);
     });
 
     playerComponent->GetWallPushEvent().AddListener([rightWallObject] (fovy::Direction dir) {
         if (dir != fovy::Direction::Right) return;
         rightWallObject->GetComponent<fovy::SpriteRenderer>()->PlayAnimation("shake", true);
+        fovy::ServiceLocator<fovy::ISoundSystem>::GetService().PlayAsync("Data/Sounds/push_wall.wav", 0.2f, 0);
     });
 
     // auto tileObject = std::make_shared<fovy::GameObject>("Tile");
@@ -370,81 +382,97 @@ void load() {
     // tileSprite->SetTileIndex(0);
 
     // scene.Add(tileObject);
+    //
+    // auto testSnoBee = std::make_shared<fovy::GameObject>("TestSnoBee");
+    // auto snoBeeSprite = testSnoBee->AddComponent<fovy::SpriteRenderer>();
+    // snoBeeSprite->SetTexture("PengoSnoBee.png");
+    // snoBeeSprite->SetTileIndex(0);
+    // snoBeeSprite->AddAnimation("spawn", {0, 1, 2, 3, 4, 5}, 0.2f, false);
+    // snoBeeSprite->AddAnimation("idle_down", {9}, 0.5f, true);
+    // snoBeeSprite->AddAnimation("idle_left", {11}, 0.5f, true);
+    // snoBeeSprite->AddAnimation("idle_up", {13}, 0.5f, true);
+    // snoBeeSprite->AddAnimation("idle_right", {15}, 0.5f, true);
+    //
+    // snoBeeSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
+    // snoBeeSprite->AddAnimation("walk_left", {10, 11}, 0.5f, true);
+    // snoBeeSprite->AddAnimation("walk_up", {12, 13}, 0.5f, true);
+    // snoBeeSprite->AddAnimation("walk_right", {14, 15}, 0.5f, true);
+    //
+    //
+    // auto snoBeeComponent = testSnoBee->AddComponent<pengo::SnoBeeComponent>(gridComponent, glm::vec2{0.f, 2.f});
+    //
+    // auto controller = testSnoBee->AddComponent<pengo::SnoBeeController>(gridComponent);
+    // controller->SetTarget(Player1.get());
+    // scene.Add(testSnoBee);
 
-    auto testSnoBee = std::make_shared<fovy::GameObject>("TestSnoBee");
-    auto snoBeeSprite = testSnoBee->AddComponent<fovy::SpriteRenderer>();
-    snoBeeSprite->SetTexture("PengoSnoBee.png");
-    snoBeeSprite->SetTileIndex(0);
-    snoBeeSprite->AddAnimation("spawn", {0, 1, 2, 3, 4, 5}, 0.2f, false);
-    snoBeeSprite->AddAnimation("idle_down", {9}, 0.5f, true);
-    snoBeeSprite->AddAnimation("idle_left", {11}, 0.5f, true);
-    snoBeeSprite->AddAnimation("idle_up", {13}, 0.5f, true);
-    snoBeeSprite->AddAnimation("idle_right", {15}, 0.5f, true);
-
-    snoBeeSprite->AddAnimation("walk_down", {8, 9}, 0.5f, true);
-    snoBeeSprite->AddAnimation("walk_left", {10, 11}, 0.5f, true);
-    snoBeeSprite->AddAnimation("walk_up", {12, 13}, 0.5f, true);
-    snoBeeSprite->AddAnimation("walk_right", {14, 15}, 0.5f, true);
-
-
-    auto snoBeeComponent = testSnoBee->AddComponent<pengo::SnoBeeComponent>(gridComponent, glm::vec2{0.f, 2.f});
-
-
-    scene.SetRegisterBindings([playerComponent, snoBeeComponent]() {
-        for (int index{0}; index < KeyboardInputs.size(); ++index) {
-            const auto& input = KeyboardInputs[index];
-            auto dir = Directions[index];
-
-            fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
-                input,
-                fovy::ButtonState::Down,
-                playerComponent,
-                dir
-            );
-
-            fovy::InputManager::GetInstance().AddCommand<PlayerMoveCommand>(
-                input,
-                fovy::ButtonState::Released,
-                playerComponent,
-                fovy::Direction::None
-            );
+    std::vector<glm::ivec2> randomEnemyPositions(3);
+    //3 random positions in the grid
+    for (int i = 0; i < randomEnemyPositions.size(); ++i) {
+        bool foundPosition = false;
+        glm::ivec2 randomPos{};
+        while (!foundPosition) {
+            randomPos = glm::ivec2{
+                rand() % gridComponent->GetWidth(),
+                rand() % gridComponent->GetHeight()
+            };
+            if (!gridComponent->IsOccupied(randomPos)) {
+                randomEnemyPositions[i] = randomPos;
+                foundPosition = true;
+            }
         }
+        randomEnemyPositions[i] = randomPos;
+    }
 
-        fovy::InputManager::GetInstance().AddCommand<PlayerPushCommand>(
-            InputAction{{SDL_SCANCODE_SPACE}, {SDL_CONTROLLER_BUTTON_A}},
-            fovy::ButtonState::Pressed,
-            playerComponent
-        );
+    for (auto pos : randomEnemyPositions) {
+        pengo::AddEnemy(&scene, gridComponent, pos, "SnoBee1");
+    }
 
-        const std::array testInputs{
-            InputAction{{SDL_SCANCODE_I, SDL_SCANCODE_UP}, {}},
-            InputAction{{SDL_SCANCODE_J, SDL_SCANCODE_LEFT}, {{}}},
-            InputAction{{SDL_SCANCODE_K, SDL_SCANCODE_DOWN}, {{}}},
-            InputAction{{SDL_SCANCODE_L, SDL_SCANCODE_RIGHT}, {{}}},
-        };
 
-        for (int index{0}; index < KeyboardInputs.size(); ++index) {
-            const auto& input = testInputs[index];
-            auto dir = Directions[index];
 
-            fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
-                input,
-                fovy::ButtonState::Down,
-                snoBeeComponent,
-                dir
-            );
+    auto scoreFont = fovy::ResourceManager::GetInstance().LoadFont("pengo-arcade.otf", 20);
 
-            fovy::InputManager::GetInstance().AddCommand<SnoBeeMoveCommand>(
-                input,
-                fovy::ButtonState::Released,
-                snoBeeComponent,
-                fovy::Direction::None
-            );
-        }
+    auto ScoreDisplay = std::make_shared<fovy::GameObject>("ScoreDisplay");
+    auto scoreTextComponent = ScoreDisplay->AddComponent<fovy::TextComponent>("1P: 0", scoreFont);
+    scoreTextComponent->SetColor(SDL_Color(0, 255, 255, 255));
+    ScoreDisplay->GetTransform().SetLocalPosition(glm::vec3(40, 4, 0));
+
+    pengo::GameController::GetInstance().GetOnScoreChangedEvent().AddListener([scoreTextComponent] (int score) {
+        scoreTextComponent->SetText("1P: " + std::to_string(score));
+    });
+
+    scene.Add(ScoreDisplay);
+
+    auto eggCounter = std::make_shared<fovy::GameObject>("EggCounter");
+    auto eggCounterComponent = eggCounter->AddComponent<pengo::EggDisplay>();
+
+    eggCounter->GetTransform().SetWorldPosition(glm::vec3(280, 50, 0));
+
+    scene.Add(eggCounter);
+
+    scene.SetRegisterBindings([playerComponent]() {
+
+    });
+    auto mainGameManager = std::make_shared<fovy::GameObject>("MainGameManager");
+    auto gameController = mainGameManager->AddComponent<pengo::MainGameController>(playerComponent, gridComponent, nullptr, wallObjects);
+
+    pengo::GameController::GetInstance().SetMainGameController(gameController);
+
+    scene.Add(mainGameManager);
+
+    for (auto infested_tile : gridComponent->GetInfestedTiles()) {
+        gameController->AddInftestedtile(infested_tile);
+    }
+
+    gameController->GetOnInfestedTilesChange().AddListener([eggCounterComponent](int eggCount) {
+        eggCounterComponent->UpdateEggCount(eggCount);
     });
 
 
-    scene.Add(testSnoBee); {
+    scene.OnSceneLoaded.AddListener([gameController, gridComponent]() {
+        gameController->SetupBindings(gridComponent);
+    });
+
+    {
         auto& scoreScene = fovy::SceneManager::GetInstance().CreateScene("Score");
 
         auto scoreCanvas = std::make_shared<fovy::GameObject>("ScoreCanvas");
@@ -468,9 +496,9 @@ void load() {
         scoreScene.Add(EnterNameObject);
 
 
-        auto* roller1 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(150, 500, 0), letterRollerFont, "Letter1");
-        auto* roller2 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(250, 500, 0), letterRollerFont, "Letter2");
-        auto* roller3 = CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(350, 500, 0), letterRollerFont, "Letter3");
+        auto* roller1 = pengo::CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(150, 500, 0), letterRollerFont, "Letter1");
+        auto* roller2 = pengo::CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(250, 500, 0), letterRollerFont, "Letter2");
+        auto* roller3 = pengo::CreateLetterRoller(&scoreScene, scoreCanvas.get(), glm::vec3(350, 500, 0), letterRollerFont, "Letter3");
 
         auto scoreScreenManager = std::make_shared<fovy::GameObject>("ScoreScreenManager");
         auto scoreCanvasManager = scoreScreenManager->AddComponent<pengo::ScoreScreenManager>(std::array{
@@ -531,7 +559,7 @@ void load() {
             );
         });
     }
-    fovy::SceneManager::GetInstance().SwitchScene(1);
+    fovy::SceneManager::GetInstance().SwitchScene(0);
 }
 
 int main(int, char*[]) {

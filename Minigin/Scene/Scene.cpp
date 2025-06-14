@@ -37,6 +37,7 @@ void Scene::RemoveAll() {
 }
 
 void Scene::Load() {
+    OnSceneLoaded.Invoke();
     if (m_registerBindings) {
         m_registerBindings();
     }
@@ -106,6 +107,7 @@ void Scene::RenderImgui() {
     if (m_ShowDemoWindow) {
         ImGui::ShowDemoWindow();
     }
+
     ImGui::Begin(std::string("Scene: " + m_name).c_str());
     ImGui::SetWindowSize(ImVec2{500, 600});
 

@@ -49,6 +49,8 @@ namespace fovy {
                           [&action](const InputBinding& binding) { return binding.action == action; });
         }
 
+        void RemoveAllBindings();
+
     private:
         void HandleControllerInput();
         void HandleKeyboardHeld();

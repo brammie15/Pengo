@@ -23,11 +23,18 @@ namespace pengo {
         void ImGuiInspector() override;
 
 
-        glm::vec2 GetCurrentDirection() const { return m_direction; }
+        [[nodiscard]] glm::vec2 GetCurrentDirection() const { return m_direction; }
         void SetCurrentDirection(const glm::vec2& direction) { m_direction = direction; }
 
         void Move(fovy::Direction direction);
         void Push();
+        void BreakIce(fovy::Direction direction);
+
+        [[nodiscard]] bool IsCaught() const { return m_caught; }
+        void SetCaught(bool caught) { m_caught = caught; }
+
+        [[nodiscard]] fovy::SpriteRenderer* GetSpriteRenderer() const { return m_spriteRenderer; }
+
     private:
         GridComponent* m_pGrid{ nullptr };
 
@@ -36,6 +43,8 @@ namespace pengo {
         std::unique_ptr<pengo::SnoBeeState> m_CurrentState{ nullptr };
 
         fovy::SpriteRenderer* m_spriteRenderer;
+
+        bool m_caught{ false };
     };
 }
 

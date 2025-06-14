@@ -6,8 +6,12 @@
 #include <vector>
 
 #include "Direction.h"
-#include "Event.h"
 #include "ObjectModel/Component.h"
+
+
+namespace pengo {
+    class IceBlockComponent;
+}
 
 class GridComponent final: public fovy::Component {
 public:
@@ -40,13 +44,20 @@ public:
     [[nodiscard]] const glm::vec2& GetCellSize() const { return m_cellSize; }
     void LoadLevel(const std::string& levelFile);
 
+    const std::vector<glm::ivec2>& GetPlayerSpawns() const { return m_playerSpawns; }
+    const std::vector<pengo::IceBlockComponent*>& GetInfestedTiles() const { return m_infestedTiles; }
+
 private:
+    std::vector<glm::ivec2> m_playerSpawns{};
     std::vector<std::vector<Cell>> grid{};
     int m_width{-1};
     int m_height{-1};
     glm::vec2 m_cellSize{1, 1};
 
     bool m_renderDebugGrid{true};
+
+    std::vector<pengo::IceBlockComponent*> m_infestedTiles{};
+
 };
 
 #endif //GRIDCOMPONENT_H

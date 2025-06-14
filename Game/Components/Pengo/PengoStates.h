@@ -68,6 +68,8 @@ namespace pengo {
 
     private:
         bool m_validPush{ false };
+        float m_pushDuration{ 0.0f };
+        float m_pushTimer{ 0.0f };
     };
 }
 
